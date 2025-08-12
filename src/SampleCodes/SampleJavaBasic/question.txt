@@ -1,0 +1,26 @@
+package org.csystem.app;
+
+class App {
+    public static void main(String[] args)
+    {
+        X.foo(10);
+    }
+}
+
+class X {
+    public static void foo(int a)
+    {
+        System.out.println("foo, int");
+    }
+
+    public static void foo(Integer a)
+    {
+        System.out.println("foo, Integer");
+    }
+}
+
+/*
+1. Sentaks hatasıdır
+2. foo, int yazılır
+3. foo, Integer yazılır
+ */

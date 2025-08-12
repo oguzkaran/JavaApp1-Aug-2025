@@ -1,0 +1,20 @@
+class Sample<T> {
+    public static T a;
+    //...
+}
+
+class App {
+    public static void main(String [] args)
+    {
+        Sample.a = 10;
+        Sample.a = "Ali";
+
+        System.out.println(Sample.a);
+    }
+}
+
+1. Error oluşur ....
+2. Derlenir ekrana Ali yazısı basılır
+3. Derlenir ekrana 10 yazısı basılır
+4. Hiçbiri. ...
+
