@@ -46,6 +46,8 @@
             <groupId>org.csystem</groupId>
             <artifactId>org-csystem-math</artifactId>
             <version>1.0.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/org-csystem-math-1.0.0.jar</systemPath>
         </dependency>
     </dependencies>
 

@@ -12,9 +12,9 @@
     </parent>
 
     <groupId>org.csystem</groupId>
-    <artifactId>Sample</artifactId>
+    <artifactId>SampleApp</artifactId>
     <version>1.0.0</version>
-    <name>Sample</name>
+    <name>SampleApp</name>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -32,19 +32,13 @@
 
         <dependency>
             <groupId>org.csystem</groupId>
-            <artifactId>org-csystem-util</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.karandev</groupId>
-            <artifactId>com-karandev-util-console</artifactId>
+            <artifactId>LibraryUser</artifactId>
             <version>1.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.csystem</groupId>
-            <artifactId>org-csystem-math</artifactId>
+            <artifactId>LibraryUsed</artifactId>
             <version>1.0.0</version>
         </dependency>
     </dependencies>
@@ -54,9 +48,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <includeSystemScope>true</includeSystemScope>
-                </configuration>
             </plugin>
         </plugins>
     </build>

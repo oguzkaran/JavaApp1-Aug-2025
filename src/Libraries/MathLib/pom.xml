@@ -7,18 +7,18 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.0</version>
+        <version>3.5.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
     <groupId>org.csystem</groupId>
-    <artifactId>Sample</artifactId>
+    <artifactId>org-csystem-math</artifactId>
     <version>1.0.0</version>
-    <name>Sample</name>
+    <name>org-csystem-math</name>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -29,34 +29,14 @@
             <version>1.18.34</version>
             <scope>provided</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.csystem</groupId>
-            <artifactId>org-csystem-util</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.karandev</groupId>
-            <artifactId>com-karandev-util-console</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.csystem</groupId>
-            <artifactId>org-csystem-math</artifactId>
-            <version>1.0.0</version>
-        </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <includeSystemScope>true</includeSystemScope>
-                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.2</version>
             </plugin>
         </plugins>
     </build>
