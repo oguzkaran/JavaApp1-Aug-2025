@@ -37,6 +37,16 @@
       <option name="url" value="https://raw.github.com/oguzkaran/javaapp1-mar-2023-maven-repo/main" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="javaapp1-aug-2025-maven-repo" />
+      <option name="name" value="javaapp1-aug-2025-maven-repo" />
+      <option name="url" value="https://raw.github.com/oguzkaran/javaapp1-aug-2025-maven-repo/main" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="javaapp1-aug-2025-karandev-maven-repo" />
+      <option name="name" value="javaapp1-aug-2025-karandev-maven-repo" />
+      <option name="url" value="https://raw.github.com/oguzkaran/javaapp1-aug-2025-karandev-maven-repo/main" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="javaapp1-mar-2023-karandev-maven-repo" />
       <option name="name" value="javaapp1-mar-2023-karandev-maven-repo" />
       <option name="url" value="https://raw.github.com/oguzkaran/javaapp1-mar-2023-karandev-maven-repo/main" />
