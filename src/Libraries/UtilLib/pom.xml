@@ -23,6 +23,18 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>javaapp1-aug-2025-maven-repo</id>
+            <url>https://raw.github.com/oguzkaran/javaapp1-aug-2025-maven-repo/main</url>
+        </repository>
+
+        <repository>
+            <id>javaapp1-aug-2025-karandev-maven-repo</id>
+            <url>https://raw.github.com/oguzkaran/javaapp1-aug-2025-karandev-maven-repo/main</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -31,7 +43,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
