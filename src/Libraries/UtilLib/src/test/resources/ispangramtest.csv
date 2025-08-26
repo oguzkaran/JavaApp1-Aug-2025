@@ -1,0 +1,5 @@
+input1, input2,expected
+12345678,1234,true
+123456,654321,true
+abcdef,fadcbe,true
+1235678,1234,false

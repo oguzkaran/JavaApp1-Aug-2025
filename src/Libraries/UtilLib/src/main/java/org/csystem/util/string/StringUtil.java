@@ -1,7 +1,7 @@
 /**
  * Utility class for string operations
- * Last Update: 3rd June 2025
- * @author Java-Jan-2024 Group
+ * Last Update: 26th August 2025
+ * @author JavaApp1-Aug-2025 Group
  */
 package org.csystem.util.string;
 
@@ -128,14 +128,18 @@ public final class StringUtil {
 		return true;
 	}
 
+    public static boolean areAllCharactersIn(String text1, String text2)
+    {
+        for (int i = 0; i < text1.length(); ++i)
+            if (text2.indexOf(text1.charAt(i)) == -1)
+                return false;
+
+        return true;
+    }
 
 	public static boolean isPangram(String s, String alphabet)
 	{
-		for (int i = 0; i < alphabet.length(); ++i)
-			if (s.indexOf(alphabet.charAt(i)) == -1)
-				return false;
-
-		return true;
+		return areAllCharactersIn(alphabet, s);
 	}
 
 

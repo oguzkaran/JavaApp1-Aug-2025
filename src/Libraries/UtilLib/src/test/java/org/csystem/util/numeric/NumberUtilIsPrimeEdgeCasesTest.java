@@ -1,6 +1,5 @@
-package org.csystem.numeric;
+package org.csystem.util.numeric;
 
-import org.csystem.util.numeric.NumberUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -8,7 +7,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class IsPrimeEdgeCasesTest {
+public class NumberUtilIsPrimeEdgeCasesTest {
     @ParameterizedTest
     @ValueSource(longs = {-1, 1, 0})
     void testNotPrimes(long val)

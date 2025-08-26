@@ -1,0 +1,6 @@
+input1, input2,expected
+brat, bart, true
+brat,bartu,true
+bartu,brat,false
+1234,234517,true
+234517,1234,false
