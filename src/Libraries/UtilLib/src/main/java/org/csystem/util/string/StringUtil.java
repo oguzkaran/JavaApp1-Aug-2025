@@ -1,6 +1,6 @@
 /**
  * Utility class for string operations
- * Last Update: 26th August 2025
+ * Last Update: 28th August 2025
  * @author JavaApp1-Aug-2025 Group
  */
 package org.csystem.util.string;
@@ -58,7 +58,7 @@ public final class StringUtil {
 		return count;
 	}
 
-	public static String generateRandomText(RandomGenerator randomGenerator, int count, CharSequence charSequence)
+	public static String randomText(RandomGenerator randomGenerator, int count, CharSequence charSequence)
 	{
 		char [] c = new char[count];
 
@@ -68,34 +68,34 @@ public final class StringUtil {
 		return String.valueOf(c);
 	}
 
-	public static String generateRandomTextEN(RandomGenerator randomGenerator, int count)
+	public static String randomTextEN(RandomGenerator randomGenerator, int count)
 	{
-		return generateRandomText(randomGenerator, count, ALL_LETTERS_EN);
+		return randomText(randomGenerator, count, ALL_LETTERS_EN);
 	}
 
-	public static String generateRandomTextTR(RandomGenerator randomGenerator, int count)
+	public static String randomTextTR(RandomGenerator randomGenerator, int count)
 	{
-		return generateRandomText(randomGenerator, count, ALL_LETTERS_TR);
+		return randomText(randomGenerator, count, ALL_LETTERS_TR);
 	}
 
-	public static String [] generateRandomTexts(RandomGenerator randomGenerator, int count, int origin, int bound, CharSequence charSequence)
+	public static String [] randomTexts(RandomGenerator randomGenerator, int count, int origin, int bound, CharSequence charSequence)
 	{
 		String [] str = new String[count];
 
 		for (int i = 0; i < count; ++i)
-			str[i] = generateRandomText(randomGenerator, randomGenerator.nextInt(origin, bound), charSequence);
+			str[i] = randomText(randomGenerator, randomGenerator.nextInt(origin, bound), charSequence);
 
 		return str;
 	}
 
-	public static String [] generateRandomTextsEN(RandomGenerator randomGenerator, int count, int origin, int bound)
+	public static String [] randomTextsEN(RandomGenerator randomGenerator, int count, int origin, int bound)
 	{
-		return generateRandomTexts(randomGenerator, count, origin, bound, ALL_LETTERS_EN);
+		return randomTexts(randomGenerator, count, origin, bound, ALL_LETTERS_EN);
 	}
 
-	public static String [] generateRandomTextsTR(RandomGenerator randomGenerator, int count, int origin, int bound)
+	public static String [] randomTextsTR(RandomGenerator randomGenerator, int count, int origin, int bound)
 	{
-		return generateRandomTexts(randomGenerator, count, origin, bound, ALL_LETTERS_TR);
+		return randomTexts(randomGenerator, count, origin, bound, ALL_LETTERS_TR);
 	}
 
 	public static boolean isPalindrome(CharSequence charSequence)

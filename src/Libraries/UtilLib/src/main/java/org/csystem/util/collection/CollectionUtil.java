@@ -7,8 +7,8 @@ import java.util.random.RandomGenerator;
 
 /**
  * Utility class for collection operations
- * Last Update: 15th May 2025
- * @author Java-Sep-2024 Group
+ * Last Update: 28th August 2025
+ * @author JavaApp1-Aug-2025 Group
  */
 
 public final class CollectionUtil {
@@ -18,10 +18,10 @@ public final class CollectionUtil {
 
     public static ArrayList<String> randomStringListTR(RandomGenerator randomGenerator, int count, int min, int bound)
     {
-        ArrayList<String> list = new ArrayList<>();
+        var list = new ArrayList<String>();
 
-        for (int i = 0; i < count; ++i)
-            list.add(StringUtil.generateRandomTextTR(randomGenerator, randomGenerator.nextInt(min, bound)));
+        for (var i = 0; i < count; ++i)
+            list.add(StringUtil.randomTextTR(randomGenerator, randomGenerator.nextInt(min, bound)));
 
         return list;
     }

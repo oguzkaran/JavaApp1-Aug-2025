@@ -109,11 +109,169 @@ Java'da temel birim testi aracı **JUnit** olsa da Spring gibi popüler framewor
 
 Birim test araçlarının çoğunda kullanılan genel bazı terimler vardır: **setup, teardown, input, expected, actual vb.**
 
+**setup:** Test metodunun çağrılmasından önce yapılması gereken ilk işlemlerdir.
+**teardown:** Test metodunun çağrılmasından sonra yapılması gereken son işlemlerdir.
+**input:** Test yapılacak birimin girdisidir.
+**expected:** Test yapılacak birimin beklenen sonucudur.
+**actual:** Test yapılmış birimden elde edilen sonuçtur.
 
+Şüphesiz her birim için bu kavramların kullanılması gerekmez.
 
+**Anahtar Notlar:** Test işlemlerinde karşılaştığımız önemli iki terim vardır: **Verification & Validation (V&V)**. Verification, yazılmış olan kodun doğru çalışmasıdır. Validation ise kodun doğru işi yapmasıdır.
 
+##### var Değişkenler
 
+`var` sözcüğü Java 10 ile birlikte dile eklenmiştir. `var` sonradan eklendiği için kullanıldığı yere göre değişken ismi veya anahtar sözcük gibi ele alınır. Bu tarz sözcüklere programlamada `contextual keyword` de denildiğini anımsayınız. var yalnızca yerel değişkenlerde ve Java 11 ile birlikte ileride ele alacağımız `lambda ifadeleri` ile birlikte kullanılabilmektedir. var değişkenlerin ilk değerlenmesi (initialization) zorunludur. Derleyici ilk değer olarak verilen ifadenin türüne göre değişkenin türünü tespit eder. Derleyicinin bir değişkenin türünü tespit etmesi kavramına **type inference** ya da **type deduction** denir. var değişkenlerin türleri çalışma zamanında değişmez. Anımsanacağı gibi Java'da bir değişkenin türü hiç bir zaman değişmez.
 
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var a = 10;  
+        var b = 3.4;  
+        var c = "ankara";  
+        var d  = a++;  
+        var e = 3.4F;  
+  
+        Console.writeLine("a = %d, b = %f, c = %s, d = %d, e = %f", a, b, c, d, e);  
+    }  
+}
+```
+
+>Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var a; //error  
+  
+        a = 10;  
+    }  
+}
+```
+
+var değişkenler for döngü deyiminde de kullanılabilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.util.Random;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var random = new Random();  
+        var n = Console.readInt("Input count:");  
+  
+        for (var i = 0; i < n; ++i)  
+            Console.write("%d ", random.nextInt(1, 100));  
+  
+        Console.writeLine();  
+    }  
+}
+```
+
+var değişkenler for-each döngüsünde de kullanılabilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import org.csystem.util.array.ArrayUtil;  
+  
+import java.util.Random;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var random = new Random();  
+        var n = Console.readInt("Input count:");  
+        var a = ArrayUtil.generateRandomArray(random, n, 1, 100);  
+          
+        for (var val : a)  
+            Console.write("%d ", val);  
+  
+        Console.writeLine();  
+    }  
+}
+```
+
+var değişkenler virgül ile ayrılacak şekilde bildirilemez
+
+```java
+package org.csystem.app;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var a = 10, b = 20;   //error
+  
+  
+    }  
+}
+```
+
+var değişkenler mümkün olduğunca kullanılmalıdır. Bu anlamda bazı programcılar temel türler (primitive types) dışında mümkün olduğunca kullanmayı tercih ederler. Biz, tür ne olursa olsun kullanılabildiği her yerde kullanmayı tercih edeceğiz (always applicable).
+
+**Anahtar Notlar:** var değişkenlere ilişkin diğer detaylar konular içerisinde ele alınacaktır.
+
+##### Kodun Çalışma Süresinin Ölçülmesi
+
+Bazen program içerisinde bir kod parçasının (code snippet) ne kadar sürede tamamlandığının ölçülmesi gerekebilir. Bu işlem, kod parçasının başında o an ki zaman bilgisi alınıp, kodun bitiminde de tekrar zaman bilgisi alınarak hesaplanabilir. Bu zaman, takvim zamanı (calendar time) çok hassas işlemlerde kullanılamaz. Bu durumda daha hassas ölçümler yapabilen yine zamana bağlı olarak hesaplanabilen değerler kullanılmalıdır. Bu işlemi yapmanın Java'da birden fazla yolu bulunmaktadır. Ayrıca 3. parti olarak yazılmış kütüphanelerin çeşitli sınıfları da kullanılabilmektedir. Hatta programcı isterse kendisi de böyle bir işlem için sınıf ya da sınıflar yazabilir. Bu 3. parti olarak yazılmış kütüphaneler içerisinde popüler olarak kullanılan iki tanesinde `StopWatch` isimli sınıflar bu işlem için tasarlanmışlardır. Bu popüler kütüphaneler tipik olarak `Google guava` ve `Apache commons` kütüphaneleridir. Aslında bu kütüphanelerde pek çok yardımcı sınıf ve metot da bulunmaktadır
+
+System sınıfının static currentTimeMillis metodu 01.01.1970 00:00:00 UTC (geceyarısı) zamanından (epoch time) çağrıldığı tarih zamana kadar geçen milisaniye sayısına geri döner. Bu durumda süresi ölçülecek kodun başında ve sonunda bu metot çağrılır ve geri döndürdüğü değerlerin farkı alınır ve istenen zaman biriminde hesaplanabilir
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var start = System.currentTimeMillis(); 
+         
+        Console.writeLine(NumberUtil.isPrime(6750161072220585911L) ? "Asal" : "Asal değil");  
+        
+        var end = System.currentTimeMillis();  
+        var seconds = (end - start) / 1000.;  
+  
+        Console.writeLine("Duration:%f", seconds);  
+    }  
+}
+```
+
+System sınıfının static nanoTime metodu currentTimeMillis metodundan görece daha hassas olacak şekilde bir bilgi döndürür. Bu bilgi nano-saniye mertebesindedir. Hassas ölçümlerde bu metodun kullanılması tavsiye edilir. Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var start = System.nanoTime();  
+        
+        Console.writeLine(NumberUtil.isPrime(6750161072220585911L) ? "Asal" : "Asal değil");  
+        
+        var end = System.nanoTime();  
+        var seconds = (end - start) / 1_000_000_000.;  
+  
+        Console.writeLine("Duration:%f", seconds);  
+    }  
+}
+```
 
 
 
