@@ -228,7 +228,7 @@ var değişkenler mümkün olduğunca kullanılmalıdır. Bu anlamda bazı progr
 
 Bazen program içerisinde bir kod parçasının (code snippet) ne kadar sürede tamamlandığının ölçülmesi gerekebilir. Bu işlem, kod parçasının başında o an ki zaman bilgisi alınıp, kodun bitiminde de tekrar zaman bilgisi alınarak hesaplanabilir. Bu zaman, takvim zamanı (calendar time) çok hassas işlemlerde kullanılamaz. Bu durumda daha hassas ölçümler yapabilen yine zamana bağlı olarak hesaplanabilen değerler kullanılmalıdır. Bu işlemi yapmanın Java'da birden fazla yolu bulunmaktadır. Ayrıca 3. parti olarak yazılmış kütüphanelerin çeşitli sınıfları da kullanılabilmektedir. Hatta programcı isterse kendisi de böyle bir işlem için sınıf ya da sınıflar yazabilir. Bu 3. parti olarak yazılmış kütüphaneler içerisinde popüler olarak kullanılan iki tanesinde `StopWatch` isimli sınıflar bu işlem için tasarlanmışlardır. Bu popüler kütüphaneler tipik olarak `Google guava` ve `Apache commons` kütüphaneleridir. Aslında bu kütüphanelerde pek çok yardımcı sınıf ve metot da bulunmaktadır
 
-System sınıfının static currentTimeMillis metodu 01.01.1970 00:00:00 UTC (geceyarısı) zamanından (epoch time) çağrıldığı tarih zamana kadar geçen milisaniye sayısına geri döner. Bu durumda süresi ölçülecek kodun başında ve sonunda bu metot çağrılır ve geri döndürdüğü değerlerin farkı alınır ve istenen zaman biriminde hesaplanabilir
+System sınıfının static **currentTimeMillis** metodu 01.01.1970 00:00:00 UTC (geceyarısı) zamanından (epoch time) çağrıldığı tarih zamana kadar geçen milisaniye sayısına geri döner. Bu durumda süresi ölçülecek kodun başında ve sonunda bu metot çağrılır ve geri döndürdüğü değerlerin farkı alınır ve istenen zaman biriminde hesaplanabilir
 ```java
 package org.csystem.app;  
   
@@ -250,7 +250,7 @@ class Application {
 }
 ```
 
-System sınıfının static nanoTime metodu currentTimeMillis metodundan görece daha hassas olacak şekilde bir bilgi döndürür. Bu bilgi nano-saniye mertebesindedir. Hassas ölçümlerde bu metodun kullanılması tavsiye edilir. Aşağıdaki örneği inceleyiniz
+System sınıfının static **nanoTime** metodu, `currentTimeMillis` metodundan görece daha hassas olacak şekilde bir bilgi döndürür. Bu bilgi nano-saniye mertebesindedir. Hassas ölçümlerde bu metodun kullanılması tavsiye edilir. Aşağıdaki örneği inceleyiniz
 
 ```java
 package org.csystem.app;  
@@ -273,5 +273,242 @@ class Application {
 }
 ```
 
+`Google Guava` kütüphanesinin maven dependency bilgisi notun yazıldığı tarihte şu şekildedir:
 
+```
+<dependency>  
+    <groupId>com.google.guava</groupId>  
+    <artifactId>guava</artifactId>  
+    <version>33.4.8-jre</version>  
+</dependency>
+```
 
+Aşağıdaki demo örnekte `Google Guava` kütüphanesinin `StopWatch` sınıfı kullanılmıştır
+
+```java
+package org.csystem.app;  
+  
+import com.google.common.base.Stopwatch;  
+import com.karandev.io.util.console.Console;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.util.concurrent.TimeUnit;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var stopwatch = Stopwatch.createStarted();  
+  
+        Console.writeLine(NumberUtil.isPrime(6750161072220585911L) ? "Asal" : "Asal değil");  
+  
+        stopwatch.stop();  
+  
+        var seconds = stopwatch.elapsed(TimeUnit.MILLISECONDS) / 1000.;  
+  
+        Console.writeLine("Duration:%f", seconds);  
+    }  
+}
+```
+
+`Apache Commons Lang` kütüphanesinin maven dependency bilgisi notun yazıldığı tarihte şu şekildedir:
+
+```
+<dependency>  
+    <groupId>org.apache.commons</groupId>  
+    <artifactId>commons-lang3</artifactId>  
+    <version>3.18.0</version>  
+</dependency>
+```
+
+Aşağıdaki demo örnekte `Apache Commons Lang` kütüphanesinin `StopWatch` sınıfı kullanılmıştır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import org.apache.commons.lang3.time.StopWatch;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.util.concurrent.TimeUnit;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var stopwatch = new StopWatch();  
+  
+        stopwatch.start();  
+  
+        Console.writeLine(NumberUtil.isPrime(6750161072220585911L) ? "Asal" : "Asal değil");  
+  
+        stopwatch.stop();  
+  
+        var seconds = stopwatch.getTime(TimeUnit.MILLISECONDS) / 1000.;  
+  
+        Console.writeLine("Duration:%f", seconds);  
+    }  
+}
+```
+
+```
+<dependency>  
+    <groupId>org.csystem</groupId>  
+    <artifactId>org-csystem-diagnostics</artifactId>  
+    <version>1.0.0</version>  
+</dependency>
+```
+
+kütüphanesinde bulunan `StopWatch` sınıfı ve kullanımı.
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import org.csystem.diagnostics.StopWatch;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.util.concurrent.TimeUnit;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var stopwatch = StopWatch.createStarted();  
+  
+        Console.writeLine(NumberUtil.isPrime(6750161072220585911L) ? "Asal" : "Asal değil");  
+  
+        stopwatch.stop();  
+  
+        var seconds = stopwatch.elapsedTime(TimeUnit.MILLISECONDS) / 1000.;  
+  
+        Console.writeLine("Duration:%f", seconds);  
+    }  
+}
+```
+
+```java
+package org.csystem.diagnostics;  
+  
+import java.util.concurrent.TimeUnit;  
+
+public class StopWatch {  
+    private long m_start;  
+    private long m_stop;  
+  
+    public static StopWatch create()  
+    {  
+        return new StopWatch();  
+    }  
+  
+    public static StopWatch createStarted()  
+    {  
+        return (new StopWatch()).start();  
+    }  
+  
+    public StopWatch start()  
+    {  
+        m_start = System.nanoTime();  
+        return this;  
+    }  
+  
+    public StopWatch stop()  
+    {  
+        m_stop = System.nanoTime();  
+        return this;  
+    }  
+  
+    public long elapsedTime(TimeUnit timeUnit)  
+    {  
+        return timeUnit.convert(m_stop - m_start, TimeUnit.NANOSECONDS);  
+    } 
+}
+```
+
+##### Değişken Sayıda Argüman Alan Metotlar
+
+Değişken sayıda argüman alan metotlara Java dünyasında **variable length arguments method** ya da kısaca **varargs** method denir. Metot yazılırken `... (ellipsis)` atomu kullanıldığından bazı kaynaklar bu tarz metotlara **ellipsis parametreli metotlar** da denilmektedir. 
+
+Değişken sayıda argüman alan metodun, değişken sayıda argüman alabilen parametresinin genel biçimi şu şekildedir
+
+```java
+<tür ismi>...<değişken ismi>
+```
+
+Örneğin, 
+
+```java
+void printInts(int...ints)
+```
+
+Ellipsis parametresi metot bildirimi açısından bir dizi referansıdır.
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        Util.printInts(10, 20, 30);  
+        Util.printInts(10, 20);  
+        Util.printInts();  
+    }  
+}  
+  
+class Util {  
+    public static void printInts(int...ints)  
+    {  
+        for (var a : ints)  
+            Console.write("%d ", a);  
+  
+        Console.writeLine();  
+    }  
+}
+```
+
+Ellipsis parametresi metodun son parametresi olmalıdır. Bu durumda bir metodun birden fazla ellipsis parametresi olamaz.
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        Util.printInts("Values", 10, 20, 30);  
+        Util.printInts("Değerler", 10, 20);  
+        Util.printInts("Boş");  
+    }  
+}  
+  
+class Util {  
+    public static void printInts(String prompt, int...ints)  
+    {  
+        Console.write("%s:", prompt);  
+        for (var a : ints)  
+            Console.write("%d ", a);  
+  
+        Console.writeLine();  
+    }  
+}
+```
+
+Hem ellipsis parametreli hem de aynı türden dizi parametreli bir metot overload edilemez. Yani ellipsis parametresi dizi referans parametresine göre imzayı değiştirmez
+
+```java
+class Util {  
+    public static void printInts(String prompt, int...ints)  //error
+    {  
+        //...
+    }  
+  
+    public static void printInts(String prompt, int[]ints)  //error
+    {  
+        //... 
+    }  
+}
+```
