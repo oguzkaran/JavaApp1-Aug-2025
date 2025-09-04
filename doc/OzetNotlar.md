@@ -512,3 +512,166 @@ class Util {
     }  
 }
 ```
+
+Aşağıdaki demo örnekteki birinci çağrıda `int` parametreli, ikinci çağrıda ise `int...` parametreli metot seçilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        Sample.foo(10); //1  
+        Sample.foo(10, 20); //2  
+    }  
+}  
+  
+class Sample {  
+    public static void foo(int a)  
+    {  
+        Console.writeLine("foo, int");  
+    }  
+  
+    public static void foo(int...a)  
+    {  
+        Console.writeLine("foo, int...");  
+    }  
+}
+```
+
+Aşağıdaki demo örnekte `int -> long` dönüşümü  `int -> int...` dönüşümünden daha kaliteli olduğunda `long` parametreli metot çağrılır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        Sample.foo(10);  
+    }  
+}  
+  
+class Sample {  
+    public static void foo(long a)  
+    {  
+        Console.writeLine("foo, long");  
+    }  
+      
+    public static void foo(int...a)  
+    {  
+        Console.writeLine("foo, int...");  
+    }  
+}
+```
+
+Aşağıdaki demo örnekte `int -> int...` dönüşümü  `int -> long...` dönüşümünden daha kaliteli olduğunda `int...` parametreli metot çağrılır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        Sample.foo(10);  
+    }  
+}  
+  
+class Sample {  
+    public static void foo(long...a)  
+    {  
+        Console.writeLine("foo, long...");  
+    }  
+  
+    public static void foo(int...a)  
+    {  
+        Console.writeLine("foo, int...");  
+    }  
+}
+```
+
+##### git Versiyon Kontrol Sistemi
+
+git, özellikle yazılım geliştirmede kullanılan bir versiyon takip aracıdır. git, 2005 senesinde `Linus Torvalds` tarafından `Linux çekirdek projesi (Linux Kernel Project)` kapsamında geliştirilmiştir. İlerleyen senelerde pek çok firma ve geliştirici tarafından kullanılır duruma gelmiştir. git'in önemli iki özelliği `dağıtık (distributed)` olması ve güvenli bir biçimde yapılan işlemlerin geçmişini (history) tutabilmesidir. Dağıtık demekle, git ile çalışan bir proje bulunduğu ana bilgisayarın dışında başka bilgisayarlara da kopyalanıp aynı anda geliştirme yapılabilmektedir. Kendi lokalinde çalışan yazılımcılar aynı zamanda yaptıklarını ana bilgisayara aktarabilirler ve bütün bu yapılanların geçmişi git tarafından tutulur ve kopyalayan da kendi lokalinde bu geçmişe sahip olabilir. git üzerinde burada anlatılanların ve diğer detaylar için bir terminolojisi bulunur. git günümüzde pek çok IDE veya benzeri uygulamalar tarafında görsel olarak da desteklenmektedir.
+###### git Kurulumu
+
+git komut satırından çalışan bir uygulamadır. Tipik olarak tüm sistemler için geliştirilmiştir. Unix/Linux sistemleri ve Mac OS X sistemleri için ilgili paket yöneticisi kullanılarak kurulabilmektedir. Windows için [git download](https://git-scm.com/downloads/win) bağlantısından kurulum detayları incelenebilir.
+
+###### Temel Kavramlar
+
+**1. Repository:** Proje dosyalarının bulunduğu yerdir (storage space). git'de repository ikiye ayrılır:
+- Local Repository: Proje dosyalarının yerel makinedeki kopyalarıdır.
+- Remote Repository: Projenin ana dosyalarının bulunduğu yerdir. 
+**2. Commits:** Projenin belirli bir zamandaki anlık durumudur (snapshot). Her commit işlemi unique olarak bir hash bilgisine sahiptir ve yapılan değişiklerinin belirlenebildiği bir mesaj bilgisine sahiptir. Bu sayede proje geçmişi izlenebilir.
+**3: Branches:** Geliştirme aşamasında ayrı bir yolu belirtir. Default branch `main` ya da `master` olarak adlandırılır. Programcı kendisi de branch'lar oluşturabilmektedir.
+
+**4. Merge:** Bir branch'daki değişiklikleri bir araya getirme yani entegre etme işlemidir. Bu anlamda bazı conflict durumları olabilir. Merge işlemi sırasında confilict'ler çözülür.
+**5. Clone:** Bir remote repository'nin yerel bir kopyasının oluşturulması işlemidir. Bu kopya tüm branch'ları ve commit geçmişini içerir. 
+
+
+**6. Pull:** Remote repository'ki güncellemeleri almak ve yerel repository'ye eklemek anlamında kullanır.
+**7. Push:** Yerel değişikliklerin remote repository'ye gönderilerek diğer kişilerin de kullanımına açılmasıdır. 
+
+Bir repository'nin lokalde kopyası aşağıdaki komut ile yapılabilir:
+
+```
+git clone https://github.com/oguzkaran/JavaApp1-Aug-2025-case-study.git
+```
+
+```
+git branch
+```
+
+komutu ile o repository içerisindeki tüm branch'lar listelenir. Aktif branch'n (checkout) başında `*` karakteri bulunur.  Bir branch yaratıp o branch'a checkout yapılması için `git checkout` komutu `-b` seçeneği ile kullanılmalıdır. 
+
+```
+git checkout -b feature/tcpconnection/okrn
+```
+
+Varolan bir branch'a checkout yapılması için `-b` seçeneği kullanılmaz
+
+```
+git checkout feature/tcpconnection/okrn
+
+```
+
+```
+git status
+```
+
+komutu ile repository'nin o anki durumu incelenebilir. Yapılmış olan bir değişiklik 
+
+```
+git add .
+```
+
+komutu ile eklenebilir. Burada `.` tüm değişiklikler anlamında isterse programcı ilgili dosyaları yazarak istediği dosyaları ekleyebilir (to be staged).
+
+```
+git rm -r --cached .
+```
+
+komutu ile git'e eklenmiş olanlar geri alınabilir (rollback/to be unstaged). `-r` seçeneği `recursive` anlamına gelir.
+
+```
+git commit -m "initial commit App.java"
+```
+
+
+```
+git push
+```
+
+komutu ile lokalden remote repository'ye aktarım yapılabilir. Burada remote repository'nin konuşlandığı server'ın konfigürasyonu yapılması gereken bazı ek işlemler olabilir. Bu git doğrudan uygulamasına ilişkin bir konu değildir. 
+
+```
+git pull
+```
+
+komutu ilgili branch'ın son durumu lokale çekilebilir.
+

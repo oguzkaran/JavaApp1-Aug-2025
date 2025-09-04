@@ -5,19 +5,18 @@ import com.karandev.io.util.console.Console;
 class Application {
     public static void run(String[] args)
     {
-        Util.printInts("Values", 10, 20, 30);
-        Util.printInts("Değerler", 10, 20);
-        Util.printInts("Boş");
+        Sample.foo(10);
     }
 }
 
-class Util {
-    public static void printInts(String prompt, int...ints)
+class Sample {
+    public static void foo(long...a)
     {
-        Console.write("%s:", prompt);
-        for (var a : ints)
-            Console.write("%d ", a);
+        Console.writeLine("foo, long...");
+    }
 
-        Console.writeLine();
+    public static void foo(int...a)
+    {
+        Console.writeLine("foo, int...");
     }
 }

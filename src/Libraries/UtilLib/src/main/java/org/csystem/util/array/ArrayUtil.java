@@ -1,6 +1,6 @@
 /**
  * Utility class for array operations
- * Last Update: 28th August 2025
+ * Last Update: 4th September 2025
  * @author JavaApp1-Aug-2025 Group
  */
 package org.csystem.util.array;
@@ -137,7 +137,7 @@ public final class ArrayUtil {
         return data;
     }
 
-    public static int max(int [] a)
+    public static int max(int...a)
     {
         return max(a, 0);
     }
@@ -162,7 +162,20 @@ public final class ArrayUtil {
         return result;
     }
 
-    public static int min(int [] a)
+    public static int [] merge(int [] a, int...b)
+    {
+        var merged = new int[a.length + b.length];
+
+        for (var i = 0; i < a.length; ++i)
+            merged[i] = a[i];
+
+        for (var i = 0; i < b.length; ++i)
+            merged[a.length + i] = b[i];
+
+        return merged;
+    }
+
+    public static int min(int...a)
     {
         return min(a, 0);
     }
