@@ -938,25 +938,156 @@ BigDecimal sınıfının burada anlatılan dışında da pek çok metodu bulunma
 
 ###### BigInteger Sınıfı
 
+BigInteger sınıfı
+$$(-2^{Integer.MAX\_VALUE}, 2^{Integer.MAX\_VALUE}), $$
+aralığında tamsayı değerlerini tutabilmektedir. BigInteger sınıfının da yine pek çok metodu ve ctor'u bulunmaktadır. Yine BigInteger ile işlemlerin de yapıldığı metotlar da vardır. Yine eşitlik karşılaştırması için `equals` metodu kullanılabilmektedir.
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.math.BigInteger;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var a = new BigInteger(Console.read("Input first number"));  
+        var b = new BigInteger(Console.read("Input second number"));  
+        var c = a.add(b);  
+  
+        Console.writeLine(c);  
+    }  
+}
+```
+
+Aşağıdaki demo örneği inceleyiniz
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var a = Console.readBigInteger("Input first number");  
+        var b = Console.readBigInteger("Input second number");  
+        var c = a.add(b);  
+  
+        Console.writeLine(c);  
+    }  
+}
+```
 
 
+Aşağıdaki factorial metodunu inceleyiniz
 
+```java
+public static BigInteger factorial(BigInteger n)  
+{  
+    var result = BigInteger.ONE;  
+  
+    for (var i = BigInteger.TWO; i.compareTo(n) <= 0; i = i.add(BigInteger.ONE))  
+        result  = result.multiply(i);  
+  
+    return result;  
+}
+```
 
+BigInteger sınıfında çok kullanılan bazı değerler için public static ve final olarak bildirilmiş veri elemanları bulundurulmuştur. Bu elemanların isimleri şunlardır: `ONE, TWO, TEN, ZERO`
 
+BigInteger sınıfının `Random` parametreki ctor'ları ile rassal olarak sayı üretilebilir. numBits parametreli ctor'u ile
+$$[0, 2^{numBits} - 1]$$
+aralığında düzgün dağılıma (uniformly distributed) sahip rassal sayı üretilebilir.
 
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.math.BigInteger;  
+import java.util.Random;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var random = new Random();  
+        var n = Console.readInt("Input count:");  
+  
+        while (n-- > 0) {  
+            var a = new BigInteger(256, random);  
+  
+            if (random.nextBoolean())  
+                a = a.negate();  
+  
+            Console.writeLine(a);  
+        }  
+    }  
+}
+```
 
+Bu sınıfın da yine pek çok işlem yapan metodu bulunur. Bu metotlar dokümanlardan incelenebilir. Yine, `compareTo` metodu ile karşılaştırma yapılabilir.
 
+Aşağıdaki isPrime metodunu inceleyiniz
 
+```java
+public static boolean isPrime(BigInteger a)  
+{  
+    if (a.compareTo(BigInteger.ONE) <= 0)  
+        return false;  
+  
+    if (a.remainder(BigInteger.TWO).equals(BigInteger.ZERO))  
+        return a.equals(BigInteger.TWO);  
+  
+    if (a.remainder(THREE).equals(BigInteger.ZERO))  
+        return a.equals(THREE);  
+  
+    if (a.remainder(FIVE).equals(BigInteger.ZERO))  
+        return a.equals(FIVE);  
+  
+    if (a.remainder(SEVEN).equals(BigInteger.ZERO))  
+        return a.equals(SEVEN);  
+  
+    for (var i = ELEVEN; i.multiply(i).compareTo(a) <= 0; i = i.add(BigInteger.TWO))  
+        if (a.remainder(i).equals(BigInteger.ZERO))  
+            return false;  
+  
+    return true;  
+}
+```
 
+Aşağıdaki demo örnekte aynı sayılar için isPrime metotlarının hızlarını gözlemleyiniz. BigInteger overload'u `org.csystem.util` kütüphanesine `2.1.0` versiyonu ile eklenmiştir
 
-
-
-
-
-
-
-
-
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import org.apache.commons.lang3.time.StopWatch;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.math.BigInteger;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var stopWatch = new StopWatch();  
+          
+        stopWatch.start();  
+        Console.writeLine(NumberUtil.isPrime(710584055392819667L));  
+        stopWatch.stop();  
+        Console.writeLine("%f seconds", stopWatch.getNanoTime() / 1_000_000_000.);  
+  
+        stopWatch.reset();  
+  
+        stopWatch.start();  
+        Console.writeLine(NumberUtil.isPrime(BigInteger.valueOf(710584055392819667L)));  
+        stopWatch.stop();  
+        Console.writeLine("%f seconds", stopWatch.getNanoTime() / 1_000_000_000.);  
+    }  
+}
+```
 
 
 
