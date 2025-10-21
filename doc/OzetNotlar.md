@@ -1233,4 +1233,29 @@ chmod 751 test
 
 **Anahtar Notlar:** Burada anlatılanların dışında pek çok detay bulunmaktadır. Programcı açısından tipik kullanımlar ele alınmıştır.
 
+##### stdin, stdout ve stderr Dosyaları
+
+Bir program çalıştırıldığında 3 tane dosya açılır: **Standard Input (stdin), Standard Output (stdout), Standard Error (stderr).** 
+
+Java'da stdin, stdout ve stderr sırasıyla `System` sınıfının `in`, `out` ve `err` static referans veri elemanları ile temsil edilir. `in`, `InputStream` türünden, `out` ve `err`'de `PrinStream` türünden referans veri elemanlarıdır. Masaüstü işletim sistemlerinin hemen hepsinde default olarak `stdin` klavyeye, `stdout` ekrana, `stderr`'de `stout`'a yönlendirilmiştir. Bu dosyalar ayrıca program çalıştırılırken de yeniden yönlendirilebilir **(redirection)**. Hatta programlama yöntemiyle de yönlendirme yapılabilmektedir. Programlama yöntemiyle yapılabilen yönlendirme burada ele alınmayacaktır. Bu dosyalar yönlendirildiğinde artık bu dosyalar ile işlem yapan metotlar ona göre ilgili işlemini yaparlar. Örneğin `stdout` başka bir dosyaya yönlendirildiğinde* `System.out.println` metodu yazma işlemini yönlendirilen dosyaya yapar. Program çalıştırılırken yönlendirme işlemi **stdout** ve **stderr** için `>` ile, **stdin** için ise `<` karakteri kullanılarak yapılır. Bu kullanım biçimi modern işletim sistemlerinin bir çoğunda aynıdır. **stdout** için `>` biçiminde kullanılır. Bazı sistemlerde desteklenmeyebileceğinden, **stderr** için de `2>` biçiminde kullanılmalıdır. Örneğin bir program aşağıdaki gibi çalıştırılmış olsun:
+
+```
+java -jar .\Sample-1.0.0.jar < input.txt > output.txt 2> error.txt
+```
+
+Burada `stdin` `input.txt` dosyasına, `stdout` `output.txt` dosyasına, `stderr` de `error.txt` dosyasına yönlendirilmiştir.
+
+**Peki stderr neden kullanılır?**
+
+Tipik olarak uygulamalar çeşitli hata durumlarına karşılık mesajlarını `stderr`'ye basma eğilimindedir. Bu bir convention olarak düşünülebilir. Bu durumda örneğin, program çalıştırıldığında hatalı durumlara ilişkin mesajların takibi de yapılabilir.
+
+Bir programın `stdout`'u başka bir programın `stdin`'i olabilir. Bu işlem bir çok işletim sisteminde aşağıdaki gibi boru `pipe` haberleşmesi kullanılarak yapılabilir:
+
+```
+java -jar RandomTextGeneratorApp-1.0.0.jar | java -jar LineReaderApp-1.0.0.jar
+```
+
+Burada `RandomNumberGenerator-11.0.0.jar` uygulamasının `stdout`'u, `NumberReader-11.0.0.jar` uygulamasının `stdin`'ine yönlendirilmiştir.
+
+`003-DemoRedirectionApps` içerisindeki uygulamaları inceleyiniz.
 
