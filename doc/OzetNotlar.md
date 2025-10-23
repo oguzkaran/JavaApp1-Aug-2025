@@ -1259,3 +1259,111 @@ Burada `RandomNumberGenerator-11.0.0.jar` uygulamasının `stdout`'u, `NumberRea
 
 `003-DemoRedirectionApps` içerisindeki uygulamaları inceleyiniz.
 
+##### Tarih Zaman İşlemleri
+
+Programlamada tarih-zaman işlemleri oldukça önemlidir. JavaSE'de de tarih zaman işlemlerini yapan hazır sınıflar bulunur. Tarihsel süreç içerisinde JavaSE'de tarih-zaman işlemlerine ilişkin UDT'lerde ciddi değişiklikler yapılmıştır. Aslında tarih zaman işlemlerine ilişkin UDT'lerin etkin bir biçimde kullanımı Java 8 ile birlikte olmuştur. 
+
+`java.util.Date` sınıfının pek çok metodu `deprecated` durumdadır. Bu sınıf ileride ele alacağımız veritabanı işlemlerinde kullanılan bazı sınıflara taban sınıf olduğundan belirli ölçüde bilinmesi gerekir.
+
+`java.util.Date` sınıfını default ctor'u ile nesne yaratıldığında çalışılan sistemdeki tarih zaman bilgisi tutan `Date` nesnesi elde edilir. Bu sınıfın toString metodu tarih zamn bilgisinin belirli formattaki yazı karşılığına geri döner. Bu formate ilişkin detaylar gerekirse dokümanlardan incelenebilir.
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.util.Date;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var now = new Date();  
+  
+        Console.writeLine(now);  
+    }  
+}
+```
+
+Date sınıfının getTime metodu `1 Ocak 1970 00:00:00.0 GMT` zamanından itibaren geçen milisaniye değerine geri döner. Ayrıca Date sınıfının long parametreli ctor'u aldığı milisaniye değerine ilişkin Date nesnesini yaratmakta kullanılır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.util.Date;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var now = new Date();  
+  
+        Console.writeLine(now);  
+        var ms = now.getTime();  
+        Console.writeLine("Milliseconds:%d", ms);  
+        var date = new Date(ms);  
+  
+        Console.writeLine(date);  
+    }  
+}
+```
+
+Calendar sınıfının getInstance metodunun parametresiz overload'u ile çalışılan sistemdeki o anki zaman elde edilebilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.util.Calendar;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var now = Calendar.getInstance();  
+  
+        Console.writeLine(now);  
+    }  
+}
+```
+
+GregorianCalendar sınıfının default ctor'u ile çalışılan sistemdeki o anki zaman elde edilebilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.util.GregorianCalendar;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var now = new GregorianCalendar();  
+  
+        Console.writeLine(now);  
+    }  
+}
+```
+
+
+Aşağıdaki demo örneği inceleyiniz
+
+ ```java
+ package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.util.GregorianCalendar;  
+import java.util.Calendar;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var now = new GregorianCalendar();  
+  
+        Console.writeLine("%02d/%02d/%04d %02d:%02d:%02d", now.get(Calendar.DAY_OF_MONTH), now.get(Calendar.MONTH) + 1,  
+                now.get(Calendar.YEAR), now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), now.get(Calendar.SECOND));  
+    }  
+}
+ ```
