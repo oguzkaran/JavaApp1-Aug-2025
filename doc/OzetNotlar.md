@@ -1261,9 +1261,20 @@ Burada `RandomNumberGenerator-11.0.0.jar` uygulamasının `stdout`'u, `NumberRea
 
 ##### Tarih Zaman İşlemleri
 
-Programlamada tarih-zaman işlemleri oldukça önemlidir. JavaSE'de de tarih zaman işlemlerini yapan hazır sınıflar bulunur. Tarihsel süreç içerisinde JavaSE'de tarih-zaman işlemlerine ilişkin UDT'lerde ciddi değişiklikler yapılmıştır. Aslında tarih zaman işlemlerine ilişkin UDT'lerin etkin bir biçimde kullanımı Java 8 ile birlikte olmuştur. 
+Programlamada tarih-zaman işlemleri oldukça önemlidir. JavaSE'de de tarih zaman işlemlerini yapan hazır sınıflar bulunur. Tarihsel süreç içerisinde JavaSE'de tarih-zaman işlemlerine ilişkin UDT'lerde ciddi değişiklikler yapılmıştır. Aslında tarih zaman işlemlerine ilişkin UDT'lerin etkin bir biçimde kullanımı Java 8 ile birlikte olmuştur.  Hatta Java'nın ilk yıllarında eklenen tarih-zaman sınıfları bir takım işlemleri doğru olarak yapamıyorlardı. Bu anlamda bu sınıfların pek çok elemanı şu an`deprecated` durumdadır. Bu sınıflardan sonra eklenen tarih-zamana ilişkin sınıflar işlemleri doğru olarak yapsalar da yaklaşım açısından problemlidir. Bu anlamda bu sınıfların elemanları `deprecated` olmamıştır. Ancak `Java 8` ile birlikte artık kullanımı gerekmemekte, hatta tavsiye edilmemektedir. `Java 8` *ile birlikte eklenen tarih-zaman türleri ile tarih-zaman işlemleri hem doğru hem de daha etkin bir biçimde yapılır duruma gelmiştir. Buna göre bir java programcısı için* `Java 8+` *ile geliştirilen bir projede (ya da kütüphanede) yeni nesil sınıfların kullanılması tercih edilmelidir. Programlamda tarih-zaman türlerine ilişkin genel olarak iki yaklaşım söz konusudur:*
 
-`java.util.Date` sınıfının pek çok metodu `deprecated` durumdadır. Bu sınıf ileride ele alacağımız veritabanı işlemlerinde kullanılan bazı sınıflara taban sınıf olduğundan belirli ölçüde bilinmesi gerekir.
+>
+
+>- Tarih, zaman ve tarih-zaman olarak türleri **ayırmak**
+
+>- Tarih, zaman ve tarih-zaman olarak türleri **ayırmamak**
+
+>
+
+Bunlar birer yaklaşımdır ve iyi ya da kötü anlamda düşünülmemelidir. Dile ve teknolojiye göre programcı öğrenir ve ona göre kullanır.
+
+
+`Java 1.0` *ile eklenen tarih-zaman işlemlerini yapan* `java.util.Date` *sınıfının pek çok elemanı* `Java 1.1` *ile birlikte* `deprecated` olmuştur. Bu sınıf ileride ele alacağımız veritabanı işlemlerinde kullanılan bazı sınıflara taban sınıf olduğundan belirli ölçüde bilinmesi gerekir. Aslında bu sınıfın deprecated olan metotları Java1.1 ile birlikte doğru çalışmamaktadır. Java 1.1 ile birlikte `Calendar` *ve ondan türetilmiş olan* `GregorianCalendar` isimli sınıflar tarih-zaman işlemlerinde kullanılmak üzere eklenmiştir. Bu sınıfların genel olarak tasarımları kötüdür. Bu 3 sınıf (`Date`, `Calendar` ve `GregorianCalendar`) tarih ve zaman kavramlarını ayırmaz. Yani tarih-zaman bir arada tutulur. Yalnızca tarih veya yalnızca zaman için programcı bu sınıfları ona göre kullanır. `Java 8` ile eklenen yeni nesil tarih-zaman türlerinde tarih, zaman ve tarih-zaman kavramları ayrı türler olarak temsil edilmiştir. Java 8 ile eklenen tarih-zaman sınıfları immutable'dır. `Date` ve `Calendar` *(dolayısıyla* `GregorianCalendar`) sınıfları **immutable** değildir.
 
 `java.util.Date` sınıfını default ctor'u ile nesne yaratıldığında çalışılan sistemdeki tarih zaman bilgisi tutan `Date` nesnesi elde edilir. Bu sınıfın toString metodu tarih zamn bilgisinin belirli formattaki yazı karşılığına geri döner. Bu formate ilişkin detaylar gerekirse dokümanlardan incelenebilir.
 
