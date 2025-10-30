@@ -1,0 +1,8 @@
+input1, input2, expected
+1, 2, true
+2, 3, true
+60, 281, true
+61, 281, false
+1000, 7919, true
+1000001, 15485867, true
+2000000, 32452843, true

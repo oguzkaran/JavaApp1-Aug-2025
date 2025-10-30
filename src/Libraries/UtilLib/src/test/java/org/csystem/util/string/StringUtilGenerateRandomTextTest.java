@@ -27,7 +27,7 @@ public class StringUtilGenerateRandomTextTest {
     }
 
     @ParameterizedTest
-    @CsvFileSource(resources = "/areallintest.csv", numLinesToSkip = 1)
+    @CsvFileSource(resources = "/areAllInTest.csv", numLinesToSkip = 1)
     @Order(1)
     void test_areAllCharactersIn(String input1, String input2, boolean expected)
     {

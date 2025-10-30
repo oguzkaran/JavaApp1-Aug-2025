@@ -1,0 +1,9 @@
+input1, input2, expected
+1, bir, true
+-1, eksi bir, true
+0, sıfır, true
+1000001, bir milyon bir, true
+2147483647, iki milyar yüz kırk yedi milyon dört yüz seksen üç bin altı yüz kırk yedi, true
+-2147483648, eksi iki milyar yüz kırk yedi milyon dört yüz seksen üç bin altı yüz kırk sekiz, true
+-60, altmış, false
+60, altmış, true

@@ -5,6 +5,8 @@
  */
 package org.csystem.util.numeric;
 
+import java.math.BigInteger;
+
 public final class NumberUtil {
 	private NumberUtil()
 	{
@@ -22,6 +24,12 @@ public final class NumberUtil {
 	private static final String [] TENS_EN;
 	private static final String [] NUMBER_UNITS_EN;
 
+    private static final BigInteger THREE;
+    private static final BigInteger FIVE;
+    private static final BigInteger SEVEN;
+    private static final BigInteger ELEVEN;
+
+
 	static {
 		ZERO_TR = "sıfır";
 		MINUS_TR = "eksi";
@@ -34,15 +42,34 @@ public final class NumberUtil {
 		ONES_EN = new String[]{"", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"};
 		TENS_EN = new String[] {"", "ten", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"};
 		NUMBER_UNITS_EN = new String[] {"quintillion", "quadrillion", "trillion", "billion", "million", "thousand", ""};
+
+        THREE = BigInteger.valueOf(3);
+        FIVE = BigInteger.valueOf(5);
+        SEVEN = BigInteger.valueOf(7);
+        ELEVEN = BigInteger.valueOf(11);
 	}
 
 	private static int [] getDigits(long a, int n)
     {
-        int divider = (int)Math.pow(10, n);
+        var divider = (int)Math.pow(10, n);
 		a = Math.abs(a);
-        int [] digits = new int[a == 0 ? 1 : (int)(Math.log10(a) / n) + 1];
+        var digits = new int[a == 0 ? 1 : (int)(Math.log10(a) / n) + 1];
 
         for (int i = digits.length - 1; i >= 0; digits[i--] = (int)(a % divider), a /= divider)
+            ;
+
+        return digits;
+    }
+
+
+    private static int [] getDigits(BigInteger a, int n)
+    {
+        var divider = BigInteger.valueOf((int)Math.pow(10, n));
+        a = a.abs();
+        var len = a.toString().length();
+        var digits = new int[len % n == 0 ? len / n : len / n + 1];
+
+        for (int i = digits.length - 1; i >= 0; digits[i--] = a.remainder(divider).intValue(), a  = a.divide(divider))
             ;
 
         return digits;
@@ -98,13 +125,38 @@ public final class NumberUtil {
 
 	public static long factorial(int n)
 	{
-		long result = 1;
+        var result = 1L;
 
-		for (long i = 2; i <= n; ++i)
-			result *= i;
+        for (var i = 2; i <= n; ++i)
+            result *= i;
 
-		return result;
+        return result;
 	}
+
+    public static BigInteger factorial(BigInteger n)
+    {
+        var result = BigInteger.ONE;
+
+        for (var i = BigInteger.TWO; i.compareTo(n) <= 0; i = i.add(BigInteger.ONE))
+            result  = result.multiply(i);
+
+        return result;
+    }
+
+    public static BigInteger factorial(long n)
+    {
+        var result = BigInteger.ONE;
+
+        for (var i = 2L; i <= n; ++i)
+            result  = result.multiply(BigInteger.valueOf(i));
+
+        return result;
+    }
+
+    public static BigInteger factorialBigInteger(int n)
+    {
+        return factorial((long)n);
+    }
 
 	public static int fibonacciNumber(int n)
 	{
@@ -133,6 +185,21 @@ public final class NumberUtil {
 	}
 
     public static int [] getDigitsInTwos(long a)
+    {
+        return getDigits(a, 2);
+    }
+
+    public static int [] getDigits(BigInteger a)
+    {
+        return getDigits(a, 1);
+    }
+
+    public static int [] getDigitsInThrees(BigInteger a)
+    {
+        return getDigits(a, 3);
+    }
+
+    public static int [] getDigitsInTwos(BigInteger a)
     {
         return getDigits(a, 2);
     }
@@ -182,12 +249,36 @@ public final class NumberUtil {
 		if (a % 7 == 0)
 			return a == 7;
 
-		for (long i = 11; i * i <= a; i += 2)
+		for (var i = 11L; i * i <= a; i += 2)
 			if (a % i == 0)
 				return false;
 
 		return true;
 	}
+
+    public static boolean isPrime(BigInteger a)
+    {
+        if (a.compareTo(BigInteger.ONE) <= 0)
+            return false;
+
+        if (a.remainder(BigInteger.TWO).equals(BigInteger.ZERO))
+            return a.equals(BigInteger.TWO);
+
+        if (a.remainder(THREE).equals(BigInteger.ZERO))
+            return a.equals(THREE);
+
+        if (a.remainder(FIVE).equals(BigInteger.ZERO))
+            return a.equals(FIVE);
+
+        if (a.remainder(SEVEN).equals(BigInteger.ZERO))
+            return a.equals(SEVEN);
+
+        for (var i = ELEVEN; i.multiply(i).compareTo(a) <= 0; i = i.add(BigInteger.TWO))
+            if (a.remainder(i).equals(BigInteger.ZERO))
+                return false;
+
+        return true;
+    }
 
 	public static long nextClosestPrime(long a)
 	{

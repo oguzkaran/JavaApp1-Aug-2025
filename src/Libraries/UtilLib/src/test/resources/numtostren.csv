@@ -1,0 +1,16 @@
+input1, input2, expected
+0, zero, true
+1, one, true
+-1, minus one, true
+123, one hundred twenty three, true
+-123, minus one hundred twenty three, true
+2147483647, two billion one hundred forty seven million four hundred eighty three thousand six hundred forty seven, true
+-2147483648, minus two billion one hundred forty seven million four hundred eighty three thousand six hundred forty eight, true
+1001, one thousand one, true
+-1001, minus one thousand one, true
+42, forty two, true
+-42, minus forty two, true
+999999, nine hundred ninety nine thousand nine hundred ninety nine, true
+-999999, minus nine hundred ninety nine thousand nine hundred ninety nine, true
+123, one hundred twenty two, false
+-42, forty two, false

@@ -1,0 +1,7 @@
+input1, input2, expected
+123, 321, true
+-321, -123, true
+746384741, 147483647, true
+999, 999, true
+9999, 999, false
+9999, -9999, false

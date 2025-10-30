@@ -1,11 +1,12 @@
 /**
  * Utility class for array operations
- * Last Update: 4th September 2025
  * @author JavaApp1-Aug-2025 Group
  */
 package org.csystem.util.array;
 
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.random.RandomGenerator;
 
 public final class ArrayUtil {
@@ -24,8 +25,24 @@ public final class ArrayUtil {
     private static void bubbleSortDescending(int [] a)
     {
         for (var i = 0; i < a.length - 1; ++i)
-            for (var k = 0; k < a.length -1 - i; ++k)
+            for (var k = 0; k < a.length - 1 - i; ++k)
                 if (a[k] < a[k + 1])
+                    swap(a, k, k + 1);
+    }
+
+    private static void bubbleSortAscending(BigDecimal[] a)
+    {
+        for (var i = 0; i < a.length - 1; ++i)
+            for (var k = 0; k < a.length - 1 - i; ++k)
+                if (a[k + 1].compareTo(a[k]) < 0)
+                    swap(a, k, k + 1);
+    }
+
+    private static void bubbleSortDescending(BigDecimal [] a)
+    {
+        for (var i = 0; i < a.length - 1; ++i)
+            for (var k = 0; k < a.length - 1 - i; ++k)
+                if (a[k].compareTo(a[k + 1]) < 0)
                     swap(a, k, k + 1);
     }
 
@@ -70,12 +87,45 @@ public final class ArrayUtil {
         return sum(a) / (double)a.length;
     }
 
+    public static double average(double [] a)
+    {
+        return sum(a) / (double)a.length;
+    }
+
+    public static double average(long [] a)
+    {
+        return sum(a) / (double)a.length;
+    }
+
+    public static BigDecimal average(BigDecimal [] a, RoundingMode roundingMode)
+    {
+        return sum(a).divide(BigDecimal.valueOf(a.length), roundingMode);
+    }
+
+    public static BigDecimal average(BigDecimal [] a, int scale, RoundingMode roundingMode)
+    {
+        return sum(a).divide(BigDecimal.valueOf(a.length), scale, roundingMode);
+    }
+
     public static void bubbleSort(int [] a)
     {
         bubbleSort(a, false);
     }
 
     public static void bubbleSort(int [] a, boolean descending)
+    {
+        if (descending)
+            bubbleSortDescending(a);
+        else
+            bubbleSortAscending(a);
+    }
+
+    public static void bubbleSort(BigDecimal [] a)
+    {
+        bubbleSort(a, false);
+    }
+
+    public static void bubbleSort(BigDecimal [] a, boolean descending)
     {
         if (descending)
             bubbleSortDescending(a);
@@ -325,6 +375,7 @@ public final class ArrayUtil {
         else
             selectionSortAscending(a);
     }
+
     public static long sum(int [] a)
     {
         var total = 0;
@@ -335,9 +386,40 @@ public final class ArrayUtil {
         return total;
     }
 
+    public static double sum(double [] a)
+    {
+        var total = 0.;
+
+        for (var val : a)
+            total += val;
+
+        return total;
+    }
+
+
+    public static long sum(long [] a)
+    {
+        var total = 0L;
+
+        for (var val : a)
+            total += val;
+
+        return total;
+    }
+
+    public static BigDecimal sum(BigDecimal [] a)
+    {
+        var total = BigDecimal.ZERO;
+
+        for (var val : a)
+            total = total.add(val);
+
+        return total;
+    }
+
     public static void swap(int [] a, int i, int k)
     {
-        int temp = a[i];
+        var temp = a[i];
 
         a[i] = a[k];
         a[k] = temp;
@@ -345,7 +427,60 @@ public final class ArrayUtil {
 
     public static void swap(char [] a, int i, int k)
     {
-        char temp = a[i];
+        var temp = a[i];
+
+        a[i] = a[k];
+        a[k] = temp;
+    }
+
+    public static BigDecimal max(BigDecimal... a)
+    {
+        if (a.length == 0)
+            throw new IllegalArgumentException("max(BigDecimal...): empty array");
+        return max(a, 0);
+    }
+
+    public static BigDecimal max(BigDecimal[] a, int startIndex)
+    {
+        var result = a[startIndex];
+
+        for (var i = startIndex + 1; i < a.length; ++i)
+            result = result.max(a[i]);
+
+        return result;
+    }
+  
+    public static BigDecimal min(BigDecimal... a)
+    {
+        if (a.length == 0)
+            throw new IllegalArgumentException("min(BigDecimal...): empty array");
+        return min(a, 0);
+    }
+
+    public static BigDecimal min(BigDecimal[] a, int startIndex)
+    {
+        var result = a[startIndex];
+        for (var i = startIndex + 1; i < a.length; ++i)
+            result = result.min(a[i]);
+
+        return result;
+    }
+
+    public static void multiplyBy(BigDecimal[] a, BigDecimal value)
+    {
+        for (int i = 0; i < a.length; ++i)
+            a[i] = a[i].multiply(value);
+    }
+  
+    public static void multiplyBy(BigDecimal[][] a, BigDecimal value)
+    {
+        for (var array : a)
+            multiplyBy(array, value);
+    }    
+      
+    public static void swap(BigDecimal [] a, int i, int k)
+    {
+        var temp = a[i];
 
         a[i] = a[k];
         a[k] = temp;
