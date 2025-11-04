@@ -1263,13 +1263,9 @@ Burada `RandomNumberGenerator-11.0.0.jar` uygulamasının `stdout`'u, `NumberRea
 
 Programlamada tarih-zaman işlemleri oldukça önemlidir. JavaSE'de de tarih zaman işlemlerini yapan hazır sınıflar bulunur. Tarihsel süreç içerisinde JavaSE'de tarih-zaman işlemlerine ilişkin UDT'lerde ciddi değişiklikler yapılmıştır. Aslında tarih zaman işlemlerine ilişkin UDT'lerin etkin bir biçimde kullanımı Java 8 ile birlikte olmuştur.  Hatta Java'nın ilk yıllarında eklenen tarih-zaman sınıfları bir takım işlemleri doğru olarak yapamıyorlardı. Bu anlamda bu sınıfların pek çok elemanı şu an`deprecated` durumdadır. Bu sınıflardan sonra eklenen tarih-zamana ilişkin sınıflar işlemleri doğru olarak yapsalar da yaklaşım açısından problemlidir. Bu anlamda bu sınıfların elemanları `deprecated` olmamıştır. Ancak `Java 8` ile birlikte artık kullanımı gerekmemekte, hatta tavsiye edilmemektedir. `Java 8` *ile birlikte eklenen tarih-zaman türleri ile tarih-zaman işlemleri hem doğru hem de daha etkin bir biçimde yapılır duruma gelmiştir. Buna göre bir java programcısı için* `Java 8+` *ile geliştirilen bir projede (ya da kütüphanede) yeni nesil sınıfların kullanılması tercih edilmelidir. Programlamda tarih-zaman türlerine ilişkin genel olarak iki yaklaşım söz konusudur:*
 
->
+- Tarih, zaman ve tarih-zaman olarak türleri **ayırmak**
 
->- Tarih, zaman ve tarih-zaman olarak türleri **ayırmak**
-
->- Tarih, zaman ve tarih-zaman olarak türleri **ayırmamak**
-
->
+- Tarih, zaman ve tarih-zaman olarak türleri **ayırmamak**
 
 Bunlar birer yaklaşımdır ve iyi ya da kötü anlamda düşünülmemelidir. Dile ve teknolojiye göre programcı öğrenir ve ona göre kullanır.
 
@@ -1357,6 +1353,7 @@ class Application {
 }
 ```
 
+`Calendar` sınıfının **getter/accessor** ve **setter/mutator** elemanları (metotları) alışık olduğumuz şekilde her bileşen için ayrı olarak tasarlanmamıştır. set ve get metotları ilgili eleman ile işlem yapmak için o elemana **(field)** karşılık `int` türden değeri parametre olarak alırlar. Bu değerler `public static final` *olarak* `Calendar` sınıfında bildirilmiştir. Yani buradaki problem bu değerlerin kaç olduğunun anımsanması değil, bu metotların tasarımıdır. NYPT açısından bu tasarım çok kullanışlı değildir. `Calendar` sınıfı için ay bilgisi `[0, 11]` aralığındadır.
 
 Aşağıdaki demo örneği inceleyiniz
 
@@ -1378,3 +1375,326 @@ class Application {
     }  
 }
  ```
+
+`GregorianCalendar` sınıfının tarih-zaman bileşenlerinin verilebildiği çeşitli ctor'ları vardır. Bu ctor'larda verilmeyen değerler sıfır alınır. Yani örneğin sadece yıl, ay ve gün ile yaratılan bir nesne için zaman geceyarısını (midnight) gösterir.
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.util.GregorianCalendar;  
+import java.util.Calendar;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var now = new GregorianCalendar(2025, Calendar.NOVEMBER, 4);  
+  
+        Console.writeLine("%02d/%02d/%04d %02d:%02d:%02d", now.get(Calendar.DAY_OF_MONTH), now.get(Calendar.MONTH) + 1,  
+                now.get(Calendar.YEAR), now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), now.get(Calendar.SECOND));  
+    }  
+}
+```
+
+
+`Calendar` sınıfının `getTimeInMillis` metodu **Epoch Time (01.01.1970 geceyarısı)** ile ilgili zaman arasındaki milisaniye sayısına geri döner. Bu değer `UTC` (Universal Time Clock) olarak elde edilir. Aşağıdaki demo örnekte yaşlar hesaplanmıştır.
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.util.Calendar;  
+import java.util.GregorianCalendar;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var staff1 = new Staff("Oğuz Karan", "12345678924", 10, 9, 1976);  
+        var staff2 = new Staff("Atilla Karan", "12345678926", 22, 3, 1945);  
+  
+        Console.writeLine("Name:%s, Age:%f", staff1.getName(), staff1.getAge());  
+        Console.writeLine("Name:%s, Age:%f", staff2.getName(), staff2.getAge());  
+    }  
+}  
+  
+class Staff {  
+    private static final double DIVIDER = 1000. * 60 * 60 * 24 * 365;  
+    private String m_name;  
+    private String m_citizenId;  
+    private Calendar m_birthDate;  
+  
+    public Staff(String name, String citizenId, int day, int month, int year)  
+    {  
+        m_name = name;  
+        m_citizenId = citizenId;  
+        m_birthDate = new GregorianCalendar(year, month - 1, day);  
+    }  
+  
+    //...  
+  
+    public String getName()  
+    {  
+        return m_name;  
+    }  
+  
+    public double getAge()  
+    {  
+        var now = new GregorianCalendar();  
+  
+        return (now.getTimeInMillis() - m_birthDate.getTimeInMillis()) / DIVIDER;  
+    }  
+}
+```
+
+Calendar (dolayısıyla `GregorianCalendar`) sınıfı tarih-zamana yönelik bileşenlerinin sınır değerlerini kontrol etmez. İlgili değerlere göre uygun tarihi hesaplar. Bu durumda tarih-zamanın geçersizlik durumu gerektiğinde programcı tarafından kontrol edilmelidir. Bu da `Calendar` sınıfının tasarım problemlerinden biridir. Aşağıdaki demo örneği inceleyiniz.
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.util.GregorianCalendar;  
+import java.util.Calendar;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var now = new GregorianCalendar(2025, -26, 567, 345, -78, -906);
+  
+        Console.writeLine("%02d/%02d/%04d %02d:%02d:%02d", now.get(Calendar.DAY_OF_MONTH), now.get(Calendar.MONTH) + 1,  
+                now.get(Calendar.YEAR), now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), now.get(Calendar.SECOND));  
+    }  
+}
+```
+
+Calendar sınıfının `before` ve after metotları sırasıyşa çağıran referansa ilişkin tarihin, parametresi ile aldığı tarihten önce ya da sonra olup olmadığını test eder. Duruma göre boolean türüne geri döner. Calendar sınıfının `compareTo` metodu iki tarih karşılaştırması yapılabilir. Bu metot
+
+```java
+r = a.compareTo(b)
+```
+
+çağrısı için:
+
+1. a tarihi b tarihinden önce geliyorsa <=> r < 0
+2. a tarihi b tarihinden sonra geliyorsa <=> r > 0
+3. a tarihi b tarihi ile aynıysa <=> r == 0
+
+biçiminde çalışır.
+
+**Sınıf Çalışması:** Klavyeden gün, ay ve yıl bilgileri ile alınan doğum tarihine göre aşağıdaki mesajlardan birini yazdıran programı yazınız
+
+1. Doğum günü henüz gelmemişse, `Doğum gününüz şimdiden kutlu olsun. Yaşınız:49.13`
+2. Doğum günü geçmişse, `Geçmiş doğum gününüz kutlu olsun. Yaşınız:49.13`
+3. O gün doğum günü ise, `Doğum gününüz kutlu olsun. Yaşınız:49`
+
+
+**Çözüm - 1:**
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.util.Calendar;  
+import java.util.GregorianCalendar;  
+  
+class Application {  
+    private static void printStatus(int day, int month, int year)  
+    {  
+        var now = new GregorianCalendar();  
+        var today = new GregorianCalendar(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));  
+        var birthDate = new GregorianCalendar(year, month - 1, day);  
+        var birthDay = new GregorianCalendar(today.get(GregorianCalendar.YEAR), month - 1, day);  
+        var age = (today.getTimeInMillis() - birthDate.getTimeInMillis()) / (1000. * 60 * 60 * 24 * 365);  
+  
+        if (today.before(birthDay))  
+            Console.writeLine("Doğum gününüz şimdiden kutlu olsun. Yaşınız:%.2f", age);  
+        else if (today.after(birthDay))  
+            Console.writeLine("Geçmiş doğum gününüz kutlu olsun. Yaşınız:%.2f", age);  
+        else  
+            Console.writeLine("Doğum gününüz kutlu olsun. Yaşınız:%.0f", age);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        var day = Console.readInt("Gün?");  
+        var month = Console.readInt("Ay?");  
+        var year = Console.readInt("Yıl?");  
+  
+        printStatus(day, month, year);  
+    }  
+}
+```
+
+**Çözüm - 2:**
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.util.Calendar;  
+import java.util.GregorianCalendar;  
+  
+class Application {  
+    private static void printStatus(int day, int month, int year)  
+    {  
+        var now = new GregorianCalendar();  
+        var today = new GregorianCalendar(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));  
+        var birthDate = new GregorianCalendar(year, month - 1, day);  
+        var birthDay = new GregorianCalendar(today.get(GregorianCalendar.YEAR), month - 1, day);  
+        var age = (today.getTimeInMillis() - birthDate.getTimeInMillis()) / (1000. * 60 * 60 * 24 * 365);  
+  
+        var res = today.compareTo(birthDay);  
+  
+        if (res < 0)  
+            Console.writeLine("Doğum gününüz şimdiden kutlu olsun. Yaşınız:%.2f", age);  
+        else if (res > 0)  
+            Console.writeLine("Geçmiş doğum gününüz kutlu olsun. Yaşınız:%.2f", age);  
+        else  
+            Console.writeLine("Doğum gününüz kutlu olsun. Yaşınız:%.0f", age);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        var day = Console.readInt("Gün?");  
+        var month = Console.readInt("Ay?");  
+        var year = Console.readInt("Yıl?");  
+  
+        printStatus(day, month, year);  
+    }  
+}
+```
+
+Calendar sınıfının `getActualMaximum` ve `getActualMinimum` metotları ile verilen field değerine ilişkin en büyük değer ve en küçük değer elde edilebilir
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.util.Calendar;  
+import java.util.GregorianCalendar;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        while (true) {  
+            var expiryMonth = Console.readInt("Input expiry month:");  
+            var expiryYear = Console.readInt("Input expiry year:");  
+            var expiryDate = new GregorianCalendar(expiryYear, expiryMonth - 1, 1);  
+  
+            expiryDate.set(Calendar.DAY_OF_MONTH, expiryDate.getActualMaximum(Calendar.DAY_OF_MONTH));  
+  
+            Console.writeLine(expiryDate);  
+              
+            Console.writeLine(new GregorianCalendar().after(expiryDate) ? "Card expired" : "Card is available");  
+        }  
+    }  
+}
+```
+
+**Sınıf Çalışması:** Klavyeden gün, ay ve yıl bilgileri ile alınan doğum tarihine göre aşağıdaki mesajlardan birini yazdıran programı yazınız
+
+1. Doğum günü henüz gelmemişse, `Doğum gününüz şimdiden kutlu olsun. Yaşınız:49.13`
+2. Doğum günü geçmişse, `Geçmiş doğum gününüz kutlu olsun. Yaşınız:49.13`
+3. O gün doğum günü ise, `Doğum gününüz kutlu olsun. Yaşınız:49`
+
+
+**Çözüm - 1:**
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import org.csystem.datetime.DateTime;  
+  
+class Application {  
+    private static void printStatus(int day, int month, int year)  
+    {  
+        var today = DateTime.today();  
+        var birthDate = DateTime.of(day, month, year);  
+        var birthDay = birthDate.withYear(today.getYear());  
+        var age = (today.getTimeInMillis() - birthDate.getTimeInMillis()) / (1000. * 60 * 60 * 24 * 365);  
+  
+        if (today.isBefore(birthDay))  
+            Console.writeLine("Doğum gününüz şimdiden kutlu olsun. Yaşınız:%.2f", age);  
+        else if (today.isAfter(birthDay))  
+            Console.writeLine("Geçmiş doğum gününüz kutlu olsun. Yaşınız:%.2f", age);  
+        else  
+            Console.writeLine("Doğum gününüz kutlu olsun. Yaşınız:%.0f", age);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        var day = Console.readInt("Gün?");  
+        var month = Console.readInt("Ay?");  
+        var year = Console.readInt("Yıl?");  
+  
+        printStatus(day, month, year);  
+    }  
+}
+```
+
+**Çözüm - 2:**
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import org.csystem.datetime.DateTime;  
+  
+class Application {  
+    private static void printStatus(int day, int month, int year)  
+    {  
+        var today = DateTime.today();  
+        var birthDate = DateTime.of(day, month, year);  
+        var birthDay = birthDate.withYear(today.getYear());  
+        var age = (today.getTimeInMillis() - birthDate.getTimeInMillis()) / (1000. * 60 * 60 * 24 * 365);  
+  
+        var res = today.compareTo(birthDay);  
+  
+        if (res > 0)  
+            Console.writeLine("Doğum gününüz şimdiden kutlu olsun. Yaşınız:%.2f", age);  
+        else if (res < 0)  
+            Console.writeLine("Geçmiş doğum gününüz kutlu olsun. Yaşınız:%.2f", age);  
+        else  
+            Console.writeLine("Doğum gününüz kutlu olsun. Yaşınız:%.0f", age);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        var day = Console.readInt("Gün?");  
+        var month = Console.readInt("Ay?");  
+        var year = Console.readInt("Yıl?");  
+  
+        printStatus(day, month, year);  
+    }  
+}
+```
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import org.csystem.datetime.DateTime;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        while (true) {  
+            var expiryMonth = Console.readInt("Input expiry month:");  
+            var expiryYear = Console.readInt("Input expiry year:");  
+            var expiryDate = DateTime.of(1, expiryMonth, expiryYear);  
+  
+            expiryDate = expiryDate.withDay(expiryDate.getEndOfMonth());  
+  
+            Console.writeLine(expiryDate);  
+  
+            Console.writeLine(DateTime.now().isAfter(expiryDate) ? "Card expired" : "Card is available");  
+        }  
+    }  
+}
+```
