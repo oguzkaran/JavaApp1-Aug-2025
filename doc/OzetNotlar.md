@@ -1654,9 +1654,9 @@ class Application {
   
         var res = today.compareTo(birthDay);  
   
-        if (res > 0)  
+        if (res < 0)  
             Console.writeLine("Doğum gününüz şimdiden kutlu olsun. Yaşınız:%.2f", age);  
-        else if (res < 0)  
+        else if (res > 0)  
             Console.writeLine("Geçmiş doğum gününüz kutlu olsun. Yaşınız:%.2f", age);  
         else  
             Console.writeLine("Doğum gününüz kutlu olsun. Yaşınız:%.0f", age);  
@@ -1698,3 +1698,350 @@ class Application {
     }  
 }
 ```
+
+`Java 8` ile eklenen `LocalDate`, `LocalTime` ve `LocalDateTime` sınıflarının ctor'ları **private** olarak bildirilmiştir. Bu sınıflar ile nesne yaratmak için `of` **factory** metotları kullanılır. `LocalDate` ve `LocalDateTime` sınıfları için ay bilgisi 1 değerinden başlayacak şekilde verilir. Ayrıca yine bu sınıflarla birlikte eklenen `Month` enum sınıfı ile de ay bilgisi verilebilir veya elde edilebilir. Bu sınıfların ilgili tarih-zaman değerlerine ilişkin **accessor/getter** metotları ayrıdır. Bu sınıflar immutable olduğundan veri elemanlarının değiştirilmesi ile ilgili işlem yapan metotlar yeni bir nesne referansına dönerler. Bu sınıflar nano-saniye mertebesinde değer tutabilirler. Bu sınıfların `toString` *metotları* `ISO-8601` standardına göre formatlı bir yazıya geri döner. 
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.time.LocalDate;  
+import java.time.LocalDateTime;  
+import java.time.LocalTime;  
+import java.time.Month;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var date = LocalDate.of(2025, Month.NOVEMBER, 6);  
+        var time = LocalTime.of(20, 13, 45, 567);  
+        var dateTime1 = LocalDateTime.of(2025, Month.NOVEMBER, 6, 20, 13, 45, 567);  
+        var dateTime2 = LocalDateTime.of(date, time);  
+  
+        Console.writeLine(date);  
+        Console.writeLine(time);  
+        Console.writeLine(dateTime1);  
+        Console.writeLine(dateTime2);  
+    }  
+}
+```
+
+Bu sınıfların `now` metotları çalışılan sistemin o anki tarih-zaman bilgisine ilişkin nesnenin referansına döner. Bu sınıfların `plusXXX` ve `minusXXX` metotları ile ilgili zamana çeşitli birimlerde (gün, ay yıl, saat vb) değerler eklenebilir ya da çıkartılabilir. 
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.time.LocalDate;  
+import java.time.LocalDateTime;  
+import java.time.LocalTime;  
+import java.time.Month;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var now = LocalDateTime.now();  
+        var today = LocalDate.now();  
+        var currentTime = LocalTime.now();  
+  
+        Console.writeLine(now);  
+        Console.writeLine(today);  
+        Console.writeLine(currentTime);  
+  
+        var dateTime = now.plusWeeks(3).plusDays(1).minusHours(4);  
+        var date = today.minusMonths(2).minusDays(2);  
+        var time = currentTime.minusHours(3).plusSeconds(75);  
+  
+        Console.writeLine(dateTime);  
+        Console.writeLine(date);  
+        Console.writeLine(time);  
+    }  
+}
+```
+
+Yine `withXXX` metotları ile herhangi bir bileşenin değişmiş olduğu yeni nesne referansı elde edilebilir. 
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.time.LocalDate;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var today = LocalDate.now();  
+  
+        Console.writeLine(today);  
+  
+        var date = today.withYear(2024).withDayOfMonth(10);  
+  
+        Console.writeLine(date);  
+    }  
+}
+```
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.time.LocalDate;  
+import java.time.Month;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var date = LocalDate.of(2025, Month.MARCH, 2);  
+  
+        Console.writeLine(date.getDayOfWeek());  
+        date = date.withYear(2024).withDayOfYear(61);  
+        Console.writeLine(date);  
+    }  
+}
+```
+
+Bu sınıflar tarih-zaman geçerlilik kontrolünü yaparlar ve herhangi bir geçersiz tarih-zaman durumunda `DateTimeException` nesnesi fırlatırlar. 
+
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.time.DateTimeException;  
+import java.time.LocalDate;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var day = Console.readInt("Input day:");  
+        var month = Console.readInt("Input month:");  
+        var year = Console.readInt("Input year:");  
+  
+        try {  
+            var date = LocalDate.of(year, month, day);  
+  
+            Console.writeLine(date);  
+        }  
+        catch (DateTimeException e) {  
+            Console.Error.writeLine("Invalid date format:%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+`LocalDate` sınıfının `atTime` ve `LocalTime` sınıfının `atDate` metotları ilgili bilgilerden oluşan `LocalDateTime` nesnesinin referansına geri dönerler. 
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.time.LocalDate;  
+import java.time.LocalTime;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var currentTime = LocalTime.now();  
+        var today = LocalDate.now();  
+        var now1 = currentTime.atDate(today);  
+        var now2 = today.atTime(currentTime);  
+  
+        Console.writeLine(currentTime);  
+        Console.writeLine(today);  
+        Console.writeLine(now1);  
+        Console.writeLine(now2);  
+    }  
+}
+```
+
+`LocalDateTime` sınıfının `toLocalDate` ve `toLocalTime` metotları ile ilgili bilgilerden oluşan sırasıyla `LocalDate` ve `LocalTime` referansları elde edilebilir.
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.time.LocalDateTime;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var now = LocalDateTime.now();  
+        var date = now.toLocalDate();  
+        var time = now.toLocalTime();  
+  
+        Console.writeLine(now);  
+        Console.writeLine(date);  
+        Console.writeLine(time);  
+    }  
+}
+```
+
+Belirli bir tarih aralığında geçen zamanın hesaplanabilmesi için `ChronoUnit` enum sınıfı kullanılır. Bu sınıfın `between` metodu ile iki tarih, zaman ya da tarih-zaman bilgisi istenilen birimde elde edilebilir. Aşağıdaki demo örnekte `6 Şubat 2023 saat 04:02:00` da gerçekleşen depremden günümüze kadar geçen zaman çeşitli birimlerde hesaplanmıştır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.time.LocalDateTime;  
+import java.time.Month;  
+import java.time.temporal.ChronoUnit;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var earthquakeDateTime = LocalDateTime.of(2023, Month.FEBRUARY, 6, 4, 2);  
+        var now = LocalDateTime.now();  
+        var days = ChronoUnit.DAYS.between(earthquakeDateTime, now);  
+        var totalYears = days / 365.;  
+        var hours = ChronoUnit.HOURS.between(earthquakeDateTime, now);  
+        var weeks = ChronoUnit.WEEKS.between(earthquakeDateTime, now);  
+  
+        Console.writeLine("Days:%s", days);  
+        Console.writeLine("Total Years:%s", totalYears);  
+        Console.writeLine("Hours:%s", hours);  
+        Console.writeLine("weeks:%s", weeks);  
+    }  
+}
+```
+
+
+Bu sınıfların karşılaştırma işlemlerinde kullanılan `isAfter, isBefore ve compareTo` metotları vardır.
+
+**Sınıf Çalışması:** Klavyeden gün, ay ve yıl bilgileri ile alınan doğum tarihine göre aşağıdaki mesajlardan birini yazdıran programı yazınız
+
+1. Doğum günü henüz gelmemişse, `Doğum gününüz şimdiden kutlu olsun. Yaşınız:49.13`
+2. Doğum günü geçmişse, `Geçmiş doğum gününüz kutlu olsun. Yaşınız:49.13`
+3. O gün doğum günü ise, `Doğum gününüz kutlu olsun. Yaşınız:49`
+
+
+**Çözüm - 1:**
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.time.LocalDate;  
+import java.time.temporal.ChronoUnit;  
+  
+class Application {  
+    private static void printStatus(int day, int month, int year)  
+    {  
+        var today = LocalDate.now();  
+        var birthDate = LocalDate.of(year, month, day);  
+        var birthDay = birthDate.withYear(today.getYear());  
+        var age = ChronoUnit.DAYS.between(birthDate, today) / 365.;  
+  
+        if (today.isBefore(birthDay))  
+            Console.writeLine("Doğum gününüz şimdiden kutlu olsun. Yaşınız:%.2f", age);  
+        else if (today.isAfter(birthDay))  
+            Console.writeLine("Geçmiş doğum gününüz kutlu olsun. Yaşınız:%.2f", age);  
+        else  
+            Console.writeLine("Doğum gününüz kutlu olsun. Yaşınız:%.0f", age);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        var day = Console.readInt("Gün?");  
+        var month = Console.readInt("Ay?");  
+        var year = Console.readInt("Yıl?");  
+  
+        printStatus(day, month, year);  
+    }  
+}
+```
+
+**Çözüm - 2:**
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.time.LocalDate;  
+import java.time.temporal.ChronoUnit;  
+  
+class Application {  
+    private static void printStatus(int day, int month, int year)  
+    {  
+        var today = LocalDate.now();  
+        var birthDate = LocalDate.of(year, month, day);  
+        var birthDay = birthDate.withYear(today.getYear());  
+        var age = ChronoUnit.DAYS.between(birthDate, today) / 365.;  
+        var res = today.compareTo(birthDay);  
+  
+        if (res < 0)  
+            Console.writeLine("Doğum gününüz şimdiden kutlu olsun. Yaşınız:%.2f", age);  
+        else if (res > 0)  
+            Console.writeLine("Geçmiş doğum gününüz kutlu olsun. Yaşınız:%.2f", age);  
+        else  
+            Console.writeLine("Doğum gününüz kutlu olsun. Yaşınız:%.0f", age);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        var day = Console.readInt("Gün?");  
+        var month = Console.readInt("Ay?");  
+        var year = Console.readInt("Yıl?");  
+  
+        printStatus(day, month, year);  
+    }  
+}
+```
+
+`DateTimeFormatter` sınıfı ile formatlama yapılabilir. Bu sınıfın static `ofPattern` metoduna özel karakterlerden oluşan bir pattern verilerek formatlama yapılır. Bu sınıfın format metodu ile, ilgili tarih, zaman ya da tarih-zaman bilgisinden ilgili formatta yazı karşılığı elde edilebilir. Pattern'e ilişkin özel karakterler [DataTimeFormatter](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/format/DateTimeFormatter.html) dokümantasyonundan elde edilebilir. 
+
+`LocalDate, LocalTime, LocalDateTime` sınıflarının `parse` metotları ile yazıdan ilgili nesne elde edilebilir. parse metotları yazının geçersiz olması durumunda `DataTimeParseException` nesnesi fırlatırlar.
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.time.LocalDateTime;  
+import java.time.format.DateTimeFormatter;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-mm-s-n");  
+        var now = LocalDateTime.now();  
+  
+        Console.writeLine(now);  
+        Console.writeLine(now.format(formatter));  
+    }  
+}
+```
+
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.time.LocalDate;  
+import java.time.format.DateTimeFormatter;  
+import java.time.format.DateTimeParseException;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            var formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");  
+            var date = LocalDate.parse(Console.readLine("Input date text"), formatter);  
+  
+            Console.writeLine(date);  
+        }  
+        catch (DateTimeParseException e) {  
+            Console.Error.writeLine("Invalid format for date");  
+        }  
+    }  
+}
+```
+
