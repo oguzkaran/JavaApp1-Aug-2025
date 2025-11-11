@@ -2045,3 +2045,389 @@ class Application {
 }
 ```
 
+Bir tarihe ilişkin ayın son günü çeşitli şekillerde bulunabilir. Aşağıdaki demo örnekte `***` ile belirtilen çağrı içlerinde en az maliyetli olandır. lengthOfMonth metodu ile ilgili tarihe ilişkin son günün değeri elde edilebilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.time.LocalDate;  
+import java.time.temporal.TemporalAdjusters;  
+  
+class Application {  
+    public static void run(String [] args)  
+    {  
+        var today  = LocalDate.now();  
+        var endOfMonth1 = today.withDayOfMonth(1).plusMonths(1).minusDays(1);  
+        var endOfMonth2 = today.with(TemporalAdjusters.lastDayOfMonth());  
+        var endOfMonth3 = today.withDayOfMonth(today.lengthOfMonth());  //***
+  
+        Console.writeLine(endOfMonth1);  
+        Console.writeLine(endOfMonth2);  
+        Console.writeLine(endOfMonth3);  
+    }  
+}
+```
+
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import org.csystem.datetime.DateTime;  
+  
+import java.time.LocalDate;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        while (true) {  
+            var expiryMonth = Console.readInt("Input expiry month:");  
+            var expiryYear = Console.readInt("Input expiry year:");  
+            var expiryDate = LocalDate.of(expiryYear, expiryMonth, 1);  
+  
+            expiryDate = expiryDate.withDayOfMonth(expiryDate.lengthOfMonth());  
+  
+            Console.writeLine(expiryDate);  
+  
+            Console.writeLine(LocalDate.now().isAfter(expiryDate) ? "Card expired" : "Card is available");  
+        }  
+    }  
+}
+```
+
+Elimizde yıl ve ay bilgisi varsa `YearMonth` sınıfı ile ayın son günü elde edilebilir.
+
+Yukarıdaki demo örnek aşağıdaki gibi de yapılabilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.time.LocalDate;  
+import java.time.YearMonth;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        while (true) {  
+            var expiryMonth = Console.readInt("Input expiry month:");  
+            var expiryYear = Console.readInt("Input expiry year:");  
+            var expiryDate = YearMonth.of(expiryYear, expiryMonth).atEndOfMonth();  
+  
+            Console.writeLine(expiryDate);  
+            Console.writeLine(LocalDate.now().isAfter(expiryDate) ? "Card expired" : "Card is available");  
+        }  
+    }  
+}
+```
+
+##### API, Library ve Framework Kavramları
+
+Bu kavramlar için net birer tanım yoktur ancak burada pek çok programcı açısından kabul edilen betimlemeleri üzerinde durulacaktır. Bu kavramlar bazı geliştirmeler açısından birbirine çok yakın olabilmektedir. Hatta bazı durumlarda bir geliştirmenin hangisi olduğu konusunda görüş ayrılıkları da olabilir.
+
+**API (Application Programming Interface):** Bir yazılım sisteminde uygulama programcısının doğrudan erişebileceği veya çağırabileceği, o sistem ile uygulama programcısı arasında köprü oluşturan metot, sınıfı ya da çeşitli formatlardaki bilgilere denir. API oldukça elastik bir terimdir. Hangi metotlara API denebileceği tartışmaya açıktır ancak genel olarak söylemek gerekirse, uygulama programcısını ilgili sistem ile işlemler yaparken detaylardan soyutlayan sınıf, metot ya da çeşitli formatlardaki bilgiler anlaşılır. Örneğin, `Java API`dendiğinde Java sınıfları ve metotlar anlaşılır. Yine örneğin `Java 8 Date Time API` dendiğinde Java 8 ile eklenen tarih-zaman türleri ve metotları anlaşılır.. Yine örneğin Merkez Bankası'ından o anki döviz kuru bilgilerini elde edebilmek için erişilen ve yanıt olarak elde edilen bilgilerin tamamına API denilebilir. Yine örneğin, `Windows API` dendiğinde Windows işletim sisteminde temel işlemler yapmak için kullanılan aşağı seviyeli fonksiyonlar anlaşılır.
+
+**Kütüphane (library) ve Framework:** Bu kavramların sınırları tam belli değildir. Değişik kaynaklarda değişik biçimlerde sınırlar çizilebilmektedir ancak bir sisteme framework diyebilmek için aşağıdaki iki özelliğin bulunması yönünde bir eğilim vardır:
+
+1. Karmaşıklığın kullanıcıya daha basit gösterilmesi ve detayların yani yük oluşturan kısımların kullanıcının üzerinden alınmasıdır
+2. Kod akışının ele geçirilmesi (yani yönetilmesi) ve duruma göre programcıya belli zamanlarda verilmesi. Buna genel olarak **Inversion of Control (IOC)** de denilmektedir.
+
+Kütüphanelerde arka planda bir takım işlemler kullanıcılar için yapılır. Akışın ele geçirilmesi gibi bir amaç yoktur. Kütüphanelerde program akışı kullanıcıdadır. Programcı isterse kütüphaneye ilişkin sınıfları ve metotları kullanabilir. Şüphesiz kütüphane içerisindeki bu sınıflar ve metotlar yararlı bir takım işlemler yaparlar. Şüphesiz pek çok framework aynı zamanda birden fazla kütüphaneye ve API'lere sahiptir. Bazı durumlarda o sistemin bir framework mü ya da bir kütüphane mi olduğu konusunda tereddütler olabilir. 
+
+##### Nested Types
+
+Java'da iç içe tür bildirimleri (nested types/nested type declarations) yapılabilir. Örneğin, sınıf içerisinde sınıf bildirimi, sınıf içersinde enum class bildirimi, sınıf içerisinde interface bildirimi vb. Bu bölümde iç içe sınıf bildirimleri ele alınacaktır. Diğer bildirimler iç içe sınıf bildirimlerine göre daha az detaylıdır. İç içe sınıf bildirimleri şunlardır: **local classes, nested classes, inner classes, anonymous classes, Lambda expressions (since Java 8).** 
+
+Herhangi bir user type type (UDT) içerisinde bildirilmemiş UDT'lere **top level types** denir. Bu anlamda hiç bir UDT içerinde bildirilmemiş sınıflara **top level classes** denir. 
+
+**Soru:** Aşağıdaki demo sınıfı, int türden yeni bir yetenek (ability) eklendiğinde `abilityTotal` ve `abilityAverage` metotları değiştirilmek zorunda kalmayacak şekilde güncelleyiniz
+
+```java  
+class Fighter {  
+    private String m_name;  
+    private int m_health;  
+    private int m_strength;  
+    private int m_agility;  
+  
+    public Fighter(String name)  
+    {  
+        m_name = name;  
+    }  
+  
+    public String getName()  
+    {  
+        return m_name;  
+    }  
+  
+    public void setName(String name)  
+    {  
+        m_name = name;  
+    }  
+  
+    public int getHealth()  
+    {  
+        return m_health;  
+    }  
+  
+    public void setHealth(int health)  
+    {  
+        m_health = health;  
+    }  
+  
+    public int getStrength()  
+    {  
+        return m_strength;  
+    }  
+  
+    public void setStrength(int strength)  
+    {  
+        m_strength = strength;  
+    }  
+  
+    public int getAgility()  
+    {  
+        return m_agility;  
+    }  
+  
+    public void setAgility(int agility)  
+    {  
+        m_agility = agility;  
+    }  
+  
+    public int abilityTotal()  
+    {  
+        return m_health + m_strength + m_agility;  
+    }  
+  
+    public double abilityAverage()  
+    {  
+        return abilityTotal() / 3.;  
+    }  
+  
+    //...  
+}
+```
+
+**Çözüm 1**
+
+```java
+class Fighter {  
+    private static final int COUNT = 4;  
+    private String m_name;  
+    private final int [] m_abilities;  
+  
+    public Fighter(String name)  
+    {  
+        m_name = name;  
+        m_abilities = new int[COUNT];  
+    }  
+  
+    public String getName()  
+    {  
+        return m_name;  
+    }  
+  
+    public void setName(String name)  
+    {  
+        m_name = name;  
+    }  
+  
+    public int getHealth()  
+    {  
+        return m_abilities[0];  
+    }  
+  
+    public void setHealth(int health)  
+    {  
+        m_abilities[0] = health;  
+    }  
+  
+    public int getStrength()  
+    {  
+        return m_abilities[1];  
+  
+    }  
+  
+    public void setStrength(int strength)  
+    {  
+        m_abilities[1] = strength;  
+    }  
+  
+    public int getAgility()  
+    {  
+        return m_abilities[2];  
+    }  
+  
+    public void setAgility(int agility)  
+    {  
+        m_abilities[2] = agility;  
+    }  
+    public int getSpeed()  
+    {  
+        return m_abilities[3];  
+    }  
+  
+    public void setSpeed(int speed)  
+    {  
+        m_abilities[3] = speed;  
+    }  
+  
+    public int abilityTotal()  
+    {  
+        return (int)ArrayUtil.sum(m_abilities);  
+    }  
+  
+    public double abilityAverage()  
+    {  
+        return abilityTotal() / (double)m_abilities.length;  
+    }  
+  
+    //...  
+}
+```
+
+**Çözüm 2:**
+
+```java
+class Fighter {  
+    private String m_name;  
+    private final int [] m_abilities;  
+    private enum ABILITY {HEALTH, STRENGTH, AGILITY, SPEED, COUNT}  
+  
+    public Fighter(String name)  
+    {  
+        m_name = name;  
+        m_abilities = new int[ABILITY.COUNT.ordinal()];  
+    }  
+  
+    public String getName()  
+    {  
+        return m_name;  
+    }  
+  
+    public void setName(String name)  
+    {  
+        m_name = name;  
+    }  
+  
+    public int getHealth()  
+    {  
+        return m_abilities[ABILITY.HEALTH.ordinal()];  
+    }  
+  
+    public void setHealth(int health)  
+    {  
+        m_abilities[ABILITY.HEALTH.ordinal()] = health;  
+    }  
+  
+    public int getStrength()  
+    {  
+        return m_abilities[ABILITY.STRENGTH.ordinal()];  
+  
+    }  
+  
+    public void setStrength(int strength)  
+    {  
+        m_abilities[ABILITY.STRENGTH.ordinal()] = strength;  
+    }  
+  
+    public int getAgility()  
+    {  
+        return m_abilities[ABILITY.AGILITY.ordinal()];  
+    }  
+  
+    public void setAgility(int agility)  
+    {  
+        m_abilities[ABILITY.AGILITY.ordinal()] = agility;  
+    }  
+  
+    public int getSpeed()  
+    {  
+        return m_abilities[ABILITY.SPEED.ordinal()];  
+    }  
+  
+    public void setSpeed(int speed)  
+    {  
+        m_abilities[ABILITY.SPEED.ordinal()] = speed;  
+    }  
+  
+    public int abilityTotal()  
+    {  
+        return (int)ArrayUtil.sum(m_abilities);  
+    }  
+  
+    public double abilityAverage()  
+    {  
+        return abilityTotal() / (double)m_abilities.length;  
+    }  
+  
+    //...  
+}
+```
+
+###### Local Classes
+
+Bir blok içerisinde bildirilen sınıflara **local classes** denir. Local classes pratikte çok kullanılmaz. Birim testi araçları yaygınlaşmadan önce test işlemlerinde kullanılırdı. Burada yerel sınıfları özellikle ileride ele alacağımız diğer nested type'larda da önemli olacak olan bir takım kavramları daha kolay öğrenmek için ele alacağız. Yerel sınıfların ara kod isimlendirmesinin Java derleyicisi açısından genel biçimi şu şekildedir:
+
+```
+<top level tür ismi>$<n><yerel sınıf ismi>
+```
+
+Burada top level tür ismi yerel sınıfın bildirildiği bloğun ait olduğu sınıftır. n değeri ise soldan sağa ve yukarıdan aşağıya olmak üzere bildirilen yerel sınıf numarasıdır. 
+
+Aşağıdaki demo örnekte sınıflara ilişkin byte code'ların dosya isimleri aşağıdaki gibidir:
+
+```
+Applicatiom.class
+Sample.class
+Application$1Sample.class
+Application$2Sample.class
+Application$1Mample.class
+```
+
+```java
+package org.csystem.app;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        class Sample {  
+            //...  
+            public void foo()  
+            {  
+                //...  
+            }  
+        }  
+    }  
+  
+    public static void doWork()  
+    {  
+        class Sample {  
+            //...  
+            public void foo()  
+            {  
+                //...  
+            }  
+        }  
+  
+        class Mample {  
+            //...  
+        }  
+    }  
+}  
+  
+class Sample {  
+    //...  
+  
+    public void foo()  
+    {  
+        //...  
+    }  
+}
+```
+
