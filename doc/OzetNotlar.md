@@ -2141,7 +2141,7 @@ Kütüphanelerde arka planda bir takım işlemler kullanıcılar için yapılır
 
 ##### Nested Types
 
-Java'da iç içe tür bildirimleri (nested types/nested type declarations) yapılabilir. Örneğin, sınıf içerisinde sınıf bildirimi, sınıf içersinde enum class bildirimi, sınıf içerisinde interface bildirimi vb. Bu bölümde iç içe sınıf bildirimleri ele alınacaktır. Diğer bildirimler iç içe sınıf bildirimlerine göre daha az detaylıdır. İç içe sınıf bildirimleri şunlardır: **local classes, nested classes, inner classes, anonymous classes, Lambda expressions (since Java 8).** 
+Java'da iç içe tür bildirimleri (nested types/nested type declarations) yapılabilir. Örneğin, sınıf içerisinde sınıf bildirimi, sınıf içersinde enum class bildirimi, sınıf içerisinde interface bildirimi vb. Bu bölümde iç içe sınıf bildirimleri ele alınacaktır. Diğer bildirimler iç içe sınıf bildirimlerine göre daha az detaylıdır. İç içe sınıf bildirimleri şunlardır: **local classes, nested classes, inner classes, anonymous classes, lambda expressions (since Java 8).** 
 
 Herhangi bir user type type (UDT) içerisinde bildirilmemiş UDT'lere **top level types** denir. Bu anlamda hiç bir UDT içerinde bildirilmemiş sınıflara **top level classes** denir. 
 
@@ -2372,7 +2372,7 @@ class Fighter {
 
 ###### Local Classes
 
-Bir blok içerisinde bildirilen sınıflara **local classes** denir. Local classes pratikte çok kullanılmaz. Birim testi araçları yaygınlaşmadan önce test işlemlerinde kullanılırdı. Burada yerel sınıfları özellikle ileride ele alacağımız diğer nested type'larda da önemli olacak olan bir takım kavramları daha kolay öğrenmek için ele alacağız. Yerel sınıfların ara kod isimlendirmesinin Java derleyicisi açısından genel biçimi şu şekildedir:
+Bir blok içerisinde bildirilen sınıflara **local classes** denir. Local classes pratikte çok kullanılmaz. Birim testi araçları yaygınlaşmadan önce test işlemlerinde kullanılırdı. **Burada yerel sınıfları özellikle ileride ele alacağımız diğer nested type'larda da önemli olacak olan bir takım kavramları daha kolay öğrenmek için öğreneceğiz.** Yerel sınıfların ara kod isimlendirmesinin Java derleyicisi açısından genel biçimi şu şekildedir:
 
 ```
 <top level tür ismi>$<n><yerel sınıf ismi>
@@ -2393,6 +2393,8 @@ Application$1Mample.class
 ```java
 package org.csystem.app;  
   
+import com.karandev.io.util.console.Console;  
+  
 class Application {  
     public static void run(String[] args)  
     {  
@@ -2400,9 +2402,13 @@ class Application {
             //...  
             public void foo()  
             {  
-                //...  
+                Console.writeLine("Application$1Sample.foo");  
             }  
         }  
+  
+        var s = new Sample();  
+  
+        s.foo();  
     }  
   
     public static void doWork()  
@@ -2430,4 +2436,288 @@ class Sample {
     }  
 }
 ```
+
+Yerel sınıfların static metotları da olabilir
+
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        class Sample {  
+            //...  
+            public static void foo()  
+            {  
+                Console.writeLine("Application$1Sample.foo");  
+            }  
+        }  
+  
+        Sample.foo();  
+    }  
+}
+```
+
+Yerel bir sınıf içerisinde kendisinden önce bildirilmiş bir yerel değişken ya da bir parametre değişkeni kullanılabilir. Bu kavrama **capture** denir. Bu değişken static metotlar içerisinde kullanılamaz.
+
+Aşağıdaki demo örnekte neden yerel sınıf kullanıldığına değil capture kavramına odaklanınız.
+
+Örnekteki `DateUtil` yerel sınıfının üretilen byte code'u yaklaşık olarak aşağıdaki gibidir
+```java
+class Application$1DateUtil {
+	private final int m_year;
+	
+	public Application$1DateUtil(int year)
+	{
+		m_year = year;
+	}
+	
+	public boolean isLeapYear()  
+	{  
+		return m_year % 4 == 0 && m_year % 100 != 0 || m_year % 400 == 0;  
+	}  
+}
+```
+
+Örnekteki `DateUtil` yerel sınıfı türünden nesne yaratıldığında derleyici yaklaşık olarak aşağıdaki gibi bir kod üretir
+```java
+var util = new Application$1DateUtil(year);
+```
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var year = Console.readInt("Input year:");  
+  
+        class DateUtil {  
+            public boolean isLeapYear()  
+            {  
+                return year % 4 == 0 && year % 100 != 0 || year % 400 == 0;  
+            }  
+        }  
+  
+        var util = new DateUtil();  
+        
+        Console.writeLine(util.isLeapYear() ? "Leap year" : "Not a leap year");  
+    }  
+}
+```
+
+Yakalanan bir yerel değişken veya bir parametre değişkeninin değeri faaliyet alanı (scope) boyunca değiştirilemez. Bu tip değişkenlere **effectively final** değişkenler denir. Bu kavramın yakalamadaki karşılığı Java 8 ile dile eklenmiştir. Java 8'den önce yakalanan bir değişkenin final olarak bildirilmesi zorunluydu. 
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var year = Console.readInt("Input year:");  
+  
+        class DateUtil {  
+            public boolean isLeapYear()  
+            {  
+                return year % 4 == 0 && year % 100 != 0 || year % 400 == 0;  
+            }  
+        }  
+  
+        var util = new DateUtil();  
+        Console.writeLine(util.isLeapYear() ? "Leap year" : "Not a leap year");  
+    }  
+}
+```
+
+**Anahtar Notlar:** Capture kavramı ve yakalanan bir değişkenin effectively final olması yalnızca yerel sınıflara özgü değildir. Anonim sınıflar ve lambda ifadelerinde de kullanılan kavramlardır. Bu anlamda yakalama özellikleri (effectively final olması) anonim sınıflar ve lambda ifadelerinde de aynıdır.
+
+###### Nested Classes
+
+Bir sınıf içerisinde başka bir sınıfın static olarak bildirilmesine **nested class** denir. Bu bildirim ile aslında sınıfa static bir eleman (member) eklenmiş olur. Nested sınıfların ara kod isimlendirmesinin Java derleyicisi açısından genel biçimi şu şekildedir:
+
+```
+<top level tür ismi>$<nested sınıf ismi>
+```
+
+Aşağıdaki demo sınıflara ilişkin üretilen byte code dosya isimleri şu şekildedir:
+
+```
+A.class
+A$B.class
+A$B$X.class
+A$C.class
+A$D.class
+A$E.class
+```
+
+
+```java
+class A {  
+    private static class B {  
+        //...  
+        class X {  
+            //...  
+        }  
+    }  
+  
+    public static class C {  
+        //...  
+    }  
+  
+    protected static class D {  
+        //...  
+    }  
+  
+    static class E {  
+        //...  
+    }  
+}
+```
+
+
+Nested bir sınıf static bir eleman olduğuna göre, sınıf dışından sınıf ismi nokta operatörü ile erişilebilir
+
+Aşağıdak, demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        A.B.bar();  
+        var b = new A.B();  
+  
+        b.foo();  
+    }  
+}  
+  
+class A {  
+    public static class B {  
+        //...  
+  
+        public void foo()  
+        {  
+            Console.writeLine("A.B.foo");  
+        }  
+  
+        public static void bar()  
+        {  
+            Console.writeLine("A.B.bar");  
+        }  
+    }  
+```
+
+Nested bir sınıf içerisinde niteliksiz olarak kullanılan bir isim, niteliksiz isim arama (unqualified name lookup) genel kurallarına göre aranıyorsa ve sınıf içeriside doğrudan ya da dolaylı taban sınıfları da dahil bulunamıyorsa ait olduğu sınıf içerisinde de aranır. Bulunursa yine geçerlilik kontrolü yapılır. 
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        A.B.bar();  
+    }  
+}  
+  
+class A {  
+    public static void foo()  
+    {  
+        Console.writeLine("A.foo");  
+    }  
+  
+    public static class B {  
+        //...  
+        public static void bar()  
+        {  
+            Console.writeLine("A.B.bar");  
+            foo();  
+        }  
+    }  
+}
+```
+
+Aşağıdaki demo örnekte `***` ile belirtilen bar çağrısı ile metot kendi kendisini çağırmıştır (recursion).
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        A.B.bar();  
+    }  
+}  
+  
+class A {  
+    public static void bar()  
+    {  
+        Console.writeLine("A.bar");  
+    }  
+  
+    public static class B {  
+        //...  
+        public static void bar()  
+        {  
+            Console.writeLine("A.B.bar");  
+            bar(); //***  
+        }  
+    }  
+}
+```
+
+Aşağıdaki demo örnekte A sınıfının bar metodu nitelikli olarak çağrılabilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        A.B.bar();  
+    }  
+}  
+  
+class A {  
+    public static void bar()  
+    {  
+        Console.writeLine("A.bar");  
+    }  
+  
+    public static class B {  
+        //...  
+        public static void bar()  
+        {  
+            Console.writeLine("A.B.bar");  
+            A.bar(); //***  
+        }  
+    }  
+}
+```
+
+
+
+
+
+
+
 
