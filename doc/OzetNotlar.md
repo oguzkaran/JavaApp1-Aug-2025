@@ -2539,7 +2539,6 @@ class Application {
 ```
 
 **Anahtar Notlar:** Capture kavramı ve yakalanan bir değişkenin effectively final olması yalnızca yerel sınıflara özgü değildir. Anonim sınıflar ve lambda ifadelerinde de kullanılan kavramlardır. Bu anlamda yakalama özellikleri (effectively final olması) anonim sınıflar ve lambda ifadelerinde de aynıdır.
-
 ###### Nested Classes
 
 Bir sınıf içerisinde başka bir sınıfın static olarak bildirilmesine **nested class** denir. Bu bildirim ile aslında sınıfa static bir eleman (member) eklenmiş olur. Nested sınıfların ara kod isimlendirmesinin Java derleyicisi açısından genel biçimi şu şekildedir:
@@ -2617,6 +2616,7 @@ class A {
             Console.writeLine("A.B.bar");  
         }  
     }  
+}
 ```
 
 Nested bir sınıf içerisinde niteliksiz olarak kullanılan bir isim, niteliksiz isim arama (unqualified name lookup) genel kurallarına göre aranıyorsa ve sınıf içeriside doğrudan ya da dolaylı taban sınıfları da dahil bulunamıyorsa ait olduğu sınıf içerisinde de aranır. Bulunursa yine geçerlilik kontrolü yapılır. 
@@ -2713,6 +2713,292 @@ class A {
     }  
 }
 ```
+
+Nested sınıf kapsayan sınıfın private bölüme erişebilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        A.B.bar();  
+    }  
+}  
+  
+class A {  
+    private static void bar()  
+    {  
+        Console.writeLine("A.bar");  
+    }  
+  
+    public static class B {  
+        //...  
+        public static void bar()  
+        {  
+            Console.writeLine("A.B.bar");  
+            A.bar(); //***  
+        }  
+    }  
+}
+```
+
+Aşağıdaki demo örnekte fluent builder kalıbı (builder pattern with fluent pattern) kullanılmıştır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var s = new Sample.Builder()  
+                .setX(23)  
+                .setY("Ankara")  
+                .setT(true)  
+                .build();  
+  
+        Console.writeLine(s.getX());  
+        Console.writeLine(s.getY().isEmpty() ? "Empty" : s.getY());  
+        Console.writeLine("%s", s.getZ());  
+        Console.writeLine(s.isT());  
+    }  
+}  
+```
+
+```java
+public class Sample {  
+    private int m_x;  
+    private String m_y;  
+    private float m_z;  
+    private boolean m_t;  
+  
+    //...  
+  
+    public static class Builder {  
+        private final Sample m_sample;  
+  
+        public Builder()  
+        {  
+            m_sample = new Sample(0, "", 0, false);  
+        }  
+  
+        public Builder setX(int x)  
+        {  
+            m_sample.m_x = x;  
+  
+            return this;  
+        }  
+  
+        public Builder setY(String y)  
+        {  
+            m_sample.m_y = y;  
+  
+            return this;  
+        }  
+  
+        public Builder setZ(float z)  
+        {  
+            m_sample.m_z =z;  
+  
+            return this;  
+        }  
+  
+        public Builder setT(boolean t)  
+        {  
+            m_sample.m_t = t;  
+  
+            return this;  
+        }  
+  
+        public Sample build()  
+        {  
+            return m_sample;  
+        }  
+    }  
+  
+    private Sample(int x, String y, float z, boolean t)  
+    {  
+        m_x = x;  
+        m_y = y;  
+        m_z = z;  
+        m_t = t;  
+    }  
+  
+    public int getX()  
+    {  
+        return m_x;  
+    }  
+  
+    public String getY()  
+    {  
+        return m_y;  
+    }  
+  
+    public float getZ()  
+    {  
+        return m_z;  
+    }  
+  
+    public boolean isT()  
+    {  
+        return m_t;  
+    }  
+}
+```
+
+Aşağıdaki Prompt sınıfını ve kullanımını inceleyiniz.
+**Not:** Prompt sınıfının aşağıdaki yazımı en ilkel biçimidir. Daha ileri düzey kullanılabilecek şekilde yazılacaktır.
+
+```java
+package org.csystem.app;  
+  
+import org.csystem.prompt.Prompt;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        while (true) {  
+            var prompt = Prompt.Builder.builder()  
+                    .setTitle("Alert")  
+                    .setMessage("Save?")  
+                    .setPositiveOption("Yes")  
+                    .setNegativeOption("No")  
+                    .setNeutralOption("Cancel")  
+                    .build();  
+  
+            var option = prompt.show();  
+  
+            if (option == 'i')  
+                break;  
+        }  
+    }  
+}
+```
+
+```java
+package org.csystem.prompt;  
+  
+import com.karandev.io.util.console.Console;  
+  
+public final class Prompt {  
+    private final String [] m_values = {  
+            PromptInfo.TITLE.defaultValue,  
+            PromptInfo.MESSAGE.defaultValue,  
+            PromptInfo.POSITIVE_OPTION.defaultValue,  
+            PromptInfo.NEGATIVE_OPTION.defaultValue,  
+            PromptInfo.NEUTRAL_OPTION.defaultValue,  
+            PromptInfo.OPTION_MESSAGE.defaultValue  
+    };  
+  
+    private enum PromptInfo {  
+        TITLE(""),  
+        MESSAGE(""),  
+        POSITIVE_OPTION(""),  
+        NEGATIVE_OPTION(""),  
+        NEUTRAL_OPTION(""),  
+        OPTION_MESSAGE("Option:");  
+  
+        final String defaultValue;  
+  
+        PromptInfo(String defaultValue)  
+        {  
+            this.defaultValue = defaultValue;  
+        }  
+    };  
+  
+    public static class Builder {  
+        private final Prompt m_prompt;  
+        private Builder()  
+        {  
+            m_prompt = new Prompt();  
+        }  
+  
+        public Builder setTitle(String title)  
+        {  
+            m_prompt.m_values[PromptInfo.TITLE.ordinal()] = title;  
+  
+            return this;  
+        }  
+  
+        public Builder setMessage(String message)  
+        {  
+            m_prompt.m_values[PromptInfo.MESSAGE.ordinal()] = message;  
+  
+            return this;  
+        }  
+  
+        public Builder setPositiveOption(String option)  
+        {  
+            m_prompt.m_values[PromptInfo.POSITIVE_OPTION.ordinal()] = option;  
+  
+            return this;  
+        }  
+  
+        public Builder setNegativeOption(String option)  
+        {  
+            m_prompt.m_values[PromptInfo.NEGATIVE_OPTION.ordinal()] = option;  
+  
+            return this;  
+        }  
+  
+        public Builder setNeutralOption(String option)  
+        {  
+            m_prompt.m_values[PromptInfo.NEUTRAL_OPTION.ordinal()] = option;  
+  
+            return this;  
+        }  
+  
+        public Builder setOptionMessage(String optionMessage)  
+        {  
+            m_prompt.m_values[PromptInfo.OPTION_MESSAGE.ordinal()] = optionMessage;  
+  
+            return this;  
+        }  
+  
+        public static Builder builder()  
+        {  
+            return new Builder();  
+        }  
+  
+        public Prompt build()  
+        {  
+            return m_prompt;  
+        }  
+    }  
+  
+    public char show()  
+    {  
+        if (m_values[PromptInfo.TITLE.ordinal()] != null && !m_values[PromptInfo.TITLE.ordinal()].isBlank())  
+            Console.writeLine(m_values[PromptInfo.TITLE.ordinal()]);  
+  
+        if (m_values[PromptInfo.MESSAGE.ordinal()] != null && !m_values[PromptInfo.MESSAGE.ordinal()].isBlank())  
+            Console.writeLine(m_values[PromptInfo.MESSAGE.ordinal()]);  
+  
+        if (m_values[PromptInfo.POSITIVE_OPTION.ordinal()] != null && !m_values[PromptInfo.POSITIVE_OPTION.ordinal()].isBlank())  
+            Console.writeLine(m_values[PromptInfo.POSITIVE_OPTION.ordinal()]);  
+  
+        if (m_values[PromptInfo.NEGATIVE_OPTION.ordinal()] != null && !m_values[PromptInfo.NEGATIVE_OPTION.ordinal()].isBlank())  
+            Console.writeLine(m_values[PromptInfo.NEGATIVE_OPTION.ordinal()]);  
+  
+        if (m_values[PromptInfo.NEUTRAL_OPTION.ordinal()] != null && !m_values[PromptInfo.NEUTRAL_OPTION.ordinal()].isBlank())  
+            Console.writeLine(m_values[PromptInfo.NEUTRAL_OPTION.ordinal()]);  
+  
+        if (m_values[PromptInfo.OPTION_MESSAGE.ordinal()] != null && !m_values[PromptInfo.OPTION_MESSAGE.ordinal()].isBlank())  
+            Console.writeLine(m_values[PromptInfo.OPTION_MESSAGE.ordinal()]);  
+  
+        return Console.readChar();  
+    }  
+}
+```
+
+
+###### Inner Classes
+
+
 
 
 

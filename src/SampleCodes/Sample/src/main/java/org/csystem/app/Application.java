@@ -5,23 +5,25 @@ import com.karandev.io.util.console.Console;
 class Application {
     public static void run(String[] args)
     {
-        A.B.bar();
+        var a = new A();
+        var b = a.new B();
+
+        b.foo();
     }
 }
 
 class A {
-    public static void bar()
-    {
-        Console.writeLine("A.bar");
-    }
-
-    public static class B {
+    public class B {
         //...
+
+        public void foo()
+        {
+            Console.writeLine("A.B.foo");
+        }
+
         public static void bar()
         {
             Console.writeLine("A.B.bar");
-            A.bar(); //***
         }
     }
 }
-
