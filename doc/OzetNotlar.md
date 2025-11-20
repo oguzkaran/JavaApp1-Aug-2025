@@ -2995,8 +2995,294 @@ public final class Prompt {
 }
 ```
 
-
 ###### Inner Classes
+
+Inner sınıflar static anahtar sözcüğü ile bildirilmeyen iç sınıflardır. Yani sınıfın non-static bir elemanı durumundadır. Inner bir sınıf türünden nesnenin yaratılabilmesi için ait olduğu (yani içerisinde bulunduğu) sınıf türünden nesneye ihtiyaç vardır. Inner bir sınıf türünden nesne sınıf dışından new operatörü ile aşağıda genel biçimi verilen sentaks ile yaratılır:
+
+```java
+<ait olduğu sınıf türünden referans>.new <inner sınıf ismi>([argümanlar]);
+```
+
+Bu sentaksa göre ait olduğu sınıf türünden nesnenin yaratılmış olması gerekir. Inner bir sınıf türünden nesne ait olduğu sınıf içerisinde doğrudan `new` operatörü ile yaratılabilir.  Bu aslında `this.new` anlamına gelir. Inner sınıfların byte code'larına ilişkin isimlendirme nested sınıflar ile aynıdır.
+
+Aşağıdaki demo örneği inceleyiniz. Örnekte `**` ile belirtilen deyimdeki B türünden nesne foo'nun çağrılmasında kullanılan referansın gösterdiği nesnenin yaratılmasında kullanılan A nesnesinin referansı ile yaratılmış olur.
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var a = new A();  
+        var b = a.new B();  
+  
+        b.foo();  
+    }  
+}  
+  
+class A {  
+    public void tar()  
+    {  
+        var b = new B();  
+  
+        //...  
+    }  
+  
+    public class B {  
+        //...  
+  
+        public void foo()  
+        {  
+            Console.writeLine("A.B.foo");  
+  
+            var b = new B(); //** 
+        }  
+  
+        public static void bar()  
+        {  
+            Console.writeLine("A.B.bar");  
+        }  
+    }  
+}
+```
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var a = new A(10);  
+        var b = a.new B();  
+  
+        b.foo();  
+    }  
+}  
+  
+class A {  
+    private int m_x;  
+  
+    public A(int x)  
+    {  
+        m_x = x;  
+    }  
+  
+    public int getX()  
+    {  
+        return m_x;  
+    }  
+  
+    //...  
+  
+    public class B {  
+        //...  
+  
+        public void foo()  
+        {  
+            Console.writeLine("A.B.foo");  
+  
+            var b = new B();  
+  
+            b.bar();  
+        }  
+  
+        public void bar()  
+        {  
+            Console.writeLine("m_x = %d", m_x);  
+            Console.writeLine("A.B.bar");  
+        }  
+    }  
+}
+```
+
+
+Aşağıdaki demo örnekte isim arama kuralları gereği aynı metot bulunacağından recursion oluşur. 
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var a = new A();  
+        var b = a.new B();  
+  
+        b.foo();  
+    }  
+}  
+  
+class A {  
+    //...  
+  
+    public void foo()  
+    {  
+        Console.writeLine("A.foo");  
+    }  
+  
+    public class B {  
+        //...  
+  
+        public void foo()  
+        {  
+            Console.writeLine("A.B.foo");  
+            foo();  
+        }  
+    }  
+}
+```
+
+Peki, yukarıdaki örnekte B sınıfının foo metodunda, metodu çağıran B türden referansın gösterdiği nesnenin yaratılmasında kullanılan A türden nesne için foo metodu nasıl çağrılacaktır? Bunun için **this expression** kullanılabilir. this expression'ın genel biçimi şu şekildedir:
+
+```java
+<sınıf ismi>.this
+```
+
+Bu sentaksın kullanıldığı yerde ilgili sınıfa ilişkin this'in metoda geçirilmiş olması gerekir. Bu durumda yukarıdaki örnekte this expression kullanılabilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var a = new A();  
+        var b = a.new B();  
+  
+        b.foo();  
+    }  
+}  
+  
+class A {  
+    //...  
+  
+    public void foo()  
+    {  
+        Console.writeLine("A.foo");  
+    }  
+  
+    public class B {  
+        //...  
+  
+        public void foo()  
+        {  
+            Console.writeLine("A.B.foo");  
+            A.this.foo();  
+        }  
+    }  
+}
+```
+
+Inner sınıflar da ait oldukları sınıfın private bölümüne erişebilirler. 
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var a = new A();  
+        var b = a.new B();  
+  
+        b.foo();  
+    }  
+}  
+  
+class A {  
+    //...  
+  
+    private void foo()  
+    {  
+        Console.writeLine("A.foo");  
+    }  
+  
+    public class B {  
+        //...  
+  
+        public void foo()  
+        {  
+            Console.writeLine("A.B.foo");  
+            A.this.foo();  
+        }  
+    }  
+}
+```
+
+Peki, inner bir sınıf byte code'a yazılırken nasıl implemente edilecektir? Aslında inner bir sınıfa ait olduğu sınıf türünden bir veri elemanı eklenir. Inner sınıf türünden nesne yaratılırken o veri elemanı için ilgili adres geçilir. Bu da örneğin inner sınıfın her bir ctor'una ait olduğu sınıf türünden +1 tane parametre eklenerek yapılabilir. 
+
+Aşağıdaki demo örnekte bulunan B sınıfının byte code'unun yaklaşık karşılığı aşağıdaki gibidir:
+
+
+```java
+class A$B {
+	private final A m_a;
+	//...
+	public A$B(A a)
+	{
+		m_a = a;
+	}
+	
+	public void foo()  
+	{  
+		Console.writeLine("A.B.foo");  
+		m_a.foo();  
+	}  
+}
+```
+
+Örnekteki nesne yaratmanın byte code'unun yaklaşık karşılığı aşağıdaki gibidir:
+
+```java
+	var a = new A();  
+    var b = new A$B(a);
+  
+    b.foo();  
+```
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var a = new A();  
+        var b = a.new B();  
+  
+        b.foo();  
+    }  
+}  
+  
+class A {  
+    //...  
+  
+    public void foo()  
+    {  
+        Console.writeLine("A.foo");  
+    }  
+    
+    public class B {  
+        //...  
+  
+        public void foo()  
+        {  
+            Console.writeLine("A.B.foo");  
+            A.this.foo();  
+        }  
+    }  
+}
+```
+
 
 
 
