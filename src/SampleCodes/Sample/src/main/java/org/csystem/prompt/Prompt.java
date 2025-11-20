@@ -28,63 +28,61 @@ public final class Prompt {
         }
     };
 
-    public static class Builder {
-        private final Prompt m_prompt;
+    public class Builder {
         private Builder()
         {
-            m_prompt = new Prompt();
         }
 
         public Builder setTitle(String title)
         {
-            m_prompt.m_values[PromptInfo.TITLE.ordinal()] = title;
+            m_values[PromptInfo.TITLE.ordinal()] = title;
 
             return this;
         }
 
         public Builder setMessage(String message)
         {
-            m_prompt.m_values[PromptInfo.MESSAGE.ordinal()] = message;
+            m_values[PromptInfo.MESSAGE.ordinal()] = message;
 
             return this;
         }
 
         public Builder setPositiveOption(String option)
         {
-            m_prompt.m_values[PromptInfo.POSITIVE_OPTION.ordinal()] = option;
+            m_values[PromptInfo.POSITIVE_OPTION.ordinal()] = option;
 
             return this;
         }
 
         public Builder setNegativeOption(String option)
         {
-            m_prompt.m_values[PromptInfo.NEGATIVE_OPTION.ordinal()] = option;
+            m_values[PromptInfo.NEGATIVE_OPTION.ordinal()] = option;
 
             return this;
         }
 
         public Builder setNeutralOption(String option)
         {
-            m_prompt.m_values[PromptInfo.NEUTRAL_OPTION.ordinal()] = option;
+            m_values[PromptInfo.NEUTRAL_OPTION.ordinal()] = option;
 
             return this;
         }
 
         public Builder setOptionMessage(String optionMessage)
         {
-            m_prompt.m_values[PromptInfo.OPTION_MESSAGE.ordinal()] = optionMessage;
+            m_values[PromptInfo.OPTION_MESSAGE.ordinal()] = optionMessage;
 
             return this;
         }
 
         public static Builder builder()
         {
-            return new Builder();
+            return new Prompt().new Builder();
         }
 
         public Prompt build()
         {
-            return m_prompt;
+            return Prompt.this;
         }
     }
 
