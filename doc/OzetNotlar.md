@@ -3512,12 +3512,333 @@ public final class Prompt {
 
 ###### Anonim Sınıflar
 
+Programcının bildirimde isim vermediği sınıflara **anonim sınıflar (anonymous classes)** denir. Anonim sınıf bildiriminin genel biçimi şu şekildedir:
+
+```java
+new <UDT ismi>([argümanlar]) {
+	//...
+};
+```
+
+Buradaki UDT'nin türetmeye (inheritance) veya desteklenme (implementation)  açık bir tür olması gerekir. Örneğin, final olmayan bir sınıf veya bir arayüz olabilir. Bu sentaks ile şu işlem yapılmış olur: **İlgili UDT'den türemiş veya UDT'yi implemente etmiş bir sınıf hem bildirimiş olur hem de o sınıf türünden nesne yaratılmış olur.**  Anonim sınıfları derleyici genel olarak şu şekilde isimlendirme eğilimindedir:
+
+```
+<İçinde bulunduğu UDT ismi>$n
+```
+
+Burada n soldan sağa ve yukarıdan aşağıya bildirilen anonim sınıfların 1'den başlayan sıra numarasıdır.
+
+Aşağıdaki demo örneği çalıştırıp dinamik türleri gözlemleyiniz.
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        A a = new A() {  
+            //...  
+        };  
+  
+        B b = new B() {  
+            //...  
+        };  
+  
+        IX ix = new IX() {  
+            //...  
+        };  
+  
+        Console.writeLine(a.getClass().getName());  
+        Console.writeLine(b.getClass().getName());  
+        Console.writeLine(ix.getClass().getName());  
+    }  
+}  
+  
+class A {  
+    //...  
+}  
+  
+abstract class B {  
+    //...  
+}  
+  
+interface IX {  
+    //...  
+}
+```
+
+Bir anonim sınıf kendisinden önce bildirilen yerel değişkenleri ve parametre değişkenlerini `effectively final` olarak yakalar (capture).
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var a = Console.readInt("Input a value:");  
+  
+        A x = new A() {  
+            public void foo()  
+            {  
+                Console.writeLine("value:%d", a);  
+  
+                for (var arg : args)  
+                    Console.writeLine(arg);  
+            }  
+        };  
+  
+        x.foo();  
+    }  
+}  
+  
+abstract class A {  
+    public abstract void foo();  
+    //...  
+}  
+  
+class B extends A {  
+    //...  
+    public void foo()  
+    {  
+  
+    }  
+}
+```
+
+Bir metot özellikle **soyut** bir türden referansa sahipse o metot genel olarak sanal bir metodu içerisinde çağırıyordur. Bu durumda ilgili metot aslında çağıranın nasıl yaptığını bilmeden yalnızca neyi çağıracağına göre yazılır. Böylesi metotların aldıkları bu tarz parametrelere **callable** ya da **callback** denir. Yani aslında metot mantıksal olarak, içerisinde çağırdığı metodu ya da metotları dışarıdan almış olur. Yapacağı işin detayını dışarıdan alan bu tarz metotlar için **high order method** ya da **vip method** gibi kavramlar kullanılır. 
+
+Aşağıdaki basit örnekte aslında `doWork` metodu **callback** alan bir metottur. Örnekte doWork metodunun türden bağımsız yazılışına ve high order method olmasına odaklanınız.
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var a = Console.readInt("Input a value:");  
+  
+        A x = new A() {  
+            public void foo()  
+            {  
+                Console.writeLine("value:%d", a);  
+  
+                for (var arg : args)  
+                    Console.writeLine(arg);  
+            }  
+        };  
+  
+        Demo.doWork(x);  
+  
+        AFactory factory = new AFactory();  
+  
+        Demo.doWork(factory.creaateA(10, 20));  
+    }  
+}  
+  
+  
+class AFactory {  
+    //...  
+    public A creaateA(int a, int b)  
+    {  
+        return new A() {  
+            public void foo()  
+            {  
+                Console.writeLine("%d + %d = %d", a, b, a + b);  
+            }  
+        };  
+    }  
+}  
+  
+  
+class Demo {  
+    public static void doWork(A a)  
+    {  
+        //...  
+        a.foo();  
+    }  
+}  
+  
+abstract class A {  
+    public abstract void foo();  
+    //...  
+}
+```
+
+JavaSE'de periyodik işlemler yapmak için tipik olarak `Timer` sınıfı kullanılabilir. Bu sınıf normal akışı etkilemeden yani **asenkron** bir biçimde belirlenen zamanda bir işin yapılmasını sağlar. Bunun için `TimerTask` abstract sınıfının `run` metodu override edilir. TimerTask referansını callback olarak alan çeşitli metotlar ile timer işlemi başlatılır. Timer'ı durdurmak için `Timer` sınıfının `cancel` metodu kullanılır. Timer başlatmak için önce bir Timer nesnesi yaratılır. Biz burada Timer sınıfının default ctor'u ile nesne yaratacağız. Diğer ctor'lar burada ele alınmayacaktır. Timer başlatmak için ise `scheduleXXX` metotları çağrılır. Bu metotların aralarında bazı farklar vardır. İleride bu farklar alınacaktır. 
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.util.Timer;  
+import java.util.TimerTask;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var timer = new Timer();  
+  
+        var ch = Console.readChar("Input a char:");  
+  
+        timer.scheduleAtFixedRate(new CharacterDisplayTask(ch), 1000, 1000);  
+        Console.writeLine("main ends!");  
+    }  
+}
+  
+class CharacterDisplayTask extends TimerTask {  
+    private final char m_character;  
+  
+    public CharacterDisplayTask(char character)  
+    {  
+        m_character = character;  
+    }  
+  
+    public void run()  
+    {  
+        Console.write(m_character);  
+    }  
+}
+```
 
 
+Yukarıdaki demo aşağıdaki gibi anonim sınıf kullanarak da yapılabilir
 
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.util.Timer;  
+import java.util.TimerTask;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var timer = new Timer();  
+  
+        var ch = Console.readChar("Input a char:");  
+  
+        timer.scheduleAtFixedRate(new TimerTask() {  
+            public void run()  
+            {  
+                Console.write(ch);  
+            }  
+        }, 1000, 1000);  
+        Console.writeLine("main ends!");  
+    }  
+}
+```
 
+Yukarıdaki demo aşağıdaki gibi de yapılabilir
 
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.util.Timer;  
+import java.util.TimerTask;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var timer = new Timer();  
+  
+        var ch = Console.readChar("Input a char:");  
+  
+        timer.scheduleAtFixedRate(CharacterDisplayUtil.creteTimerTask(ch), 1000, 1000);  
+        Console.writeLine("main ends!");  
+    }  
+}  
+  
+class CharacterDisplayUtil {  
+    public static TimerTask creteTimerTask(char ch)  
+    {  
+        return new TimerTask() {  
+            public void run()  
+            {  
+                Console.write(ch);  
+            }  
+        };  
+    }  
+}
+```
 
+Aşağıdaki demo örnekte basit bir dijital saat yapılmıştır
 
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.time.LocalDateTime;  
+import java.time.LocalTime;  
+import java.time.format.DateTimeFormatter;  
+import java.util.Timer;  
+import java.util.TimerTask;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var timer = new Timer();  
+  
+        var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH.mm.ss");  
+  
+        timer.scheduleAtFixedRate(LocalDateTimeDisplayUtil.createTask(formatter), 0, 1000);  
+    }  
+}  
+  
+class LocalDateTimeDisplayUtil {  
+    public static TimerTask createTask(DateTimeFormatter formatter)  
+    {  
+        return new TimerTask() {  
+            public void run()  
+            {  
+                Console.write("%s\r", formatter.format(LocalDateTime.now()));  
+            }  
+        };  
+    }  
+}
+```
 
+Timer sınıfının iki parametreli schedule metotları timeout işleminde kullanılır. Bir timer'ı durdurmak (terminate) için cancel metodu çağrılabilir.
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.time.LocalDateTime;  
+import java.time.format.DateTimeFormatter;  
+import java.util.Timer;  
+import java.util.TimerTask;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var timer = new Timer();    
+        var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH.mm.ss");  
+        var task = new TimerTask() {  
+            public void run()  
+            {  
+                Console.writeLine("Timeout:%s", formatter.format(LocalDateTime.now()));  
+                timer.cancel();  
+            }  
+        };  
+  
+        Console.writeLine("Now:%s", formatter.format(LocalDateTime.now()));  
+        timer.schedule(task, 5000);  
+    }  
+}
+```
 
