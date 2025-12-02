@@ -3896,7 +3896,7 @@ class Application {
 }
 
 ```
-**Sınıf Çalışması:** Aşağıdaki `Alarm` isimli sınıfı `ScheduleLib` içerisinde sınıfın public bölümünü değiştirmeden yazınız:
+**Sınıf Çalışması:** Aşağıdaki `Alarm` isimli sınıfı `SchedulerLib` içerisinde sınıfın public bölümünü değiştirmeden yazınız:
 
 ```java
 public class Alarm {  
@@ -3940,40 +3940,180 @@ public class Alarm {
 - Sınıfı `Timer` kullanarak yazınız
 
 - Bir `Alarm` nesnesinden **yalnızca bir kez** start yapılabilecektir.
+
 - Sınıfın cancel metodu Alarm'ı iptal eder.
 
+**Çözüm:**
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
->**_Sınıf Çalışması:_** Aşağıdaki geri sayım işlemini yapaan `CountDownScheduler` isimli sınıfı public bölümünü değiştirmeden `SchedulerLib` içerisinde yazınız
-
-  
+**Test kodu:**
 
 ```java
+package org.csystem;  
+  
+import org.csystem.scheduler.timeout.Alarm;  
+import org.csystem.util.thread.ThreadUtil;  
+import org.junit.jupiter.api.Assertions;  
+import org.junit.jupiter.api.Test;  
+  
+import java.time.LocalTime;  
+import java.util.TimerTask;  
+  
+public class AlarmLocalTimeConstructorTest {  
+    private static final long MILLISECOND = 7000;  
+    private static final int SECOND = 5;  
+  
+    private TimerTask createTimerTask(LocalTime time)  
+    {  
+        return new TimerTask() {  
+            public void run()  
+            {  
+                var now = LocalTime.now().withNano(0);  
+  
+                Assertions.assertEquals(now, time.withNano(0));  
+            }  
+        };  
+    }  
+    @Test  
+    void test()  
+    {  
+        var time = LocalTime.now().plusSeconds(SECOND);  
+        Alarm alarm = new Alarm(time);  
+  
+        alarm.start(createTimerTask(time));  
+        ThreadUtil.sleep(MILLISECOND);  
+    }  
+}
+```
+
+**Alarm sınıfı:**
+```java
+package org.csystem.scheduler.timeout;  
+  
+import java.time.LocalDate;  
+import java.time.LocalDateTime;  
+import java.time.LocalTime;  
+import java.util.Timer;  
+import java.util.TimerTask;  
+  
+public class Alarm {  
+    private final LocalDateTime m_dateTime;  
+    private final Timer m_timer;  
+  
+    private TimerTask createTimerTask(TimerTask task)  
+    {  
+        return new TimerTask() {  
+            public void run()  
+            {  
+                var now = LocalDateTime.now();  
+  
+                if (now.isBefore(m_dateTime))  
+                    return;  
+  
+                task.run();  
+                m_timer.cancel();  
+            }  
+        };  
+    }  
+  
+    public Alarm(LocalTime time)  
+    {    
+        this(time.atDate(LocalDate.now()));  
+    }    
+    
+    public Alarm(LocalDateTime dateTime)  
+    {    
+        m_dateTime = dateTime;  
+        m_timer = new Timer();  
+    }    
+    
+    public Alarm(LocalDate date)  
+    {    
+        this(date.atTime(0, 0));  
+    }    
+    
+    public void start(TimerTask task)  
+    {    
+        m_timer.scheduleAtFixedRate(createTimerTask(task), 0, 1000);  
+    }    
+    
+    public void cancel()    
+    {    
+        m_timer.cancel();  
+    }    
+}
+```
 
 
+>**Sınıf Çalışması:** Aşağıdaki geri sayım işlemini yapan `CountDownScheduler` isimli sınıfı public bölümünü değiştirmeden `SchedulerLib` içerisinde yazınız.
 
+```java
+package org.csystem.scheduler.timeout;  
+  
+import java.util.concurrent.TimeUnit;  
+  
+public abstract class CountDownScheduler {  
+    protected CountDownScheduler(long durationInFuture, long countDownInterval, TimeUnit timeUnit)  
+    {  
+        throw new UnsupportedOperationException("Not yet implemented.");  
+    }  
+  
+    protected CountDownScheduler(long millisInFuture, long countDownInterval)  
+    {  
+        throw new UnsupportedOperationException("Not yet implemented.");  
+    }  
+  
+    public abstract void onTick(long remainingMilliseconds);  
+    public abstract void onFinish();  
+  
+    public final void start()  
+    {  
+        throw new UnsupportedOperationException("Not yet implemented.");  
+    }  
+  
+    public final void cancel()  
+    {  
+        throw new UnsupportedOperationException("Not yet implemented.");  
+    }  
+}
 ```
 
   
 
 **Açıklamalar:**
 
-- Sınıf ctor'ları ilgili parametrelere göre geri sayımın her adımında `onTick` metodunu çağıracaktır. Geri sayım tamamlandığında ise onFinish metodu çağrılacaktır. `onTick` metoduna kalan milisaniye sayısı argüman olarak geçilecektir.
+- Sınıfın ctor'ları ilgili parametrelere göre geri sayımın her adımında `onTick` metodunu çağıracaktır. Geri sayım tamamlandığında ise onFinish metodu çağrılacaktır. `onTick` metoduna kalan milisaniye sayısı argüman olarak geçilecektir.
+Örnek bir kullanım şu şekildedir:
+```java
+new CountDownScheduler(10000, 1000) {
+       public void onTick(long ms)
+       {
+           //Her saniyede bir çağrılacak ve kalan zaman (milisaniye cinsinden) argüman olarak geçilmiş olacak
+       }
+
+       public void onFinish()
+       {
+           //10 saniye sonunda yani geri sayım tamamlandığında çağrılacak
+       }
+   }.start();
+```
+
+Başka bir örnek bir kullanım şu şekildedir:
+
+```java
+new CountDownScheduler(10, 1, TimeUnit.SECONDS) {
+       public void onTick(long ms)
+       {
+           //Her saniyede bir çağrılacak ve kalan zaman (milisaniye cinsinden) argüman olarak geçilmiş olacak
+       }
+
+       public void onFinish()
+       {
+           //10 saniye sonunda yani geri sayım tamamlandığında çağrılacak
+       }
+   }.start();
+```
 
 - Sınıfı `Timer` sınıfını kullanarak yazınız
 
-- Sınıfı bir `CountDownTimer` nesnesi ile **yalnızca bir kez** geri sayım yapacak şekilde yazınız.
+- Sınıfı bir `CountDownScheduler` nesnesi ile **yalnızca bir kez** geri sayım yapacak şekilde yazınız.
 
