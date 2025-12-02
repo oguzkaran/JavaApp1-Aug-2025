@@ -3669,7 +3669,7 @@ abstract class A {
 }
 ```
 
-JavaSE'de periyodik işlemler yapmak için tipik olarak `Timer` sınıfı kullanılabilir. Bu sınıf normal akışı etkilemeden yani **asenkron** bir biçimde belirlenen zamanda bir işin yapılmasını sağlar. Bunun için `TimerTask` abstract sınıfının `run` metodu override edilir. TimerTask referansını callback olarak alan çeşitli metotlar ile timer işlemi başlatılır. Timer'ı durdurmak için `Timer` sınıfının `cancel` metodu kullanılır. Timer başlatmak için önce bir Timer nesnesi yaratılır. Biz burada Timer sınıfının default ctor'u ile nesne yaratacağız. Diğer ctor'lar burada ele alınmayacaktır. Timer başlatmak için ise `scheduleXXX` metotları çağrılır. Bu metotların aralarında bazı farklar vardır. İleride bu farklar alınacaktır. 
+**Timer Sınıfı:** JavaSE'de periyodik işlemler yapmak için tipik olarak `Timer` sınıfı kullanılabilir. Bu sınıf normal akışı etkilemeden yani **asenkron** bir biçimde belirlenen zamanda bir işin yapılmasını sağlar. Bunun için `TimerTask` abstract sınıfının `run` metodu override edilir. TimerTask referansını callback olarak alan çeşitli metotlar ile timer işlemi başlatılır. Timer'ı durdurmak için `Timer` sınıfının `cancel` metodu kullanılır. Timer başlatmak için önce bir Timer nesnesi yaratılır. Biz burada Timer sınıfının default ctor'u ile nesne yaratacağız. Diğer ctor'lar burada ele alınmayacaktır. Timer başlatmak için ise `scheduleXXX` metotları çağrılır. Bu metotların aralarında bazı farklar vardır. İleride bu farklar alınacaktır. 
 
 Aşağıdaki demo örneği inceleyiniz
 
@@ -3841,4 +3841,139 @@ class Application {
     }  
 }
 ```
+
+**TimeUnit enum sınıfı:** Zaman birimini temsil eden bir önemli bir enum sınıfıdır. Sınıfın pek çok yararlı metodu vardır. `convert` metodu istenilen birime dönüştürmek için kullanılabilir. Ayrıca ilgili birimlere dönüşüm yapılması için kullanılan `toXXX` metotları da bulunur.
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.util.concurrent.TimeUnit;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        while (true) {  
+            var days = Console.readLong("Input days left:");  
+  
+            if (days <= 0)  
+                break;  
+  
+            var hour = TimeUnit.HOURS.convert(days, TimeUnit.DAYS);  
+  
+            Console.writeLine("%d days is %d hours",  days, hour);  
+        }  
+    }  
+}
+```
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+import java.util.concurrent.TimeUnit;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        while (true) {  
+            var days = Console.readLong("Input days left:");  
+  
+            if (days <= 0)  
+                break;  
+  
+            var hour = TimeUnit.DAYS.toHours(days);  
+  
+            Console.writeLine("%d days is %d hours",  days, hour);  
+        }  
+    }  
+}
+
+```
+**Sınıf Çalışması:** Aşağıdaki `Alarm` isimli sınıfı `ScheduleLib` içerisinde sınıfın public bölümünü değiştirmeden yazınız:
+
+```java
+public class Alarm {  
+    public Alarm(LocalTime time)  
+    {  
+        throw new UnsupportedOperationException("Not implemented yet.");  
+    }  
+  
+    public Alarm(LocalDateTime dateTime)  
+    {  
+        throw new UnsupportedOperationException("Not implemented yet.");  
+    }  
+  
+    public Alarm(LocalDate date)  
+    {  
+        throw new UnsupportedOperationException("Not implemented yet.");  
+    }  
+  
+    public void start(TimerTask timerTask)  
+    {  
+        throw new UnsupportedOperationException("Not implemented yet.");  
+    }  
+  
+    public void cancel()  
+    {  
+        throw new UnsupportedOperationException("Not implemented yet.");  
+    }  
+}
+```
+
+**Açıklamalar:**
+
+- Sınıfın `LocalTime` parametreli ctor'u ile yaratılan nesne için, aldığı zaman geldiğinde `start` metodu ile verilen **callback**'e ilişkin metot çağrılacaktır.
+
+- Sınıfın `LocalDateTime` parametreli ctor'u ile yaratılan nesne için, aldığı tarih-zaman geldiğinde `start` metodu ile verilen **callback**'e ilişkin metot çağrılacaktır
+
+- Sınıfın `LocalDate` parametreli ctor'u ile yaratılan nesne için, aldığı tarih geldiğinde (geceyarısı) geldiğinde `start` metodu ile verilen **callback**'e ilişkin metot çağrılacaktır.
+
+- Sınıf tarihin, zamanın ya da tarih zamanın geçmiş olup olmadığını kontrol etmeyecektir.
+
+- Sınıfı `Timer` kullanarak yazınız
+
+- Bir `Alarm` nesnesinden **yalnızca bir kez** start yapılabilecektir.
+- Sınıfın cancel metodu Alarm'ı iptal eder.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+>**_Sınıf Çalışması:_** Aşağıdaki geri sayım işlemini yapaan `CountDownScheduler` isimli sınıfı public bölümünü değiştirmeden `SchedulerLib` içerisinde yazınız
+
+  
+
+```java
+
+
+
+```
+
+  
+
+**Açıklamalar:**
+
+- Sınıf ctor'ları ilgili parametrelere göre geri sayımın her adımında `onTick` metodunu çağıracaktır. Geri sayım tamamlandığında ise onFinish metodu çağrılacaktır. `onTick` metoduna kalan milisaniye sayısı argüman olarak geçilecektir.
+
+- Sınıfı `Timer` sınıfını kullanarak yazınız
+
+- Sınıfı bir `CountDownTimer` nesnesi ile **yalnızca bir kez** geri sayım yapacak şekilde yazınız.
 
