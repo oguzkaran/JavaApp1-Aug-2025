@@ -4043,8 +4043,66 @@ public class Alarm {
 }
 ```
 
+Yukarıdaki Alarm sınıfının start metodu aslında kötü tasarlanmıştır. Aldığı callback'e ilişkin türün abstract sınıf olması yerine bir interface olması NYPT açısından daha anlamlı ve profesyonel olacaktır. Bu durumda start metodununun TimerTask türünden parametresi yerine JavaSE'de Runnable arayüzü türünden parametreye sahip olması daha iyi bir teknik olarak düşünülebilir. Alarm sınıfının aşağıdaki versiyonunu inceleyiniz.
 
->**Sınıf Çalışması:** Aşağıdaki geri sayım işlemini yapan `CountDownScheduler` isimli sınıfı public bölümünü değiştirmeden `SchedulerLib` içerisinde yazınız.
+```java
+package org.csystem.scheduler.timeout;  
+  
+import java.time.LocalDate;  
+import java.time.LocalDateTime;  
+import java.time.LocalTime;  
+import java.util.Timer;  
+import java.util.TimerTask;  
+  
+public class Alarm {  
+    private final LocalDateTime m_dateTime;  
+    private final Timer m_timer;  
+  
+    private TimerTask createTimerTask(Runnable task)  
+    {  
+        return new TimerTask() {  
+            public void run()  
+            {  
+                var now = LocalDateTime.now();  
+  
+                if (now.isBefore(m_dateTime))  
+                    return;  
+  
+                task.run();  
+                m_timer.cancel();  
+            }  
+        };  
+    }  
+  
+    public Alarm(LocalTime time)  
+    {    
+        this(time.atDate(LocalDate.now()));  
+    }    
+    
+    public Alarm(LocalDateTime dateTime)  
+    {    
+        m_dateTime = dateTime;  
+        m_timer = new Timer();  
+    }    
+    
+    public Alarm(LocalDate date)  
+    {    
+        this(date.atTime(0, 0));  
+    }    
+    
+    public void start(Runnable task)  
+    {    
+        m_timer.scheduleAtFixedRate(createTimerTask(task), 0, 1000);  
+    }    
+    
+    public void cancel()    
+    {    
+        m_timer.cancel();  
+    }    
+}
+```
+
+**Sınıf Çalışması:** Aşağıdaki geri sayım işlemini yapan `CountDownScheduler` isimli sınıfı public bölümünü değiştirmeden `SchedulerLib` içerisinde yazınız.
 
 ```java
 package org.csystem.scheduler.timeout;  
@@ -4077,7 +4135,6 @@ public abstract class CountDownScheduler {
 }
 ```
 
-  
 
 **Açıklamalar:**
 
@@ -4116,4 +4173,107 @@ new CountDownScheduler(10, 1, TimeUnit.SECONDS) {
 - Sınıfı `Timer` sınıfını kullanarak yazınız
 
 - Sınıfı bir `CountDownScheduler` nesnesi ile **yalnızca bir kez** geri sayım yapacak şekilde yazınız.
+
+```java
+package org.csystem.scheduler.timeout;  
+  
+import java.util.Timer;  
+import java.util.TimerTask;  
+import java.util.concurrent.TimeUnit;  
+  
+public abstract class CountDownScheduler {  
+    private final Timer m_timer;  
+    private final long m_millisInFuture;  
+    private final long m_countDownInterval;  
+  
+    private TimerTask createTimerTask()  
+    {  
+        return new TimerTask() {  
+            long duration;  
+            public void run()  
+            {  
+                if (duration >= m_millisInFuture) {  
+                    m_timer.cancel();  
+                    onFinish();  
+                    return;  
+                }  
+  
+                duration += m_countDownInterval;  
+                onTick(duration);  
+            }  
+        };  
+    }  
+  
+    protected CountDownScheduler(long durationInFuture, long countDownInterval, TimeUnit timeUnit)  
+    {  
+        this(timeUnit.toMillis(durationInFuture), timeUnit.toMillis(countDownInterval));  
+    }  
+  
+    protected CountDownScheduler(long millisInFuture, long countDownInterval)  
+    {  
+        m_timer = new Timer();  
+        m_millisInFuture = millisInFuture;  
+        m_countDownInterval = countDownInterval;  
+    }  
+  
+    public abstract void onTick(long remainingMilliseconds);  
+    public abstract void onFinish();  
+  
+    public final void start()  
+    {  
+        m_timer.scheduleAtFixedRate(createTimerTask(), 0, m_countDownInterval);  
+    }  
+  
+    public final void cancel()  
+    {  
+        m_timer.cancel();  
+    }  
+}
+```
+
+**Sınıf Çalışması:** Aşağıdaki sınıfı açıklamalara göre yazınız.
+
+```java
+package org.csystem.scheduler.timeout;  
+  
+import java.util.concurrent.TimeUnit;  
+  
+public abstract class CountDownSchedulerEx extends CountDownScheduler {  
+    protected CountDownSchedulerEx(long durationInFuture, long countDownInterval, TimeUnit timeUnit)  
+    {  
+        this(timeUnit.toMillis(durationInFuture), timeUnit.toMillis(countDownInterval));  
+    }  
+  
+    protected CountDownSchedulerEx(long millisInFuture, long countDownInterval)  
+    {  
+        super(millisInFuture, countDownInterval);  
+    }  
+  
+    public abstract void onStart();  
+}
+```
+
+**Açıklamalar:** 
+- Sınıf SchedulerLib içerisinde yazılacaktır
+- Sınıfın kullanımına ilişkin örnekleri inceleyiniz
+
+```java
+return new CountDownSchedulerEx(TOTAL_SECONDS, PERIOD_IN_SECONDS, TimeUnit.SECONDS) {  
+    public void onStart()  
+    {  
+        //Geri sayım başlatıldığında bir kez çağrılacak
+    }  
+  
+    public void onTick(long remainingMilliseconds)  
+    {  
+        //Her saniyede bir çağrılacak ve kalan zaman (milisaniye cinsinden) argüman olarak geçilmiş olacak
+    }  
+  
+    public void onFinish()  
+    {  
+        //10 saniye sonunda yani geri sayım tamamlandığında çağrılacak
+    }  
+};
+```
+- Sınıfın public bölümünü değiştirmeden istediğiniz eklemeyi yapabilirsiniz.
 

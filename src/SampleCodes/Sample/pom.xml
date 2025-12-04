@@ -66,6 +66,14 @@
             <version>1.0.0</version>
         </dependency>
 
+
+        <dependency>
+            <groupId>org.csystem</groupId>
+            <artifactId>org-csystem-scheduler</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+
         <dependency>
             <groupId>org.csystem</groupId>
             <artifactId>org-csystem-datetime</artifactId>
