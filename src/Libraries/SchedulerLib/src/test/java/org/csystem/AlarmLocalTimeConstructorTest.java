@@ -12,15 +12,9 @@ public class AlarmLocalTimeConstructorTest {
 
     private Runnable createRunnable(LocalTime time)
     {
-        return new Runnable() {
-            public void run()
-            {
-                var now = LocalTime.now().withNano(0);
-
-                Assertions.assertEquals(now, time.withNano(0));
-            }
-        };
+        return () -> Assertions.assertEquals(LocalTime.now().withNano(0), time.withNano(0));
     }
+
     @Test
     void test()
     {

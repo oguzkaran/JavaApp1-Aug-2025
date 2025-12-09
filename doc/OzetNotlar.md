@@ -4238,7 +4238,7 @@ package org.csystem.scheduler.timeout;
   
 import java.util.concurrent.TimeUnit;  
   
-public abstract class CountDownSchedulerEx extends CountDownScheduler {  
+public abstract class CountDownSchedulerX extends CountDownScheduler {  
     protected CountDownSchedulerEx(long durationInFuture, long countDownInterval, TimeUnit timeUnit)  
     {  
         this(timeUnit.toMillis(durationInFuture), timeUnit.toMillis(countDownInterval));  
@@ -4250,6 +4250,11 @@ public abstract class CountDownSchedulerEx extends CountDownScheduler {
     }  
   
     public abstract void onStart();  
+    
+    public void startX()
+    {
+	    throw new UnsupportedOperationException("Not yet implemented");
+    }
 }
 ```
 
@@ -4258,7 +4263,7 @@ public abstract class CountDownSchedulerEx extends CountDownScheduler {
 - Sınıfın kullanımına ilişkin örnekleri inceleyiniz
 
 ```java
-return new CountDownSchedulerEx(TOTAL_SECONDS, PERIOD_IN_SECONDS, TimeUnit.SECONDS) {  
+return new CountDownSchedulerX(TOTAL_SECONDS, PERIOD_IN_SECONDS, TimeUnit.SECONDS) {  
     public void onStart()  
     {  
         //Geri sayım başlatıldığında bir kez çağrılacak
@@ -4273,7 +4278,122 @@ return new CountDownSchedulerEx(TOTAL_SECONDS, PERIOD_IN_SECONDS, TimeUnit.SECON
     {  
         //10 saniye sonunda yani geri sayım tamamlandığında çağrılacak
     }  
-};
+}.startX();
 ```
 - Sınıfın public bölümünü değiştirmeden istediğiniz eklemeyi yapabilirsiniz.
+
+```java
+package org.csystem.scheduler.timeout;  
+  
+import java.util.concurrent.TimeUnit;  
+  
+public abstract class CountDownSchedulerX extends CountDownScheduler {  
+    protected CountDownSchedulerX(long durationInFuture, long countDownInterval, TimeUnit timeUnit)  
+    {  
+        this(timeUnit.toMillis(durationInFuture), timeUnit.toMillis(countDownInterval));  
+    }  
+  
+    protected CountDownSchedulerX(long millisInFuture, long countDownInterval)  
+    {  
+        super(millisInFuture, countDownInterval);  
+    }  
+  
+    public abstract void onStart();  
+  
+    public void startX()  
+    {  
+        onStart();  
+        start();  
+    }  
+}
+```
+
+##### Lambda İfadeleri
+
+Lambda ifadeleri (lambda expressions) (LE) Java 8 ile dile eklenmiştir. Bazı kaynaklarda LE için **lambda fonksiyonlar (lambda functions)**  Günümüzde modern ve yüksek seviyeli programlama dillerinin hemen hepsinde bulunmaktadır. LE kullanılarak çok karmaşık ifadeler yazılabilse de pratikte aşağıdaki 8 genel biçime indirgenebilir:
+
+```java
+1. (<parametre isim listesi>) -> <ifade>
+2. (<parametre isim listesi>) -> {...}
+3. <parametre ismi> -> <ifade>
+4. <parametre ismi> -> {...}
+5. () -> <ifade>
+6. () -> {...}
+7. (<tür değişken listesi>) -> <ifade>
+8. (<tür değişken listesi>) -> {...}
+```
+LE'ler uygun **functional interface** referanslarına atanabilirler. Anımsanacağı gibi **bir ve bir tane abstract metodu olan** arayüzler **functional interface** olarak kullanılabilirler. Lambda ifadeleri anonim sınıfların daha gelişmiş biçimi olarak düşünülebilir ancak yerine her durumda geçmez. Örneğin bir anonim sınıf türünden referans ilgili sınıf ya da arayüz referansına atanabilirken lambda ifadeleri fonksiyonel arayüz referanslarına atanabilir. 
+
+**Bir lambda ifadesi atandığı fonksiyonel arayüz referansının abstract metodu yerine geçer.** Şüphesiz derleyicinin ürettiği kodda fonksiyonel arayüzün ilgili metodu lambda ifadesinde belirtilen kodlarla override edilmiş olur. 
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var value = Console.readInt("Input a number:");  
+        var addOp1 = new AddOperator(value);  
+  
+        Console.writeLine(Util.doOperation(10, 20, addOp1));  
+  
+        var addOp2 = new IIntBinaryOperator() {  
+            public int applyAsInt(int a, int b)  
+            {  
+                return a * b * value;  
+            }  
+        };  
+  
+        Console.writeLine(Util.doOperation(10, 20, addOp2));  
+  
+        Console.writeLine(Util.doOperation(10, 20, (a, b) -> a + b + value));  
+    }  
+}  
+  
+class AddOperator implements IIntBinaryOperator {  
+    private final int m_value;  
+  
+    public AddOperator(int value)  
+    {  
+        m_value = value;  
+    }  
+  
+    public int applyAsInt(int a, int b)  
+    {  
+        return a + b + m_value;  
+    }  
+}  
+  
+class Util {  
+    public static int doOperation(int a, int b, IIntBinaryOperator binaryOperator)  
+    {  
+        Console.writeLine("%d, %d", a, b);  
+  
+        return binaryOperator.applyAsInt(a, b);  
+    }  
+}  
+  
+interface IIntBinaryOperator {  
+    int applyAsInt(int a, int b);  
+}  
+  
+interface IIntSupplier {  
+    int get();  
+}  
+  
+interface IIntUnaryConsumer {  
+    void accept(int a);  
+}  
+  
+interface IIntUnaryPredicate {  
+    boolean test(int a);  
+}
+```
+
+
+
 
