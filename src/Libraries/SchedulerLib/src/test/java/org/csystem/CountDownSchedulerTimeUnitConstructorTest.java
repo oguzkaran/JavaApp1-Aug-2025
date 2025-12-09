@@ -17,7 +17,6 @@ public class CountDownSchedulerTimeUnitConstructorTest {
     private CountDownScheduler createScheduler(LocalTime time)
     {
         return new CountDownScheduler(TOTAL_SECONDS, PERIOD_IN_SECONDS, TimeUnit.SECONDS) {
-
             public void onTick(long remainingMilliseconds)
             {
                 System.out.printf("%02d%n", (TOTAL_MILLISECONDS  - remainingMilliseconds) / PERIOD_IN_MILLISECONDS);
