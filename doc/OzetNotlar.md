@@ -4326,7 +4326,19 @@ LE'ler uygun **functional interface** referanslarına atanabilirler. Anımsanaca
 
 **Bir lambda ifadesi atandığı fonksiyonel arayüz referansının abstract metodu yerine geçer.** Şüphesiz derleyicinin ürettiği kodda fonksiyonel arayüzün ilgili metodu lambda ifadesinde belirtilen kodlarla override edilmiş olur. 
 
-Aşağıdaki demo örneği inceleyiniz
+
+JavaSE'de bir çok fonksiyonel arayüz vardır. Özellikle `Java 8` *ile birlikte* `java.util.function` paketi içerisinde bir grup fonksiyonel arayüz pek çok yerde kullanılmaktadır. Bu arayüzler ileride ele alınacaktır. LE yazıldığında derleyicinin ürettiği koda **closure** denir. Aslında closure terimi LE ile yayılmış olsa da aslında anonim, nested, inner ve local sınıflar içinde üretilen kodlar da closure olarak düşünülebilir. LE ile üretilen kodlar için genel olarak ayrı byte code üretilmez. LE ile üretilen kodların detayları Java ile Uygulama 2 kursunda ele alınacaktır. Bir LE de kendisinden önce bildirilen yerel ve parametre değişkenlerini "effectively final" olarak yakalar (capture).
+
+
+*LE'de* `->` 'dan önce yerine geçtiği abstract metodun parametreleri bulunur. Örneğin metot iki parametreli ise  `1`, `2` veya `7`, `8` biçimlerinden biri kullanılabilir. Ya da örneğin yerine geçtiği abstract metodun parametresi yoksa `5` ve `6` biçimleri, tek parametreli ise `3` ve `4.` *biçimler kullanılabilir.* `1`, `2`, `3` ve `4.` biçimlerde parametre değişkenlerinin türleri atanan fonksiyonel arayüz referansına ilişkin abstract metot ile aynı sayıda verilmelidir ve parametreler için tür tespiti (type inference) buradan hareketle yapılır.
+
+*Yukarıdaki* `1`, `3`, `5`, `7` ile belirtilen genel biçimlerde bir ifade yazılır. Eğer LE'nin yerine geçtiği abstract metodun geri dönüş değer varsa yazılan ifadenin değeri geri dönüş değeri olarak verilmiş olur. Bu biçimlerde return deyimi yazılması error oluşturur. `2`, `4`, `6` ve `8` biçimlerinde tek bir metodun gövdesi yazılabilir. Eğer hedef metodun geri dönüş değeri varsa bu biçimlerde return deyimi akışın her noktasında olmak zorundadır. LE içerisinde kullanılan parametre değişkenlerinin faaliyet alanı (scope) LE boyuncadır.
+
+`7` ve `8.` biçimlerde değişkenler tür bilgisi yazılır. Bir değişken için tür bilgisi yazıldığında hepsi için yazılmalıdır. `Java 11` ile birlikte LE'nin parametre değişkenlerinin tür bilgisi için var yazılabilmektedir. Şüphesiz var yazıldığında da türün derleyici tarafından tespit edilebilmesi gerekir.
+
+Genel olarak söylemek gerekirse LE ile atandığı fonksiyonel arayüz referansına ilişkin abstract metodun karşılıklı olarak uyumlu olması gerekir. Aksi durumda error oluşur.
+
+Aşağıdaki demo örneği inceleyiniz. Örnekte callable'ın 3 farklı şekilde verildiğine dikkat ediniz.
 
 ```java
 package org.csystem.app;  
