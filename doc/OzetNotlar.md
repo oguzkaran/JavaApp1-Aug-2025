@@ -4310,7 +4310,7 @@ public abstract class CountDownSchedulerX extends CountDownScheduler {
 
 ##### Lambda İfadeleri
 
-Lambda ifadeleri (lambda expressions) (LE) Java 8 ile dile eklenmiştir. Bazı kaynaklarda LE için **lambda fonksiyonlar (lambda functions)**  Günümüzde modern ve yüksek seviyeli programlama dillerinin hemen hepsinde bulunmaktadır. LE kullanılarak çok karmaşık ifadeler yazılabilse de pratikte aşağıdaki 8 genel biçime indirgenebilir:
+Lambda ifadeleri (lambda expressions) (LE) Java 8 ile dile eklenmiştir. Bazı kaynaklarda LE için **lambda fonksiyonlar (lambda functions)** denir.  Günümüzde modern ve yüksek seviyeli programlama dillerinin hemen hepsinde bulunmaktadır. LE kullanılarak çok karmaşık ifadeler yazılabilse de pratikte aşağıdaki 8 genel biçime indirgenebilir:
 
 ```java
 1. (<parametre isim listesi>) -> <ifade>
@@ -4322,21 +4322,19 @@ Lambda ifadeleri (lambda expressions) (LE) Java 8 ile dile eklenmiştir. Bazı k
 7. (<tür değişken listesi>) -> <ifade>
 8. (<tür değişken listesi>) -> {...}
 ```
-LE'ler uygun **functional interface** referanslarına atanabilirler. Anımsanacağı gibi **bir ve bir tane abstract metodu olan** arayüzler **functional interface** olarak kullanılabilirler. Lambda ifadeleri anonim sınıfların daha gelişmiş biçimi olarak düşünülebilir ancak yerine her durumda geçmez. Örneğin bir anonim sınıf türünden referans ilgili sınıf ya da arayüz referansına atanabilirken lambda ifadeleri fonksiyonel arayüz referanslarına atanabilir. 
+LE'ler uygun **functional interface** referanslarına atanabilirler. Anımsanacağı gibi **bir ve yalnız bir tane abstract metodu olan** arayüzler **functional interface** olarak kullanılabilirler. Lambda ifadeleri anonim sınıfların daha gelişmiş biçimi olarak düşünülebilir ancak anonim sınıfların yerine her durumda geçmez. Örneğin bir anonim sınıf türünden referans ilgili sınıf ya da arayüz referansına atanabilirken lambda ifadeleri fonksiyonel arayüz referanslarına atanabilir. 
 
 **Bir lambda ifadesi atandığı fonksiyonel arayüz referansının abstract metodu yerine geçer.** Şüphesiz derleyicinin ürettiği kodda fonksiyonel arayüzün ilgili metodu lambda ifadesinde belirtilen kodlarla override edilmiş olur. 
 
+JavaSE'de bir çok fonksiyonel arayüz vardır. Özellikle `Java 8` ile birlikte `java.util.function` paketi içerisinde bir grup fonksiyonel arayüz pek çok yerde kullanılmaktadır. Bu arayüzler ileride ele alınacaktır. LE yazıldığında derleyicinin ürettiği koda **closure** denir. Aslında closure terimi LE ile yayılmış olsa da aslında anonim, nested, inner ve local sınıflar için üretilen kodlar da closure olarak düşünülebilir. LE ile üretilen kodlar için genel olarak ayrı byte code üretilmez. LE ile üretilen kodların detayları Java ile Uygulama  Geliştirme 2 kursunda ele alınacaktır. Bir LE de kendisinden önce bildirilen yerel ve parametre değişkenlerini `effectively final` olarak yakalar (capture).
 
-JavaSE'de bir çok fonksiyonel arayüz vardır. Özellikle `Java 8` *ile birlikte* `java.util.function` paketi içerisinde bir grup fonksiyonel arayüz pek çok yerde kullanılmaktadır. Bu arayüzler ileride ele alınacaktır. LE yazıldığında derleyicinin ürettiği koda **closure** denir. Aslında closure terimi LE ile yayılmış olsa da aslında anonim, nested, inner ve local sınıflar içinde üretilen kodlar da closure olarak düşünülebilir. LE ile üretilen kodlar için genel olarak ayrı byte code üretilmez. LE ile üretilen kodların detayları Java ile Uygulama 2 kursunda ele alınacaktır. Bir LE de kendisinden önce bildirilen yerel ve parametre değişkenlerini "effectively final" olarak yakalar (capture).
+LE'de `->` atomundan önce yerine geçtiği abstract metodun parametreleri bulunur. Örneğin metodun birden fazla parametresi varsa  `1`, `2` veya `7`, `8` biçimlerinden biri kullanılabilir. Ya da örneğin yerine geçtiği abstract metodun parametresi yoksa `5` ve `6` biçimleri, tek parametreli ise `3` ve `4.` *biçimler kullanılabilir.* `1`, `2`, `3` ve `4.` biçimlerde parametre değişkenleri atanan fonksiyonel arayüz referansına ilişkin abstract metot ile aynı sayıda verilmelidir ve parametreler için `tür tespiti (type inference/deduction)` buradan hareketle yapılır.
 
+Yukarıdaki `1`, `3`, `5`, `7` ile belirtilen genel biçimlerde bir ifade yazılır. Eğer LE'nin yerine geçtiği abstract metodun geri dönüş değeri varsa yazılan ifadenin değeri geri dönüş değeri olarak verilmiş olur. Bu biçimlerde return deyimi yazılması error oluşturur. `2`, `4`, `6` ve `8` biçimlerinde tek bir metodun gövdesi yazılabilir. Eğer hedef metodun geri dönüş değeri varsa bu biçimlerde return deyimi akışın her noktasında olmak zorundadır. LE içerisinde kullanılan parametre değişkenlerinin faaliyet alanı (scope) LE boyuncadır.
 
-*LE'de* `->` 'dan önce yerine geçtiği abstract metodun parametreleri bulunur. Örneğin metot iki parametreli ise  `1`, `2` veya `7`, `8` biçimlerinden biri kullanılabilir. Ya da örneğin yerine geçtiği abstract metodun parametresi yoksa `5` ve `6` biçimleri, tek parametreli ise `3` ve `4.` *biçimler kullanılabilir.* `1`, `2`, `3` ve `4.` biçimlerde parametre değişkenlerinin türleri atanan fonksiyonel arayüz referansına ilişkin abstract metot ile aynı sayıda verilmelidir ve parametreler için tür tespiti (type inference) buradan hareketle yapılır.
+`7` ve `8.` biçimlerde değişkenler için tür bilgisi yazılır. Bir değişken için tür bilgisi yazıldığında hepsi için yazılmalıdır. `Java 11` ile birlikte LE'nin parametre değişkenlerinin tür bilgisi için var yazılabilmektedir. Şüphesiz var yazıldığında da türün derleyici tarafından tespit edilebilmesi gerekir.
 
-*Yukarıdaki* `1`, `3`, `5`, `7` ile belirtilen genel biçimlerde bir ifade yazılır. Eğer LE'nin yerine geçtiği abstract metodun geri dönüş değer varsa yazılan ifadenin değeri geri dönüş değeri olarak verilmiş olur. Bu biçimlerde return deyimi yazılması error oluşturur. `2`, `4`, `6` ve `8` biçimlerinde tek bir metodun gövdesi yazılabilir. Eğer hedef metodun geri dönüş değeri varsa bu biçimlerde return deyimi akışın her noktasında olmak zorundadır. LE içerisinde kullanılan parametre değişkenlerinin faaliyet alanı (scope) LE boyuncadır.
-
-`7` ve `8.` biçimlerde değişkenler tür bilgisi yazılır. Bir değişken için tür bilgisi yazıldığında hepsi için yazılmalıdır. `Java 11` ile birlikte LE'nin parametre değişkenlerinin tür bilgisi için var yazılabilmektedir. Şüphesiz var yazıldığında da türün derleyici tarafından tespit edilebilmesi gerekir.
-
-Genel olarak söylemek gerekirse LE ile atandığı fonksiyonel arayüz referansına ilişkin abstract metodun karşılıklı olarak uyumlu olması gerekir. Aksi durumda error oluşur.
+**Genel olarak söylemek gerekirse LE ile atandığı fonksiyonel arayüz referansına ilişkin abstract metodun karşılıklı olarak uyumlu olması gerekir. Aksi durumda error oluşur.**
 
 Aşağıdaki demo örneği inceleyiniz. Örnekte callable'ın 3 farklı şekilde verildiğine dikkat ediniz.
 
@@ -4391,20 +4389,213 @@ class Util {
   
 interface IIntBinaryOperator {  
     int applyAsInt(int a, int b);  
-}  
-  
-interface IIntSupplier {  
-    int get();  
-}  
-  
-interface IIntUnaryConsumer {  
-    void accept(int a);  
-}  
-  
-interface IIntUnaryPredicate {  
-    boolean test(int a);  
 }
 ```
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var value = Console.readInt("Input a number:");  
+  
+        Console.writeLine(Util.doOperation(10, 20, (a, b) -> {Console.writeLine("value:%d", value); return a + b + value;}));  
+    }  
+}  
+  
+class Util {  
+    public static int doOperation(int a, int b, IIntBinaryOperator binaryOperator)  
+    {  
+        Console.writeLine("%d, %d", a, b);  
+  
+        return binaryOperator.applyAsInt(a, b);  
+    }  
+}  
+  
+interface IIntBinaryOperator {  
+    int applyAsInt(int a, int b);  
+}
+```
+
+SchedulerLib içerisindeki `AlarmLocalTimeConstructorTest` sınıfının `test` metodunu inceleyiniz:
+
+```java
+package org.csystem.scheduler.timeout;  
+  
+import java.time.LocalDate;  
+import java.time.LocalDateTime;  
+import java.time.LocalTime;  
+import java.util.Timer;  
+import java.util.TimerTask;  
+  
+public class Alarm {  
+    private final LocalDateTime m_dateTime;  
+    private final Timer m_timer;  
+  
+    private TimerTask createTimerTask(Runnable task)  
+    {  
+        return new TimerTask() {  
+            public void run()  
+            {  
+                var now = LocalDateTime.now();  
+  
+                if (now.isBefore(m_dateTime))  
+                    return;  
+  
+                task.run();  
+                m_timer.cancel();  
+            }  
+        };  
+    }  
+  
+    public Alarm(LocalTime time)  
+    {    
+        this(time.atDate(LocalDate.now()));  
+    }    
+    
+    public Alarm(LocalDateTime dateTime)  
+    {    
+        m_dateTime = dateTime;  
+        m_timer = new Timer();  
+    }    
+    
+    public Alarm(LocalDate date)  
+    {    
+        this(date.atTime(0, 0));  
+    }    
+    
+    public void start(Runnable task)  
+    {    
+        m_timer.scheduleAtFixedRate(createTimerTask(task), 0, 1000);  
+    }    
+    
+    public void cancel()    
+    {    
+        m_timer.cancel();  
+    }    
+}
+```
+
+Test kodu:
+```java
+package org.csystem;  
+  
+import org.csystem.scheduler.timeout.Alarm;  
+import org.csystem.util.thread.ThreadUtil;  
+import org.junit.jupiter.api.Assertions;  
+import org.junit.jupiter.api.Test;  
+  
+import java.time.LocalTime;  
+  
+public class AlarmLocalTimeConstructorTest {  
+    private static final int SECOND = 5;  
+  
+    @Test  
+    void test()  
+    {  
+        var time = LocalTime.now().plusSeconds(SECOND);  
+        Alarm alarm = new Alarm(time);  
+  
+        alarm.start(() -> Assertions.assertEquals(LocalTime.now().withNano(0), time.withNano(0)));  
+        ThreadUtil.sleep(SECOND * 1000 + 1000);  
+    }  
+}
+```
+
+Aşağıdaki demo örnekteki metot çağrılarındaki lambda ifadelerinde tür belirtilmemesi durumunda `ambiguity` oluşur.
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var value = Console.readInt("Input a number:");  
+  
+        Console.writeLine(Util.doOperation(10, 20, (int a, int b) -> a + b + value));  
+        Console.writeLine(Util.doOperation(10, 20, (double a, double b) -> a + b + value));  
+    }  
+}  
+  
+class Util {  
+    public static int doOperation(int a, int b, IIntBinaryOperator binaryOperator)  
+    {  
+        Console.writeLine("int -> %d, %d", a, b);  
+  
+        return binaryOperator.applyAsInt(a, b);  
+    }  
+  
+    public static double doOperation(double a, double b, IDoubleBinaryOperator binaryOperator)  
+    {  
+        Console.writeLine("double -> %f, %f", a, b);  
+  
+        return binaryOperator.applyAsDouble(a, b);  
+    }  
+}  
+  
+interface IIntBinaryOperator {  
+    int applyAsInt(int a, int b);  
+}  
+  
+interface IDoubleBinaryOperator {  
+    double applyAsDouble(double a, double b);  
+}
+```
+
+
+**Sınıf Çalışması:** Aşağıdaki `Scheduler` isimli sınıfı SchedulerLib içerisinde açıklamalara göre yazınız
+
+```java
+package org.csystem.scheduler;  
+  
+import java.util.concurrent.TimeUnit;  
+  
+public class Scheduler {  
+    public Scheduler(long interval, TimeUnit timeUnit)  
+    {  
+        throw new UnsupportedOperationException("TODO");  
+    }  
+  
+    public Scheduler(long intervalInMillis)  
+    {  
+        throw new UnsupportedOperationException("TODO");  
+    }  
+  
+    public Scheduler(long interval, long delay, TimeUnit timeUnit)  
+    {  
+        throw new UnsupportedOperationException("TODO");  
+    }  
+  
+    public Scheduler(long intervalInMillis, long delay)  
+    {  
+        throw new UnsupportedOperationException("TODO");  
+    }  
+  
+    public final Scheduler schedule(Runnable task)  
+    {  
+        throw new UnsupportedOperationException("TODO");  
+    }  
+  
+    public final void cancel()  
+    {  
+        throw new UnsupportedOperationException("TODO");  
+    }  
+}
+```
+
+**Açıklamalar:**
+- Sınıf Timer sınıfının Java 8+ uyumlu olarak da kullanılabilen daha gelişmiş biçimidir.
+- Sınıfı Timer sınıfı kullanarak ancak türetme yapmadan yazınız.
+- Sınıfın public bölümü değiştirilmeden istediğiniz eklemeyi yapabilirsiniz.
+- Bir Scheduler nesnesi ile yalnızca bir kez schedule işlemi yapılabilecektir.
+
 
 
 
