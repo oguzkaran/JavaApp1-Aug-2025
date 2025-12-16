@@ -4483,9 +4483,8 @@ public class Alarm {
 
 Test kodu:
 ```java
-package org.csystem;  
+package org.csystem.scheduler.timeout;  
   
-import org.csystem.scheduler.timeout.Alarm;  
 import org.csystem.util.thread.ThreadUtil;  
 import org.junit.jupiter.api.Assertions;  
 import org.junit.jupiter.api.Test;  
@@ -4595,6 +4594,183 @@ public class Scheduler {
 - Sınıfı Timer sınıfı kullanarak ancak türetme yapmadan yazınız.
 - Sınıfın public bölümü değiştirilmeden istediğiniz eklemeyi yapabilirsiniz.
 - Bir Scheduler nesnesi ile yalnızca bir kez schedule işlemi yapılabilecektir.
+
+```java
+package org.csystem.scheduler;  
+  
+import java.util.Timer;  
+import java.util.TimerTask;  
+import java.util.concurrent.TimeUnit;  
+  
+public class Scheduler {  
+    private final Timer m_timer;  
+    private final long m_delay;  
+    private final long m_interval;  
+  
+    private static TimerTask createTimerTask(Runnable task)  
+    {  
+        return new TimerTask() {  
+            public void run()  
+            {  
+                task.run();  
+            }  
+        };  
+    }  
+  
+    public Scheduler(long interval, TimeUnit timeUnit)  
+    {  
+        this(timeUnit.toMillis(interval));  
+    }  
+  
+    public Scheduler(long intervalInMillis)  
+    {  
+        this(intervalInMillis, 0);  
+    }  
+  
+    public Scheduler(long interval, long delay, TimeUnit timeUnit)  
+    {  
+        this(timeUnit.toMillis(interval), timeUnit.toMillis(delay));  
+    }  
+  
+    public Scheduler(long intervalInMillis, long delay)  
+    {  
+        m_timer = new Timer();  
+        m_interval = intervalInMillis;  
+        m_delay = delay;  
+    }  
+  
+    public final Scheduler schedule(Runnable task)  
+    {  
+        m_timer.scheduleAtFixedRate(createTimerTask(task), m_delay, m_interval);  
+  
+        return this;  
+    }  
+  
+    public final void cancel()  
+    {  
+        m_timer.cancel();  
+    }  
+}
+```
+
+Test Kodu:
+
+```java
+package org.csystem.scheduler;  
+  
+import org.csystem.util.thread.ThreadUtil;  
+import org.junit.jupiter.api.Assertions;  
+import org.junit.jupiter.api.Test;  
+  
+import java.util.concurrent.TimeUnit;  
+  
+public class SchedulerTest {  
+    private int m_count;  
+  
+    @Test  
+    void test()  
+    {  
+        var scheduler = new Scheduler(1, TimeUnit.SECONDS).schedule(() -> ++m_count);  
+  
+        ThreadUtil.sleep(5_000);  
+        scheduler.cancel();  
+  
+        Assertions.assertEquals(6, m_count);  
+    }  
+}
+```
+
+Scheduler sınıfının aşağıdaki versiyonunu inceleyiniz
+
+```java
+package org.csystem.scheduler;  
+  
+import java.util.Timer;  
+import java.util.TimerTask;  
+import java.util.concurrent.TimeUnit;  
+  
+public class Scheduler {  
+    private final Timer m_timer;  
+    private final long m_delay;  
+    private final long m_interval;  
+  
+    private static TimerTask createTimerTask(Runnable task)  
+    {  
+        return new TimerTask() {  
+            public void run()  
+            {  
+                task.run();  
+            }  
+        };  
+    }  
+  
+    private Scheduler(long intervalInMillis, long delay)  
+    {  
+        m_timer = new Timer();  
+        m_interval = intervalInMillis;  
+        m_delay = delay;  
+    }  
+  
+    public static Scheduler of(long interval, TimeUnit timeUnit)  
+    {  
+        return of(timeUnit.toMillis(interval));  
+    }  
+  
+    public static Scheduler of(long intervalInMillis)  
+    {  
+        return of(intervalInMillis, 0);  
+    }  
+  
+    public static Scheduler of(long interval, long delay, TimeUnit timeUnit)  
+    {  
+        return of(timeUnit.toMillis(interval), timeUnit.toMillis(delay));  
+    }  
+  
+    private static Scheduler of(long intervalInMillis, long delay)  
+    {  
+        return new Scheduler(intervalInMillis, delay);  
+    }  
+  
+    public final Scheduler schedule(Runnable task)  
+    {  
+        m_timer.scheduleAtFixedRate(createTimerTask(task), m_delay, m_interval);  
+  
+        return this;  
+    }  
+  
+    public final void cancel()  
+    {  
+        m_timer.cancel();  
+    }  
+}
+```
+
+```java
+package org.csystem.scheduler;  
+  
+import org.csystem.util.thread.ThreadUtil;  
+import org.junit.jupiter.api.Assertions;  
+import org.junit.jupiter.api.Test;  
+  
+import java.util.concurrent.TimeUnit;  
+  
+public class SchedulerTest {  
+    private int m_count;  
+  
+    @Test  
+    void test()  
+    {  
+        var scheduler = Scheduler.of(1, TimeUnit.SECONDS).schedule(() -> ++m_count);  
+  
+        ThreadUtil.sleep(5_000);  
+        scheduler.cancel();  
+  
+        Assertions.assertEquals(6, m_count);  
+    }  
+}
+```
+
+###### Method Reference
 
 
 

@@ -1,35 +1,71 @@
 package org.csystem.scheduler;
 
+import java.time.LocalDateTime;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 public class Scheduler {
-    public Scheduler(long interval, TimeUnit timeUnit)
+    private final Timer m_timer;
+    private final long m_delay;
+    private final long m_interval;
+
+    private static TimerTask createTimerTask(Runnable task)
     {
-        throw new UnsupportedOperationException("TODO");
+        return new TimerTask() {
+            public void run()
+            {
+                task.run();
+            }
+        };
     }
 
-    public Scheduler(long intervalInMillis)
+    private Scheduler(long intervalInMillis, long delay)
     {
-        throw new UnsupportedOperationException("TODO");
+        m_timer = new Timer();
+        m_interval = intervalInMillis;
+        m_delay = delay;
     }
 
-    public Scheduler(long interval, long delay, TimeUnit timeUnit)
+    public static Scheduler of(long interval, TimeUnit timeUnit)
     {
-        throw new UnsupportedOperationException("TODO");
+        return of(timeUnit.toMillis(interval));
     }
 
-    public Scheduler(long intervalInMillis, long delay)
+    public static Scheduler of(long intervalInMillis)
     {
-        throw new UnsupportedOperationException("TODO");
+        return of(intervalInMillis, 0);
+    }
+
+    public static Scheduler of(long interval, long delay, TimeUnit timeUnit)
+    {
+        return of(timeUnit.toMillis(interval), timeUnit.toMillis(delay));
+    }
+
+    private static Scheduler of(long intervalInMillis, long delay)
+    {
+        return new Scheduler(intervalInMillis, delay);
     }
 
     public final Scheduler schedule(Runnable task)
+    {
+        m_timer.scheduleAtFixedRate(createTimerTask(task), m_delay, m_interval);
+
+        return this;
+    }
+
+    public final Scheduler schedule(Runnable task, Runnable cancelTask)
+    {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    public final Scheduler schedule(Runnable task, LocalDateTime dateTime)
     {
         throw new UnsupportedOperationException("TODO");
     }
 
     public final void cancel()
     {
-        throw new UnsupportedOperationException("TODO");
+        m_timer.cancel();
     }
 }

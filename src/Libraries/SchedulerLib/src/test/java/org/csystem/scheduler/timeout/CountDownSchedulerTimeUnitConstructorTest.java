@@ -1,30 +1,21 @@
-package org.csystem;
+package org.csystem.scheduler.timeout;
 
-import org.csystem.scheduler.timeout.CountDownScheduler;
-import org.csystem.scheduler.timeout.CountDownSchedulerX;
 import org.csystem.util.thread.ThreadUtil;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalTime;
 import java.util.concurrent.TimeUnit;
 
-public class CountDownSchedulerXTimeUnitConstructorTest {
+public class CountDownSchedulerTimeUnitConstructorTest {
     private static final long TOTAL_SECONDS = 5;
     private static final int PERIOD_IN_SECONDS = 1;
     private static final int PERIOD_IN_MILLISECONDS = PERIOD_IN_SECONDS * 1000;
     private static final long TOTAL_MILLISECONDS = TOTAL_SECONDS * 1000;
 
-    private CountDownSchedulerX createScheduler(LocalTime time)
+    private CountDownScheduler createScheduler(LocalTime time)
     {
-        return new CountDownSchedulerX(TOTAL_SECONDS, PERIOD_IN_SECONDS, TimeUnit.SECONDS) {
-            public void onStart()
-            {
-                System.out.println("Started");
-                System.out.printf("%02d", TOTAL_SECONDS);
-            }
-
+        return new CountDownScheduler(TOTAL_SECONDS, PERIOD_IN_SECONDS, TimeUnit.SECONDS) {
             public void onTick(long remainingMilliseconds)
             {
                 System.out.printf("%02d%n", (TOTAL_MILLISECONDS  - remainingMilliseconds) / PERIOD_IN_MILLISECONDS);
@@ -45,7 +36,7 @@ public class CountDownSchedulerXTimeUnitConstructorTest {
     {
         var time = LocalTime.now().withNano(0).plusSeconds(TOTAL_SECONDS);
 
-        createScheduler(time).startX();
+        createScheduler(time).start();
         ThreadUtil.sleep(PERIOD_IN_MILLISECONDS + 1000);
     }
 }

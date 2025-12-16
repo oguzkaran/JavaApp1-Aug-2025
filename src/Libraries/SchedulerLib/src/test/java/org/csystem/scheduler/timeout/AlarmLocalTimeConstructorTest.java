@@ -1,6 +1,5 @@
-package org.csystem;
+package org.csystem.scheduler.timeout;
 
-import org.csystem.scheduler.timeout.Alarm;
 import org.csystem.util.thread.ThreadUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
