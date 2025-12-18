@@ -9,15 +9,10 @@ import java.util.concurrent.TimeUnit;
 public class SchedulerTest {
     private int m_count;
 
-    private void increment()
-    {
-        ++m_count;
-    }
-
     @Test
     void test()
     {
-        var scheduler = Scheduler.of(1, TimeUnit.SECONDS).schedule(this::increment);
+        var scheduler = Scheduler.of(1, TimeUnit.SECONDS).schedule(() -> ++m_count);
 
         ThreadUtil.sleep(5_000);
         scheduler.cancel();

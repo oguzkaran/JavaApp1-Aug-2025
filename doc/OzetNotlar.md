@@ -4772,7 +4772,68 @@ public class SchedulerTest {
 
 ###### Method Reference
 
+Bir metodu referans etmek için kullanılan ifadeye **metot referansı (method reference) (MR)** denir. MR, Java 8 ile birlikte dile eklenmiştir ve belirli koşullar altında kullanılabilmektedir.  Bir MR, abstract metodu, geri dönüş değeri ve parametrik yapısı ile aynı olan bir fonksiyonel arayüz referansına atanabilir. MR'nin genel biçimi şu şekildedir:
+
+```java
+<isim1>::<isim2>
+```
+
+- isim1 şunlardan biri olabilir: UDT ismi, referans ismi.
+- isim2 şunlardan biri olabilir: metot ismi, new anahtar sözcüğü olabilir.
 
 
+MR 4(dört) çeşittir:
+1. static method reference.
+2. reference to an instance method of a particular object.
+3. reference to an instance method of any object of a particular type.
+4. constructor reference.
+
+Aşağıdaki demo örnekte kullanılan MR'leri inceleyiniz
+
+```java
+package org.csystem.scheduler;  
+  
+import org.csystem.util.thread.ThreadUtil;  
+import org.junit.jupiter.api.Assertions;  
+import org.junit.jupiter.api.Test;  
+  
+import java.util.concurrent.TimeUnit;  
+  
+public class SchedulerTest {  
+    private int m_count;  
+  
+    @Test  
+    void test()  
+    {  
+        var scheduler = Scheduler.of(1, TimeUnit.SECONDS).schedule(() -> ++m_count);  
+  
+        ThreadUtil.sleep(5_000);  
+        scheduler.cancel();  
+  
+        Assertions.assertEquals(6, m_count);  
+    }  
+}
+```
+
+Programlama pratiği açısından kullanılma durumuna göre tercih şu sırayla olmalıdır:
+1. MR
+2. LE
+3. Anonymous class
+
+ Pek çok static kod analizi aracı da bu sıraya göre kullanım önerisi sunar. Ancak programcı `static kod analizi aracı nasılsa uyarır` fikriyle kullanmamalıdır.
+
+Java 8 ile birlikte `java.util.function` paketi içerisinde bir grup fonksiyonel arayüz eklenmiştir. Bu arayüzler JavaSE'de pek çok yerde kullanılmaktadır. Bu arayüzler anlaşılması ve akılda tutulması açısından şu şekilde gruplandırılabilir:
+
+**Function arayüzleri:** Bu arayüzler bir ya da birden fazla girdi (input) alır ve bir değer üretilmesini sağlar. Bunların en genel olanları `Function` ve `BiFunction` arayüzleridir. Bu arayüzlerin abstract metotları `applyXXX` biçiminde isimlendirilmiştir.
+
+**Operatör arayüzler:** Bu arayüzler bir ya da iki girdi alır ve bir değer üretilmesini sağlar. Bu arayüzler Function arayüzlerinin adeta özelleştirilmiş biçimidir. Generic olanlar genel olarak `Function` ya da `BiFunction` arayüzlerinden türetilmiştir. Bu arayüzlerin abstract metotları `applyXXX` biçiminde isimlendirilmiştir.
+
+**Predicate arayüzleri:** Bu arayüzler bir ya da ik tane girdi alır ve sonucunda boolean bir değer üretilmesini sağlar. Bu arayüzlerin abstract metotları `test` biçiminde isimlendirilmiştir.
+
+**Consumer arayüzleri:** Bu arayüzler bir ya da iki tane girdi alır ve sonucunda bir değer üretmez. Bu arayüzlerin abstract metotları `acceptXXX` biçiminde isimlendirilmiştir. Bu abstract metotların geri dönüş değeri yoktur.
+
+**Supplier arayüzleri:** Bu arayüzler bir girdi almadan değer üretilmesini sağlar. Bu arayüzlerin abstract metotları `getXXX` biçiminde isimlendirilmiştir.
+
+**Anahtar Notlar:** Yukarıdaki gruplara bakıldığında hiç girdi almayıp, bir değer de üretmeyen (yani parametresiz ve geri dönüş değeri olmayan bir abstract metodu olan) bir fonksiyonel arayüz **yoktur**. Bu ihtiyaç zaten Java'da ilk zamanlardan beri bulunan `Runnable` arayüzü ile giderilmiştir. Yani aslında `Runnable` arayüzü ayrı bir grup olarak düşünülebilir.
 
 
