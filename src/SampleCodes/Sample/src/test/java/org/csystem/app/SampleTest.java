@@ -1,7 +1,10 @@
 package org.csystem.app;
 
-public class SampleTest {
-    public void test()
+import org.junit.jupiter.api.Test;
+
+class SampleTest {
+    @Test
+    void test()
     {
 
     }

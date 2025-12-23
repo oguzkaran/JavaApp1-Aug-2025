@@ -2138,10 +2138,9 @@ Bu kavramlar için net birer tanım yoktur ancak burada pek çok programcı aç�
 2. Kod akışının ele geçirilmesi (yani yönetilmesi) ve duruma göre programcıya belli zamanlarda verilmesi. Buna genel olarak **Inversion of Control (IOC)** de denilmektedir.
 
 Kütüphanelerde arka planda bir takım işlemler kullanıcılar için yapılır. Akışın ele geçirilmesi gibi bir amaç yoktur. Kütüphanelerde program akışı kullanıcıdadır. Programcı isterse kütüphaneye ilişkin sınıfları ve metotları kullanabilir. Şüphesiz kütüphane içerisindeki bu sınıflar ve metotlar yararlı bir takım işlemler yaparlar. Şüphesiz pek çok framework aynı zamanda birden fazla kütüphaneye ve API'lere sahiptir. Bazı durumlarda o sistemin bir framework mü ya da bir kütüphane mi olduğu konusunda tereddütler olabilir. 
-
 ##### Nested Types
 
-Java'da iç içe tür bildirimleri (nested types/nested type declarations) yapılabilir. Örneğin, sınıf içerisinde sınıf bildirimi, sınıf içersinde enum class bildirimi, sınıf içerisinde interface bildirimi vb. Bu bölümde iç içe sınıf bildirimleri ele alınacaktır. Diğer bildirimler iç içe sınıf bildirimlerine göre daha az detaylıdır. İç içe sınıf bildirimleri şunlardır: **local classes, nested classes, inner classes, anonymous classes, lambda expressions (since Java 8).** 
+Java'da iç içe tür bildirimleri (nested types/nested type declarations) yapılabilir. Örneğin, sınıf içerisinde sınıf bildirimi, sınıf içersinde enum class bildirimi, sınıf içerisinde interface bildirimi vb. Bu bölümde iç içe sınıf bildirimleri ele alınacaktır. Diğer bildirimler iç içe sınıf bildirimlerine göre daha az detaylıdır. İç içe sınıf bildirimleri şunlardır: **local classes, nested classes, inner classes, anonymous classes, lambda expressions (since Java 8), method reference (Since Java 8).** 
 
 Herhangi bir user type type (UDT) içerisinde bildirilmemiş UDT'lere **top level types** denir. Bu anlamda hiç bir UDT içerinde bildirilmemiş sınıflara **top level classes** denir. 
 
@@ -4835,5 +4834,185 @@ Java 8 ile birlikte `java.util.function` paketi içerisinde bir grup fonksiyonel
 **Supplier arayüzleri:** Bu arayüzler bir girdi almadan değer üretilmesini sağlar. Bu arayüzlerin abstract metotları `getXXX` biçiminde isimlendirilmiştir.
 
 **Anahtar Notlar:** Yukarıdaki gruplara bakıldığında hiç girdi almayıp, bir değer de üretmeyen (yani parametresiz ve geri dönüş değeri olmayan bir abstract metodu olan) bir fonksiyonel arayüz **yoktur**. Bu ihtiyaç zaten Java'da ilk zamanlardan beri bulunan `Runnable` arayüzü ile giderilmiştir. Yani aslında `Runnable` arayüzü ayrı bir grup olarak düşünülebilir.
+
+Aşağıdaki örnekte klavyeden alınan sayı kadar long türden asal sayı rassal olarak üretilmiştir ve stdout'a basılmıştır. **Burada callback'lerin nasıl verildiğine odaklanınız. İlgili türler ve metotlar ileride detaylı olarak ele alınacaktır**
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.util.Random;  
+import java.util.stream.LongStream;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var count = Console.readInt("Input count:");  
+        var random = new Random();  
+  
+        LongStream.generate(random::nextLong).filter(NumberUtil::isPrime).limit(count).forEach(Console::writeLine);  
+    }  
+}
+```
+
+Aşağıdaki örnekte klavyeden alınan sayı kadar long türden asal sayı, yine klavyeden alınan sınırlar içerisinde rassal olarak üretilmiştir ve stdout'a basılmıştır. **Burada callback'lerin nasıl verildiğine odaklanınız. İlgili türler ve metotlar ileride detaylı olarak ele alınacaktır**
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.util.Random;  
+import java.util.stream.LongStream;  
+  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var count = Console.readInt("Input count:");  
+        var origin = Console.readLong("Input origin:");  
+        var bound = Console.readLong("Input bound:");  
+        var random = new Random();  
+          
+        LongStream.generate(() -> random.nextLong(origin, bound)).filter(NumberUtil::isPrime).limit(count).forEach(Console::writeLine);  
+    }  
+}
+```
+
+##### Annotation
+
+Anotation'lar modern programlama dillerine gittikçe daha fazla girmeye başlamıştır. Gerçekten `C++`, `C#`, `Kotlin`, `Swift`, `Python` gibi dillerde de çeşitli isimlerle bulunur. Bu kavram çeşitli dillerde çeşitli isimlerle anılmaktadır. Örneğin `C++` ve `C#` dillerinde attribute denilmektedir. Java'ya annotation'lar `Java 1.5` ile eklenmiştir. Java'da annotation'lar, genel olarak bir sentaktik elemanının önüne getirilebilen (işaretlenebilen) ve `@` işareti ile başlatılan user defined type'lardır. Annotation'lar ile işaretlenebilen (mark) sentaktik elemanlarından bazıları şunlardır:
+
+- Sınıf bildirimleri
+- Arayüz bildirimleri
+- Enum class bildirimleri
+- Annotation bildirimleri
+- Record bildirimleri
+- Metot bildirimleri
+- Veri elemanı bildirimleri
+- Metot parametre değişkeni bildirimleri
+- `...`
+
+**Anahtar Notlar:** Annotation'lar genel olarak derleyicinin, kod üreten bazı araçların (plugin) veya çalışma zamanında bir kod tarafından bakılıp ona göre işlem yapıldığı durumlarda kullanılır. Örneğin bir metot `org.junit` paketindeki `@Test` annotation'ı ile işaretlendiğinde JUnit o metodu test metodu olarak çalıştıracağını anlar. JUnit `@Test` ile işaretlenmemiş bir metodu test metodu olarak düşünmez.
+
+**Anahtar Notlar:** Bildirilen bir annotation'ların programlamada kullanımı `reflection` isimli konuda ele alınacaktır.
+
+Bir annotation **@interface** ile bildirilebilir. Genel biçimi şu şekildedir:
+
+```java
+[public] @interface <isim> {
+	//...
+}
+```
+Annotation'ın elemanları (member) olabilir. Bu elemanlara genel olarak **attribute** ya da **parameter** denilmektedir. Annotation elemanları geri dönüş değeri olan parametresiz metotlar gibi bildirilir. Gövdeleri olmaz, erişim belirleyicileri olmaz (aslında bu elemanlar aşağı seviyede gerçekten metot olarak ele alınır). Attribute'ların default değeri olabilir. Attribute bildiriminin genel biçimi şu şekildedir:
+
+```java
+<tür ismi> <attribute ismi>() [default <ilgili türden sabit ifadesi>]
+```
+
+Burada, attribute herhangi bir türden olabilir. Bir attribute'un default değeri sabit ifadesi (constant expression) olarak verilmelidir. Bir annotation'ın sentaktik elemana eklenmesinin genel biçimi şu şekildedir:
+
+```java
+@<annotation ismi>[([attribute = değer listesi])]
+```
+
+Bir annotation, bir sentaktik elemana işaretlendiğinde, annotation'ın attribute'ı yoksa veya tüm attribute'ları default değerlerini almışsa bu durumda ekleme iki biçimden biriyle yapılabilir:
+
+```java
+@<annotation ismi>
+```
+ya da 
+```java
+@<annotation ismi>()
+```
+
+
+Bu iki biçim tamamen aynı anlamdadır. Bir annotation'ın hiç attribute'u olmayabilir. Bir attribute ekleme sırasında attribute ismine değer verilerek yapılır. Değerler sabit ifadesi olmalıdır. Bir attribute'un türü ne olursa olsun ismi **value** ise, işaretlemede bir tek value attribute'unun değeri verilecekse attribute ismini yazmadan doğrudan değer yazılabilir. Eğer value ile birlikte başka attribute'lara da değerler verilecekse bu durumda value da yazılmalıdır. Bir attribute bir dizi türünden olabilir. Dizi türünden bir attribute için değerler `{}` içerisinde verilmelidir. Eğer bir tane değer verilecekse `{}` yazılmayabilir. Birden fazla değer için `{}` kesinlikle yazılmalıdır.
+
+Bir annotation bir sentaktik elemana default olarak birden fazla işaretlenemez. Birden fazla işaretlenebilen bir annotation (repeatable annotation) bildirimi reflection konusunda ele alınacaktır.
+
+Bir annotation'ın hangi sentaktik elemanlara eklenebileceği `Target` isimli bir annotation ile, annotatation'a eklenerek yapılabilir. `Target` annotation'ının value isimli `ElementType[]` *türünden attribute'u vardır.* `ElementType` bir enum sınıfıdır ve sabitleri ilgili annotataion'ın eklenebileceği sentaktik elemanları temsil eder. Bir annotation Target annotation'ı ile işaretlenmezse tüm sentaktik elemanlara eklenebilir. Target annotation'ı yalnızca annotation'lara eklenebilen bir annotation'dır. Target annotation'ı için bu durum yine Target annotation'ı eklenerek sağlanmıştır. 
+
+Bir annotation'ın ele alınması anlamında 3 tane kategorisi vardır: **RUNTIME, CLASS, SOURCE**. Bu kategoriye retention denilmektedir. Bir annotation için kategori, `Retention` isimli bir annotation ile belirlenir. Retention annotation'ının `RetentionPolicy` isimli enum sınıfı türünden value isimli bir attribute'u vardır. Kategori RetentionPolicy enum sınıfının sabitleri ile belirlenebilir. Bu sabitler RUNTIME, CLASS ve SOURCE ismindedir. Bu sabitlerin anlamları şu şekildedir:
+
+- **RUNTIME:** Çalışma zamanında da kullanılabilmek tasarlanmış bir annotation belirtir. Bu annotation'lar işaretlendiği sentaktik elemanla birlikte byte code'a da eklenir. Bir sentaktik elemanın RUNTIME annotation ile işaretlenmiş olup olmadığına çalışma zamanında nasıl bakılacağı `reflection` konusunda ele alınacaktır.
+
+- **CLASS:** Derleme zamanında (ya da kabaca build zamanında) bakılabilen ancak çalışma zamanında bakılamayan annotation belirtir. Bu annotation işaretlendiği sentaktik elemanla birlikte byte code'a yazılır. Bir annotation Retention annotation'ı ile işaretlenmezse default olarak bu kategoride kabul edilir.
+
+- **SOURCE:** Derleyicinin işaretlenen sentaktik elemanla birlikte byte code'a eklemediği bir annotation belirtir. Bu kategorideki annotation'a şüphesiz çalışma zamanında bakılamaz.
+
+**Anahtar Notlar:** `CLASS` ve `SOURCE` annotation'ların nasıl ele alındığı `Java ile Uygulama Geliştirme 2` kursunda incelenecektir.
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import java.lang.annotation.ElementType;  
+import java.lang.annotation.Retention;  
+import java.lang.annotation.RetentionPolicy;  
+import java.lang.annotation.Target;  
+
+@TheirAnnotation({"ali", " veli", "selami"})  
+class Sample {  
+    @MyAnnotation(value = 10)  
+    @TheirAnnotation("ali")  
+    public void foo()  
+    {  
+        //...  
+    }  
+  
+    @MyAnnotation(value = 12, message = "Annotated by CSD")  
+    public void bar()  
+    {  
+        //...  
+    }  
+  
+    @MyAnnotation(10)  
+    public void tar()  
+    {  
+        //...  
+    }  
+  
+    @YourAnnotation(val = 10)  
+    public void car()  
+    {  
+        //...  
+    }  
+}  
+  
+@Retention(RetentionPolicy.RUNTIME)  
+@Target({ElementType.TYPE, ElementType.METHOD})  
+@interface TheirAnnotation {  
+    String [] value();  
+}  
+  
+@interface YourAnnotation {  
+    int val();  
+}  
+  
+@interface MyAnnotation {  
+    String message() default "";  
+    int value() default 0;  
+}
+```
+
+
+Java'da bir grup standart annotation bulunur. Bunlardan önemli bazıları şunlardır:
+
+- Target
+- Retention
+- FunctionalInterface
+- Deprecated
+- Override
+- Inherited
+- Repeatable
+- Documented
+- SuppressWarnings
+- `...`
+
+
 
 
