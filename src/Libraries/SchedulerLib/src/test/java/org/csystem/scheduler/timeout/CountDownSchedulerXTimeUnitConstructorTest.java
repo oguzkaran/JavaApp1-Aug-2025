@@ -16,17 +16,20 @@ public class CountDownSchedulerXTimeUnitConstructorTest {
     private CountDownSchedulerX createScheduler(LocalTime time)
     {
         return new CountDownSchedulerX(TOTAL_SECONDS, PERIOD_IN_SECONDS, TimeUnit.SECONDS) {
+            @Override
             public void onStart()
             {
                 System.out.println("Started");
                 System.out.printf("%02d", TOTAL_SECONDS);
             }
 
+            @Override
             public void onTick(long remainingMilliseconds)
             {
                 System.out.printf("%02d%n", (TOTAL_MILLISECONDS  - remainingMilliseconds) / PERIOD_IN_MILLISECONDS);
             }
 
+            @Override
             public void onFinish()
             {
                 System.out.println("Finished");

@@ -4933,7 +4933,7 @@ Bu iki biçim tamamen aynı anlamdadır. Bir annotation'ın hiç attribute'u olm
 
 Bir annotation bir sentaktik elemana default olarak birden fazla işaretlenemez. Birden fazla işaretlenebilen bir annotation (repeatable annotation) bildirimi reflection konusunda ele alınacaktır.
 
-Bir annotation'ın hangi sentaktik elemanlara eklenebileceği `Target` isimli bir annotation ile, annotatation'a eklenerek yapılabilir. `Target` annotation'ının value isimli `ElementType[]` *türünden attribute'u vardır.* `ElementType` bir enum sınıfıdır ve sabitleri ilgili annotataion'ın eklenebileceği sentaktik elemanları temsil eder. Bir annotation Target annotation'ı ile işaretlenmezse tüm sentaktik elemanlara eklenebilir. Target annotation'ı yalnızca annotation'lara eklenebilen bir annotation'dır. Target annotation'ı için bu durum yine Target annotation'ı eklenerek sağlanmıştır. 
+Bir annotation'ın hangi sentaktik elemanlara eklenebileceği `Target` isimli bir annotation ile, annotatation'a eklenerek yapılabilir. `Target` annotation'ının value isimli `ElementType[]` türünden attribute'u vardır. `ElementType` bir enum sınıfıdır ve sabitleri ilgili annotataion'ın eklenebileceği sentaktik elemanları temsil eder. Bir annotation Target annotation'ı ile işaretlenmezse tüm sentaktik elemanlara eklenebilir. Target annotation'ı yalnızca annotation'lara eklenebilen bir annotation'dır. Target annotation'ı için bu durum yine Target annotation'ı eklenerek sağlanmıştır. 
 
 Bir annotation'ın ele alınması anlamında 3 tane kategorisi vardır: **RUNTIME, CLASS, SOURCE**. Bu kategoriye retention denilmektedir. Bir annotation için kategori, `Retention` isimli bir annotation ile belirlenir. Retention annotation'ının `RetentionPolicy` isimli enum sınıfı türünden value isimli bir attribute'u vardır. Kategori RetentionPolicy enum sınıfının sabitleri ile belirlenebilir. Bu sabitler RUNTIME, CLASS ve SOURCE ismindedir. Bu sabitlerin anlamları şu şekildedir:
 
@@ -5000,18 +5000,29 @@ class Sample {
 ```
 
 
-Java'da bir grup standart annotation bulunur. Bunlardan önemli bazıları şunlardır:
+JavaSE'de bir grup standart annotation bulunur. Bunlardan önemli bazıları şunlardır:
 
 - Target
 - Retention
 - FunctionalInterface
 - Deprecated
 - Override
-- Inherited
 - Repeatable
-- Documented
 - SuppressWarnings
+- Inherited
+- Documented
 - `...`
+
+FunctionalInterface annotation'ı bir arayüzün fonksiyonel olarak kullanılabileceği durumda işaretlenir. FunctionalInterface  bir RUNTIME annotation'ıdır. Bu annotation ile işaretlenmiş bir arayüzün bir ve yalnız bir tane abstract metodu olmalıdır. Aksi durumda error oluşur. FunctionalInterface bir RUNTIME annotation'ı olmasına karşın derleyici tarafından da dikkate alınır. Örneğin, java.util.function paketi içerisindeki fonksiyonel arayüzler ve Runnable arayüzü bu annotation ile işaretlenmiştir. JavaSE'de (ya da senaryoya göre bir kütüphanede) FunctionalInterface annotation'ı ile işaretlenmemiş ancak bir ve yalnız bir tane abstract metodu olan arayüzler bulunur. Programcı genel olarak şu şekilde düşünmelidir: **FunctionalInterface annotation'ı ile işaretlenmiş bir arayüzün fonksiyonel olarak kullanıldığı durumlar olmalıdır, FunctionalInterface ile işaretlenmemiş ancak bir ve yalnız bir tane abstract metodu bulunan bir arayüzün fonksiyonel kullanımı söz konusu değildir (eğer bir tasarım hatası yoksa).** Bu durumda FunctionalInterface annotation okunabilirliği/algılanabilirliği olumlu anlamda etkiler. Ayrıca FunctionalInterface ile işaretlenmiş arayüzler için derleyici çeşitli optimizasyonlar yapabilmektedir. FunctionalInterface annotation'ının attribute'u yoktur.
+
+Deprecated annotation'ı ile deprecated olan bir sentaktik eleman işaretlenebilir. Deprecated bir RUNTIME annotation'ıdır.  Deprecated bir RUNTIME annotation'ı olmasına karşın derleyici, bazı plugin'ler ve pek çok statik kod analizi aracı tarafından dikkate alınır ve uyarı mesajı verirler. Deprecated annotation'ına Java 9 ile birlikte boolean türden forRemoval ve String türden since attiribute'ları eklenmiştir. forRemoval ile sentaktik elemanın ileride artık olmayacağı (silineceği) true değeri geçilerek belirlenebilir, default değeri false'dur. since ile tipik olarak deprecated olduğu sürüm bilgisi verilir, default değeri boş string'dir. Bazı (ve önemli) statik kod analizi araçları forRemoval'ın true olmasına göre uyarı derecesini (severity) artırabilir. Programcı deprecated olan sentaktik bir eleman için bu annotation mutlaka kullanmalı ve dokümantasyonda genel olarak nedenini ve alternatiflerini belirtmelidir. 
+
+Override bir SOURCE annotation'dır ve yalnızca metot bildirimlerinde kullanılabilir. Bu annotation'ın attribute'u yoktur. Bu annotation işaretlendiği metodun override edilip edilmeyeceğini derleme zamanında kontrol etmek için kullanılır. Bu annotation ile işaretlenmiş metodun taban sınıfta sanal (virtual) karşılığının bulunması gerekir, aksi durumda error oluşur. Override annotation'ı bir metot override edilirken konmalıdır. Özellikle programcının yaptığı değişiklerinin türemiş sınıflarda fark edilebilmesi ve düzeltilmesi için faydalıdır. Ayrıca okunabilirliği/algılanabilirliği artırır. Bununla birlikte derleyici bazı optimizasyonlar da yapabilir. 
+
+
+
+
+
 
 
 
