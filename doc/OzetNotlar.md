@@ -5018,6 +5018,162 @@ FunctionalInterface annotation'ı bir arayüzün fonksiyonel olarak kullanılabi
 Deprecated annotation'ı ile deprecated olan bir sentaktik eleman işaretlenebilir. Deprecated bir RUNTIME annotation'ıdır.  Deprecated bir RUNTIME annotation'ı olmasına karşın derleyici, bazı plugin'ler ve pek çok statik kod analizi aracı tarafından dikkate alınır ve uyarı mesajı verirler. Deprecated annotation'ına Java 9 ile birlikte boolean türden forRemoval ve String türden since attiribute'ları eklenmiştir. forRemoval ile sentaktik elemanın ileride artık olmayacağı (silineceği) true değeri geçilerek belirlenebilir, default değeri false'dur. since ile tipik olarak deprecated olduğu sürüm bilgisi verilir, default değeri boş string'dir. Bazı (ve önemli) statik kod analizi araçları forRemoval'ın true olmasına göre uyarı derecesini (severity) artırabilir. Programcı deprecated olan sentaktik bir eleman için bu annotation mutlaka kullanmalı ve dokümantasyonda genel olarak nedenini ve alternatiflerini belirtmelidir. 
 
 Override bir SOURCE annotation'dır ve yalnızca metot bildirimlerinde kullanılabilir. Bu annotation'ın attribute'u yoktur. Bu annotation işaretlendiği metodun override edilip edilmeyeceğini derleme zamanında kontrol etmek için kullanılır. Bu annotation ile işaretlenmiş metodun taban sınıfta sanal (virtual) karşılığının bulunması gerekir, aksi durumda error oluşur. Override annotation'ı bir metot override edilirken konmalıdır. Özellikle programcının yaptığı değişiklerinin türemiş sınıflarda fark edilebilmesi ve düzeltilmesi için faydalıdır. Ayrıca okunabilirliği/algılanabilirliği artırır. Bununla birlikte derleyici bazı optimizasyonlar da yapabilir. 
+##### Logging
+
+Logging, yazılım geliştirmede bir uygulamanın çalışma zamanında meydana gelen hataların, uyarıların, olayların, önemli bilgilerin kayıt altına alınması işlemidir. Programcılar, uygulamanın davranışlarını izelemek, hatalı durumları ele almak (debugging vb.) ve sistemin geçmişte ne yaptığını gözlemlemek için logging kullanılırlar. Logging için gereken nesneleri referansları tipik olarak sınıfın static veri elemanı olarak bildirilirler. Logging işlemlerinde genel olarak `severity` denilen bir seviye kavramı bulunur. Yani log'lar seviyelerine göre sınıflandırılır ve yüksekten düşüğe doğru bir hiyerarşi bulunur. Yani severity bir log'un mantıksal olarak ne kadar kritik olduğu bilgisidir. Genel olarak kullanlan log seviyeleri şunlardır. Seviyeler yüksekten düşüğe doğru yazılmıştır:
+1. **FATAL/OFF:** En yüksek seviyedir. Genellikle sistemin çalışmasını durduran hatalar için kullanılır.
+2. **ERROR:** Sistemin bir kısmı çalışamaz ya da hatalı olduğu durumlarda kullanılır. 
+3. **WARN:** Potansiyel sorunlar için kullanılır.
+4. **INFO:** Normal akışa ilişkin bilgilendirme amaçlı kullanılır.
+5. **DEBUG:** Geliştirme sırasında detaylı bilgilendirme ile hata ayıklamak için kullanılır
+6. **TRACE:** En detaylı seviyedir. Adım adım izlemek için kullanılır
+Logging işlemine ilişkin kütüphanelerin ve ortamların kendine özgü log seviyeleri de olabilmektedir. Yukarıda anlatılan seviyeler logging'e ilişkin genel seviyeler olarak düşünülmelidir. Genel olarak log'lar için çeşitli konfigürasyonlarla yönlendirme yapılabilir. Örneğin bazı log'lar stdout'a yazılırken, bazı log'lar dosyaya yazılabilir. Java'da yaygın olarak kullanılan logging mekanizmaları şunlardır: 
+- **`java.util.logging`paketi:** JavaSE'de bulunur ve herhangi bir dependency gerektirmez. `Logger` sınıfının `getLogger`isimli factory metodu ile ilgili nesne yaratılabilir. Burada log seviyeleri genel olarak aşağıdaki demo örnekte gösterildiği gibidir:
+```java
+package org.csystem.app;  
+  
+import java.util.logging.Logger;  
+  
+class Application {  
+    private static final Logger log = Logger.getLogger(Application.class.getName());  
+  
+    public static void run(String[] args)  
+    {  
+        log.severe("SEVERE"); // -> ERRORR/FATAL 
+        log.warning("WARNING");  // -> WARN
+        log.info("INFO");  // -> INFO
+        log.config("CONFIG"); 
+        log.fine("FINE");  // -> DEBUG
+        log.finer("FINER");  
+        log.finest("FINEST");  // -> TRACE
+    }  
+}
+```
+- **Apache Log4J/Log4J2:** Çok yaygın olarak kullanılan ve güçlü bir logging mekanizmasına sahip bir ortamdır. Log mesajlarına ilişkin gelişmiş örüntülerin ve konfigürasyonların kullanılmasına olanak sağlar.  Log4j2, Log4J'e göre daha gelişmiş ve daha etkindir. Burada Log4j2 kullanılacaktır. Burada log seviyeleri genel olarak aşağıdaki demo örnekte gösterildiği gibidir:
+```java
+package org.csystem.app;  
+
+import org.apache.logging.log4j.LogManager;  
+import org.apache.logging.log4j.Logger;  
+  
+class Application {  
+    private static final Logger log = LogManager.getLogger(Application.class);  
+  
+    public static void run(String[] args)  
+    {  
+        log.fatal("FATAL");  
+        log.error("ERROR");  
+        log.warn("WARN");  
+        log.info("INFO");  
+        log.debug("DEBUG");  
+        log.trace("TRACE");  
+    }  
+}
+```
+
+Ayrıca Logger sınıfının Level sınıfı parametreli log metotları ile seviyeler ayrıca belirlenebilir. Level sınıfı ile yukarıdaki seviyeler dışında da bazı seviyeler vardır (örneğin, OFF, ALL gibi). 
+
+Aşağıdaki demo örneği inceleyiniz. Sınıfn derlenebilmesi için aşağıdaki dependency'nin eklenmesi gerekir.
+
+```xml
+<dependency>  
+    <groupId>org.apache.logging.log4j</groupId>  
+    <artifactId>log4j-core</artifactId>  
+    <version>2.25.3</version>  
+</dependency>
+```
+
+```java
+package org.csystem.app;  
+
+import org.apache.logging.log4j.Level;  
+import org.apache.logging.log4j.LogManager;  
+import org.apache.logging.log4j.Logger;  
+  
+class Application {  
+    private static final Logger log = LogManager.getLogger(Application.class);  
+  
+    public static void run(String[] args)  
+    {  
+        log.log(Level.OFF, "OFF");  
+    }  
+}
+```
+
+- **SLF4J (Simple Logging Facade for Java):** 
+
+Aslında bir logging ortamı değildir. Arka planda logging ortamını kullanır. Bu durumda programcı arka plandaki logging ortamını değiştirse bile log'lama kodları bundan etkilenmez. SLF4J ile yine geliştiricileri tarafından tasarlanmış `Logback` denilen bir logging ortamı default olarak kullanılmaktadır. Logback ile de Log4J2'dakine benzer bir XML konfigürasyonu yapılabilmektedir
+Aşağıdaki demo örnekte Slf4j ile logback birlikte kullanılmaktadır. Sınıfı derleyebilmek için aşağıdaki dependency'lerin eklenmiş olması gerekir:
+
+```xml
+<dependency>  
+    <groupId>org.slf4j</groupId>  
+    <artifactId>slf4j-api</artifactId>  
+</dependency>  
+  
+<dependency>  
+    <groupId>org.slf4j</groupId>  
+    <artifactId>slf4j-simple</artifactId>  
+    <scope>runtime</scope>  
+</dependency>
+```
+
+```java
+package org.csystem.app;  
+  
+import org.slf4j.Logger;  
+import org.slf4j.LoggerFactory;  
+  
+class Application {  
+    private static final Logger log = LoggerFactory.getLogger(Application.class);  
+  
+    public static void run(String[] args)  
+    {  
+        log.error("ERROR");  
+        log.warn("WARN");  
+        log.info("INFO");  
+        log.debug("DEBUG");  
+        log.trace("TRACE");  
+    }  
+}
+```
+
+
+**Anahtar Notlar:** Yukarıda anlatılan ortamlar dışında da logging ortamları bulunur. Bazıları bazı ortamlar ile birlikte kullanılabilir. Temel hedef benzer olmakla beraber kendine özgü farklılıklar içerebilirler.
+
+##### Lombok
+
+Programcının sürekli olarak yazması gereken (boilerplate code) kod genel parçalarının build aşamasında üretilmesini sağlayan bir plugin'dir. Lombok ile getter, setter, ctor gibi kodlar da üretilebilmektedir. Lombok genel olarak SOURCE retention'ınına sahip annotation'lara sahiptir. Dolayısıyla üretilen koda bir maliyetli genel olarak yoktur. Lombok kullanılabilmesi için aşağıdaki dependency ve plugin'ler `pom.xml` dosyasına eklenmelidir.
+
+```xml
+<!-- Dependency -->
+<dependency>  
+    <groupId>org.projectlombok</groupId>  
+    <artifactId>lombok</artifactId>  
+</dependency>
+```
+
+```xml
+<!-- Plugin -->
+<plugin>  
+    <groupId>org.apache.maven.plugins</groupId>  
+    <artifactId>maven-compiler-plugin</artifactId>  
+    <configuration>  
+        <annotationProcessorPaths>  
+            <path>  
+                <groupId>org.projectlombok</groupId>  
+                <artifactId>lombok</artifactId>  
+            </path>  
+        </annotationProcessorPaths>  
+    </configuration>  
+</plugin>
+```
+
+Lombok ile çok kullanılan logging ortamları için Logger türden static veri elemanı bildirimi build aşamasında annotation ile yapılabilmektedir. Buna göre `java.util.logging` için `Log`, `Log4j` için `Log4j`, `Log4j2` için `Log4j2` ve `Slf4J` için `Slf4j` annotation'ları kullanılabilir.
+
+
+
+
 
 
 

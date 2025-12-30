@@ -9,6 +9,7 @@ public class Scheduler {
     private final Timer m_timer;
     private final long m_delay;
     private final long m_interval;
+    private Runnable m_cancelTask;
 
     private static TimerTask createTimerTask(Runnable task)
     {
@@ -49,14 +50,15 @@ public class Scheduler {
 
     public final Scheduler schedule(Runnable task)
     {
-        m_timer.scheduleAtFixedRate(createTimerTask(task), m_delay, m_interval);
-
-        return this;
+        return schedule(task, (Runnable)null);
     }
 
     public final Scheduler schedule(Runnable task, Runnable cancelTask)
     {
-        throw new UnsupportedOperationException("TODO");
+        m_cancelTask = cancelTask;
+        m_timer.scheduleAtFixedRate(createTimerTask(task), m_delay, m_interval);
+
+        return this;
     }
 
     public final Scheduler schedule(Runnable task, LocalDateTime dateTime)
@@ -66,6 +68,9 @@ public class Scheduler {
 
     public final void cancel()
     {
+        if (m_cancelTask != null)
+            m_cancelTask.run();
+
         m_timer.cancel();
     }
 }
