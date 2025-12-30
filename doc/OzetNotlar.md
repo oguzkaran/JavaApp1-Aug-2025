@@ -5169,7 +5169,7 @@ Programcının sürekli olarak yazması gereken (boilerplate code) kod genel par
 </plugin>
 ```
 
-Lombok ile çok kullanılan logging ortamları için Logger türden static veri elemanı bildirimi build aşamasında annotation ile yapılabilmektedir. Buna göre `java.util.logging` için `Log`, `Log4j` için `Log4j`, `Log4j2` için `Log4j2` ve `Slf4J` için `Slf4j` annotation'ları kullanılabilir.
+Lombok ile çok kullanılan logging ortamları için Logger türden static veri elemanı bildirimi build aşamasında annotation ile yapılabilmektedir. Buna göre `java.util.logging` için `Log`, `Log4j` için `Log4j`, `Log4j2` için `Log4j2` ve `Slf4J` için `Slf4j` annotation'ları kullanılabilir. Lombok'a ilişkin diğer annotation'lar projeler içerisinde ele alınacaktır.
 
 
 
