@@ -5172,9 +5172,16 @@ class Application {
 }
 ```
 
-Slf4J ile arka planda Log4J kullanılabilmesi için aşağıdaki dependency eklenebilir:
+Slf4J ile arka planda Log4J kullanılabilmesi için aşağıdaki iki dependency yeterli olacaktır:
 
 ```xml
+
+<dependency>  
+    <groupId>org.apache.logging.log4j</groupId>  
+    <artifactId>log4j-core</artifactId>  
+    <version>2.25.3</version>  
+</dependency>
+
 <dependency>  
     <groupId>org.apache.logging.log4j</groupId>  
     <artifactId>log4j-slf4j2-impl</artifactId>  
