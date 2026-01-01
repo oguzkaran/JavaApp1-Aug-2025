@@ -5100,6 +5100,40 @@ class Application {
 }
 ```
 
+Log4J2 ile loglar için `log4j.xml` konfigürasyon dosyası kullanılarak çeşitli belirlemeler yapılabilir. Aşağıdaki örnek log4j.xml dosyasında info ve üstü seviyesindeki log'lar hem dosyaya hem de stdout'a yönlendirilmiştir. Yalnızca debug log'lar stdout'a yönlendirilmiştir. 
+
+```xml
+<!-- log4j.xml -->
+<?xml version="1.0" encoding="UTF-8"?>  
+<Configuration packages="org.apache.logging.log4j.core">  
+    <Appenders>  
+        <Console name="ConsoleStdOut" target="SYSTEM_OUT">  
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>  
+        </Console>  
+  
+        <Console name="ConsoleStdErr" target="SYSTEM_ERR">  
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>  
+            <LevelRangeFilter minLevel="DEBUG" maxLevel="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>  
+        </Console>  
+  
+        <File name="LogAppFile" fileName="logs/app.log">  
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>  
+        </File>  
+    </Appenders>  
+  
+    <Loggers>  
+        <Root level="trace">  
+            <AppenderRef ref="ConsoleStdOut" level="info"/>  
+            <AppenderRef ref="ConsoleStdErr"/>  
+            <AppenderRef ref="LogAppFile" level="info"/>  
+        </Root>  
+  
+    </Loggers>  
+</Configuration>
+```
+
+Bu dosya uygulama içerisindeki `resources` dizinine eklendiğinde otomatik olarak algılanacaktır.
+
 - **SLF4J (Simple Logging Facade for Java):** 
 
 Aslında bir logging ortamı değildir. Arka planda logging ortamını kullanır. Bu durumda programcı arka plandaki logging ortamını değiştirse bile log'lama kodları bundan etkilenmez. SLF4J ile yine geliştiricileri tarafından tasarlanmış `Logback` denilen bir logging ortamı default olarak kullanılmaktadır. Logback ile de Log4J2'dakine benzer bir XML konfigürasyonu yapılabilmektedir
@@ -5138,8 +5172,20 @@ class Application {
 }
 ```
 
+Slf4J ile arka planda Log4J kullanılabilmesi için aşağıdaki dependency eklenebilir:
+
+```xml
+<dependency>  
+    <groupId>org.apache.logging.log4j</groupId>  
+    <artifactId>log4j-slf4j2-impl</artifactId>  
+    <version>2.25.3</version>  
+</dependency>
+```
+
+Bu dependency ile birlikte Log4J konfigürasyonu SLf4J ile kullanılabilecektir.
 
 **Anahtar Notlar:** Yukarıda anlatılan ortamlar dışında da logging ortamları bulunur. Bazıları bazı ortamlar ile birlikte kullanılabilir. Temel hedef benzer olmakla beraber kendine özgü farklılıklar içerebilirler.
+
 
 ##### Lombok
 
@@ -5152,7 +5198,6 @@ Programcının sürekli olarak yazması gereken (boilerplate code) kod genel par
     <artifactId>lombok</artifactId>  
 </dependency>
 ```
-
 ```xml
 <!-- Plugin -->
 <plugin>  
