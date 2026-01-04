@@ -1,43 +1,82 @@
 package org.csystem.app.datetime;
 
 public class DateUtil {
-	private static final int [] DAYS_OF_MONTHS = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-	private static final String [] DAYS_OF_WEEK_TR = {"Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"};
-	private static final String [] DAYS_OF_WEEK_EN = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-	private static final String [] MONTHS_TR = {"", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
-			"Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"};
-	private static final String [] MONTHS_EN = {"", "January", "February", "March", "April", "May", "June",
-			"July", "August", "September", "October", "November", "December"};
+	public static int [] daysOfMonths = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+	public static String [] daysOfWeekTR = {"Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"};
+	public static String [] monthsTR = {"", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz",
+			"Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"};
+	public static String [] daysOfWeekEN = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+	public static String [] monthsEN = {"", "January", "February", "March", "April", "May", "June", "July",
+			"August", "September", "October", "November", "December"};
 
 	public static void printDateTR(int day, int month, int year)
 	{
-		if (!isValidDate(day, month, year)) {
-			System.out.println("Geçersiz tarih!...");
-			return;
-		}
+		String dateStr = getLongDateTR(day, month, year);
 
-		System.out.println(getDateStrTR(day, month, year));
+		if (!dateStr.isEmpty())
+			System.out.println(dateStr);
+		else
+			System.out.println("Geçersiz tarih");
 	}
 
 	public static void printDateEN(int day, int month, int year)
 	{
-		if (!isValidDate(day, month, year)) {
-			System.out.println("Invalid date!...");
-			return;
-		}
+		String dateStr = getLongDateEN(day, month, year);
 
-		System.out.println(getDateStrEN(day, month, year));
+		if (!dateStr.isEmpty())
+			System.out.println(dateStr);
+		else
+			System.out.println("Invalid date");
 	}
 
-	public static String getDateStrTR(int day, int month, int year)
+	public static String getLongDateEN(int day, int month, int year)
 	{
-		return "%d %s %d %s".formatted(day, MONTHS_TR[month], year, DAYS_OF_WEEK_TR[getDayOfWeek(day, month, year)]);
+		int dayOfWeek = getDayOfWeek(day, month, year);
+
+		return dayOfWeek != -1 ? "%d%s %s %d %s".formatted(day, getDaySuffix(day), monthsEN[month], year, daysOfWeekEN[dayOfWeek]) : "";
 	}
 
-	public static String getDateStrEN(int day, int month, int year)
+	public static String getLongDateTR(int day, int month, int year)
 	{
-		return "%d%s %s %d %s".formatted(day, getDaySuffix(day), MONTHS_EN[month], year,
-				DAYS_OF_WEEK_EN[getDayOfWeek(day, month, year)]);
+		int dayOfWeek = getDayOfWeek(day, month, year);
+
+		return dayOfWeek != -1 ? "%d %s %d %s%n".formatted(day, monthsTR[month], year, daysOfWeekTR[dayOfWeek]) : "";
+	}
+
+	public static int getDayOfWeek(int day, int month, int year)
+	{
+		int totalDays;
+
+		if (year < 1900 || (totalDays = getDayOfYear(day, month, year)) == -1)
+			return -1;
+
+		for (int y = 1900; y < year; ++y)
+			totalDays += isLeapYear(y) ? 366 : 365;
+
+		return totalDays % 7;
+	}
+
+	public static int getDayOfYear(int day, int month, int year)
+	{
+		if (!isValidDate(day, month, year))
+			return -1;
+
+		return getDayOfYearValue(day, month, year);
+	}
+
+	public static int getDayOfYearValue(int day, int month, int year)
+	{
+		int dayOfYear = day;
+
+		for (int m = month - 1; m >= 1; --m)
+			dayOfYear += getDays(m, year);
+
+		return dayOfYear;
+	}
+
+	public static boolean isValidDate(int day, int month, int year)
+	{
+		return 1 <= day && day <= 31 && 1 <= month && month <= 12 && day <= getDays(month, year);
 	}
 
 	public static String getDaySuffix(int day)
@@ -49,44 +88,12 @@ public class DateUtil {
 			default -> "th";
 		};
 	}
-	
-	public static int getDayOfWeek(int day, int month, int year)
-	{
-		int totalDays = getDayOfYear(day, month, year);
-		
-		for (int y = 1900; y < year; ++y) {
-			totalDays += 365;
-			if (isLeapYear(y))
-				++totalDays;
-		}
-		
-		return totalDays % 7;
-	}
-	
-	
-	public static int getDayOfYear(int day, int month, int year)
-	{
-		int dayOfYear = day;
 
-		for (int m = month - 1; m >= 1; --m)
-			dayOfYear += DAYS_OF_MONTHS[m];
-
-		if (month > 2 && isLeapYear(year))
-			++dayOfYear;
-		
-		return dayOfYear;
-	}
-	
-	public static boolean isValidDate(int day, int month, int year)
-	{
-		return 1 <= day && day <= 31 &&  1 <= month && month <= 12 && day <= getDays(month, year);
-	}
-	
 	public static int getDays(int month, int year)
 	{
-		return month == 2 && isLeapYear(year) ? 29 : DAYS_OF_MONTHS[month];
+		return month == 2 && isLeapYear(year) ? 29 : daysOfMonths[month];
 	}
-	
+
 	public static boolean isLeapYear(int year)
 	{
 		return year % 4 == 0 && year % 100 != 0 || year % 400 == 0;

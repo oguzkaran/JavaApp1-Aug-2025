@@ -1,26 +1,30 @@
 package org.csystem.app.company.employee;
 
 public class SalesManager extends Manager {
-    private double m_saleExtra;
+    private double m_extra;
 
-    public SalesManager(String name, String citizenId, String address, String department, double salary, double saleExtra)
+    public SalesManager()
     {
-        super(name, citizenId, address, department, salary);
-        m_saleExtra = saleExtra;
     }
 
-    public double getSaleExtra()
+    public SalesManager(String citizenId, String name, String address, String department, double salary, double extra)
     {
-        return m_saleExtra;
+        super(citizenId, name, address, department, salary);
+        m_extra = extra;
     }
 
-    public void setSaleExtra(double saleExtra)
+    public double getExtra()
     {
-        m_saleExtra = saleExtra;
+        return m_extra;
+    }
+
+    public void setExtra(double extra)
+    {
+        m_extra = extra;
     }
 
     public double calculateInsurancePayment()
     {
-        return super.calculateInsurancePayment() + m_saleExtra;
+        return super.calculateInsurancePayment() + m_extra;
     }
 }

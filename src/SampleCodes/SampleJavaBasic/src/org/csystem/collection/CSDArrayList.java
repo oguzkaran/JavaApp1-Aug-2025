@@ -1,10 +1,9 @@
 package org.csystem.collection;  
   
-public class CSDArrayList<E> {  
-  
+public class CSDArrayList<E> {
     public CSDArrayList()  
     {  
-        throw new UnsupportedOperationException("Not yet implemented");
+        throw new UnsupportedOperationException("Not yet implemented");  
     }  
   
     public CSDArrayList(int initialCapacity)  
@@ -15,7 +14,7 @@ public class CSDArrayList<E> {
     public boolean add(E element)  
     {  
         throw new UnsupportedOperationException("Not yet implemented");  
-    }
+    }  
   
     public void add(int index, E element)  
     {  

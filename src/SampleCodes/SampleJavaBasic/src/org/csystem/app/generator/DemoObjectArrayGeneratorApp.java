@@ -1,53 +1,38 @@
 package org.csystem.app.generator;
 
-import org.csystem.generator.object.ObjectArrayGenerator;
 import org.csystem.math.Complex;
 import org.csystem.math.geometry.Circle;
 import org.csystem.math.geometry.Point;
-import org.csystem.wrapper.primitive.IntValue;
+import org.csystem.random.generator.ObjectArrayGenerator;
+import org.csystem.util.console.Console;
 
-import java.util.Scanner;
+import java.util.Random;
+import java.util.random.RandomGenerator;
 
 public class DemoObjectArrayGeneratorApp {
-    public static void run()
+    public  static void run()
     {
-        Scanner kb = new Scanner(System.in);
-        System.out.print("Input a number:");
-        int count = kb.nextInt();
+        int count = Console.readInt("Input count:");
+
         ObjectArrayGenerator generator = new ObjectArrayGenerator();
 
-        for (Object o : generator.createObjects(count)) {
-            System.out.println("-------------------------------------------------------------------------------------");
-            System.out.printf("Dynamic type:%s%n", o.getClass().getName());
+        for (Object o : generator.createObjectArray(count)) {
+            Console.writeLine("----------------------------------------------------");
+            Console.writeLine("Dynamic type: %s", o.getClass().getName());
 
-            if (o instanceof String s) {
-                String upper = s.toUpperCase();
-
-                System.out.printf("Text:%s, Upper:%s%n", s, upper);
+            switch (o) {
+                case Point p -> Console.writeLine("Distance to origin of %s is %f", p.toString(), p.euclideanDistance());
+                case Complex c -> Console.writeLine("Norm of %s is %f", c.toString(), c.getNorm());
+                case Circle c -> Console.writeLine("Radius:%f, Area:%f", c.getRadius(), c.getArea());
+                case String s -> Console.writeLine("Text:%s, Upper:%s", s, s.toUpperCase());
+                case Integer i -> {int a = i; Console.writeLine("%d * %d = %d", a, a, a * a);}
+                case Character c -> {char ch = c; Console.writeLine("ch = %c, lower: %c", ch, Character.toLowerCase(ch));}
+                case Double d -> {double a = d; Console.writeLine("%f + %f = %f", a, a, a + a);}
+                case Boolean b -> {boolean flag = b; Console.writeLine("flag = %b, !flag = %b", flag, !flag);}
+                default -> {RandomGenerator orandomGenerator = (Random) o; Console.writeLine("Random number:%d", orandomGenerator.nextInt()); }
             }
-            else if (o instanceof Integer) {
-                int val = (int)o;
 
-                System.out.printf("%d * %d = %d%n", val, val, val * val);
-            }
-            else if (o instanceof Character) {
-                char ch = (char)o;
-
-                System.out.printf("ch = %c%n", ch);
-            }
-            else if (o instanceof Boolean) {
-                boolean flag = (boolean)o;
-
-                System.out.printf("flag = %b%n", flag);
-            }
-            else if (o instanceof Point p)
-                System.out.printf("Distance to origin:%f%n", p.euclideanDistance());
-            else if (o instanceof Circle c)
-                System.out.printf("Radius:%f, Area:%f, Circumference:%f%n", c.getRadius(), c.getArea(), c.getCircumference());
-            else if (o instanceof Complex c)
-                System.out.printf("||%s|| = %f%n", c.toString(), c.getLength());
-
-            System.out.println("-------------------------------------------------------------------------------------");
+            Console.writeLine("----------------------------------------------------");
         }
     }
 

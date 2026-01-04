@@ -1,22 +1,28 @@
-/**
- * Utility class for console operations
- * Last Update: 10th April 2025
- * @author Java-Jan-2024 Group
- */
 package org.csystem.util.console;
+
 
 import java.util.Scanner;
 
-public class Console {
-    private Console()
-    {
-    }
-
+/**
+ * Utility class for console operations
+ * Last Update: 15th November 2025
+ * @author Java-Sep-2024 Group
+ */
+public final class Console {
+    private static final int RADIX_DECIMAL;
+    private static final int RADIX_HEXADECIMAL;
+    private static final int RADIX_BINARY;
     private static final Scanner KB;
 
     static {
+        RADIX_DECIMAL = 10;
+        RADIX_HEXADECIMAL = 16;
+        RADIX_BINARY = 2;
         KB = new Scanner(System.in);
     }
+
+    private Console()
+    {}
 
     public static int readInt()
     {
@@ -30,11 +36,26 @@ public class Console {
 
     public static int readInt(String prompt, String errorPrompt)
     {
+        return readInt(prompt, RADIX_DECIMAL, errorPrompt);
+    }
+
+    public static int readInt(int radix)
+    {
+        return readInt("", radix, "");
+    }
+
+    public static int readInt(String prompt, int radix)
+    {
+        return readInt(prompt, radix, "");
+    }
+
+    public static int readInt(String prompt, int radix, String errorPrompt)
+    {
         while (true) {
             try {
                 System.out.print(prompt);
 
-                return Integer.parseInt(KB.nextLine());
+                return Integer.parseInt(KB.nextLine(), radix);
             }
             catch (NumberFormatException ignore) {
                 System.out.print(errorPrompt);
@@ -42,28 +63,24 @@ public class Console {
         }
     }
 
-    public static long readLong()
+    public static int readIntHexadecimal()
     {
-        return readLong("");
+        return readIntHexadecimal("");
     }
 
-    public static long readLong(String prompt)
+    public static int readIntHexadecimal(String prompt)
     {
-        return readLong(prompt, "");
+        return readInt(prompt, RADIX_HEXADECIMAL);
     }
 
-    public static long readLong(String prompt, String errorPrompt)
+    public static int readIntBinary()
     {
-        while (true) {
-            try {
-                System.out.print(prompt);
+        return readIntBinary("");
+    }
 
-                return Long.parseLong(KB.nextLine());
-            }
-            catch (NumberFormatException ignore) {
-                System.out.print(errorPrompt);
-            }
-        }
+    public static int readIntBinary(String prompt)
+    {
+        return readInt(prompt, RADIX_BINARY);
     }
 
     public static double readDouble()
@@ -90,23 +107,81 @@ public class Console {
         }
     }
 
-    //...
+    public static long readLong()
+    {
+        return readLong("");
+    }
+
+    public static long readLong(String prompt)
+    {
+        return readLong(prompt, RADIX_DECIMAL);
+    }
+
+    public static long readLong(int radix)
+    {
+        return readLong("", radix);
+    }
+
+    public static long readLong(String prompt, int radix)
+    {
+        return readLong(prompt, radix, "");
+    }
+
+    public static long readLong(String prompt, int radix, String errorPrompt)
+    {
+        while (true) {
+            try {
+                System.out.print(prompt);
+
+                return Long.parseLong(KB.nextLine());
+            }
+            catch (NumberFormatException ignore) {
+                System.out.print(errorPrompt);
+            }
+        }
+    }
+
+    public static long readLongHexadecimal()
+    {
+        return readLongHexadecimal("");
+    }
+
+    public static long readLongHexadecimal(String prompt)
+    {
+        return readLong(prompt, RADIX_HEXADECIMAL);
+    }
+
+    public static long readLongBinary()
+    {
+        return readLongBinary("");
+    }
+
+    public static long readLongBinary(String prompt)
+    {
+        return readLong(prompt, RADIX_BINARY);
+    }
+
+    public static String readString()
+    {
+        return readString("");
+    }
 
     public static String readString(String prompt)
     {
         System.out.print(prompt);
-
         return KB.nextLine();
     }
 
-    public static void write(String fmt, Object...objects)
+    //...
+
+    public static void write(Object o)
     {
-        System.out.printf(fmt, objects);
+        System.out.print(o);
     }
 
-    public static void writeLine(String fmt, Object...objects)
+    public static void write(String format, Object...args)
     {
-        write(fmt + '\n', objects);
+        System.out.printf(format, args);
     }
 
     public static void writeLine()
@@ -114,15 +189,13 @@ public class Console {
         System.out.println();
     }
 
-    public static void write(Object object)
+    public static void writeLine(Object o)
     {
-        System.out.print(object);
+        System.out.println(o);
     }
 
-    public static void writeLine(Object object)
+    public static void writeLine(String format, Object...args)
     {
-        System.out.println(object);
+        write(format + "%n", args);
     }
-
-    //...
 }

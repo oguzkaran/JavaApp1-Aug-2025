@@ -12,7 +12,7 @@ public class RandomCardGenerator {
         m_randomGenerator = randomGenerator;
     }
 
-    public Card create()
+    public Card createCard()
     {
         return new Card(CARD_TYPES[m_randomGenerator.nextInt(CARD_TYPES.length)], CARD_VALUES[m_randomGenerator.nextInt(CARD_VALUES.length)]);
     }

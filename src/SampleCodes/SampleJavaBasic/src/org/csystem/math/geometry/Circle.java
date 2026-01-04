@@ -1,15 +1,13 @@
-/**
- * Circle class that represents a circle in geometry
- * Last Update: 22nd April 2025
- * @author Java-Jan-2024 Group
- */
 package org.csystem.math.geometry;
 
-import static java.lang.Math.PI;
-
+/**
+ * Circle class that represents a circle
+ * Last Update: 25th October 2025
+ * @author Java-Sep-2024 Group
+ */
 public class Circle {
-    protected static final double DELTA = 0.000001;
-    private double m_r;
+    private static final double DELTA = 0.000001;
+    private double m_radius;
 
     public Circle()
     {
@@ -20,36 +18,33 @@ public class Circle {
         setRadius(radius);
     }
 
-    public void setRadius(double radius)
-    {
-        if (radius < 0)
-            throw new IllegalArgumentException("Radius can not be negative:%f".formatted(radius));
-
-        m_r = radius;
-    }
-
     public double getRadius()
     {
-        return m_r;
+        return m_radius;
+    }
+
+    public void setRadius(double radius)
+    {
+        m_radius = Math.abs(radius);
     }
 
     public double getArea()
     {
-        return PI * m_r * m_r;
+        return Math.PI * m_radius * m_radius;
     }
 
     public double getCircumference()
     {
-        return 2 * PI * m_r;
+        return 2 * Math.PI * m_radius;
     }
 
     public boolean equals(Object other)
     {
-        return other instanceof Circle c &&Math.abs(m_r - c.m_r) < DELTA;
+        return other instanceof Circle c && Math.abs(m_radius - c.m_radius) < DELTA;
     }
 
     public String toString()
     {
-        return "Radius = %f, Area = %f, Circumference = %f".formatted(m_r, getArea(), getCircumference());
+        return "Radius:%.2f, Area:%.2f, Circumference:%.2f".formatted(m_radius, getArea(), getCircumference());
     }
 }

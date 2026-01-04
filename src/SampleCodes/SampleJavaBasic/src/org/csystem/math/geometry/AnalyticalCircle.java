@@ -1,17 +1,18 @@
-/**
- * AnalyticalCircle class that represents a circle in Cartesian System
- * Last Update: 6th March 2025
- * @author Java-Jan-2024 Group
- */
 package org.csystem.math.geometry;
 
+/**
+ * AnalyticalCircle class that represents a circle in Cartesian plane
+ * Last Update: 25th October 2025
+ * @author Java-Sep-2024 Group
+ */
 public class AnalyticalCircle extends Circle {
-    private static final double DELTA = 0.0000001;
+    private static final double DELTA = 0.000001;
+
     private final MutablePoint m_center;
 
     public AnalyticalCircle()
     {
-        this(0, 0);
+        this(0);
     }
 
     public AnalyticalCircle(double radius)
@@ -50,15 +51,14 @@ public class AnalyticalCircle extends Circle {
         m_center.setY(y);
     }
 
-    public void setCenter(double x, double y)
+    public double centerDistance(AnalyticalCircle other)
     {
-        setX(x);
-        setY(y);
+        return m_center.euclideanDistance(other.m_center);
     }
 
-    public void offset(double dx, double dy)
+    public boolean isTangent(AnalyticalCircle other)
     {
-        m_center.offset(dx, dy);
+        return Math.abs(getRadius() + other.getRadius() - centerDistance(other)) < DELTA;
     }
 
     public void offset(double dxy)
@@ -66,23 +66,19 @@ public class AnalyticalCircle extends Circle {
         offset(dxy, dxy);
     }
 
-    public boolean isTangent(AnalyticalCircle other)
+    public void offset(double dx, double dy)
     {
-        return Math.abs(centersDistance(other) - getRadius() - other.getRadius()) < DELTA;
-    }
-
-    public double centersDistance(AnalyticalCircle other)
-    {
-        return m_center.euclideanDistance(other.m_center);
+        m_center.offset(dx, dy);
     }
 
     public boolean equals(Object other)
     {
-        return other instanceof AnalyticalCircle ac && super.equals(other) && m_center.equals(ac.m_center);
+        return other instanceof AnalyticalCircle ac && super.equals(ac) && m_center.equals(ac.m_center);
     }
 
     public String toString()
     {
         return "%s, Center:%s".formatted(super.toString(), m_center);
     }
+    //...
 }

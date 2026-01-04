@@ -1,44 +1,18 @@
 package org.csystem.util.matrix.test;
 
-import java.util.Random;
-import java.util.Scanner;
-
-import static org.csystem.util.matrix.MatrixUtil.*;
+import org.csystem.util.matrix.MatrixUtil;
 
 public class MatrixUtilMultiplyTest {
     public static void run()
     {
-        Scanner kb = new Scanner(System.in);
-        Random r = new Random();
+        int [][] a = {{1, 0, 1}, {2, 1, 1}, {0, 1, 1}, {1, 1, 2}};
+        int [][] b = {{1, 2, 1}, {2, 3, 1}, {4, 2, 2}};
+        int [][] r = {{5, 4, 3}, {8, 9, 5}, {6, 5, 3}, {11, 9, 6}};
 
-        while (true) {
-            System.out.print("Satır sayısını giriniz:");
-            int m = Integer.parseInt(kb.nextLine());
-
-            System.out.print("Sütun sayısını giriniz:");
-            int n = Integer.parseInt(kb.nextLine());
-
-            System.out.print("İkinci matrisin sütun sayısını giriniz:");
-            int k = Integer.parseInt(kb.nextLine());
-
-            if (m <= 0 || n <= 0 || k <= 0)
-                break;
-
-            int [][] a = generateRandomMatrix(r, m, n, 0, 10);
-            int [][] b = generateRandomMatrix(r, n, k, 0, 10);
-
-            print(a, 2);
-            System.out.println("---------------------------------------------");
-            print(b, 2);
-            System.out.println("---------------------------------------------");
-
-            int [][] c = multiply(a, b);
-
-            print(c, 3);
-        }
+        System.out.println(MatrixUtil.equals(MatrixUtil.multiply(a, b), r));
     }
 
-    public static void main(String[] args)
+    public static void main(String [] args)
     {
         run();
     }

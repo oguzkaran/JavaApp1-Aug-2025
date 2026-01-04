@@ -1,10 +1,10 @@
+/**
+ * Immutable class that represents a pair tuple
+ * Last Update: 3rd January 2026
+ * @author Java-Sep-2024 Group
+ */
 package org.csystem.tuple;
 
-/**
- * Immutable class that represents pair tuple
- * Last Update: 6th Aug 2025
- * @author Java-Jan-2024 Group
- */
 public class Pair<F, S> {
     public final F first;
     public final S second;
@@ -22,7 +22,7 @@ public class Pair<F, S> {
 
     public boolean equals(Object other)
     {
-        return other instanceof Pair<?, ?> p && first.equals(p.first) && second.equals(p.second);
+        return other instanceof Pair<?, ?> p && this.first.equals(p.first) && this.second.equals(p.second);
     }
 
     public String toString()

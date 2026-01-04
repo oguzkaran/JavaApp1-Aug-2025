@@ -1,23 +1,18 @@
 package org.csystem.util.matrix.test;
 
-import org.csystem.util.array.ArrayUtil;
 import org.csystem.util.matrix.MatrixUtil;
 
 public class MatrixUtilIsMatrixTest {
     public static void run()
     {
-        int [][] a = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
-        int [][] b = {{1, 2, 3}, {4, 5, 6, 3}, {7, 8, 9}};
+        int [][] a = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}, {0, 1, 2}};
+        int [][] b = {{1, 2, 5, 6, 6}, {4, 5}, {7, 8, 9}, {0, 1, 2, 6}};
 
-        ArrayUtil.print(a);
-        System.out.println("--------------------------------");
-        ArrayUtil.print(b);
-
-        System.out.println(MatrixUtil.isMatrix(a) ? "Matris" : "Matris değil");
-        System.out.println(MatrixUtil.isMatrix(b) ? "Matris" : "Matris değil");
+        System.out.println(MatrixUtil.isMatrix(a));
+        System.out.println(!MatrixUtil.isMatrix(b));
     }
 
-    public static void main(String[] args)
+    public static void main(String [] args)
     {
         run();
     }

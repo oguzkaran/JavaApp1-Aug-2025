@@ -1,34 +1,17 @@
 package org.csystem.util.array.test;
 
-import java.util.Random;
-import java.util.Scanner;
-
-import static org.csystem.util.array.ArrayUtil.*;
+import org.csystem.util.array.ArrayUtil;
 
 public class ArrayUtilHistogramDataTest {
     public static void run()
     {
-        Scanner kb = new Scanner(System.in);
-        Random r = new Random();
+        int [] a = {1, 2, 9, 2, 8, 9, 2, 1, 0, 0, 1, 3, 4, 3, 0, 9, 9, 8, 2, 1, 9};
+        int [] counts = {3, 4, 4, 2, 1, 0, 0, 0, 2, 5, 0};
 
-        while (true) {
-            System.out.print("Bir sayı giriniz:");
-            int count = Integer.parseInt(kb.nextLine());
-
-            if (count <= 0)
-                break;
-
-            int [] a = generateRandomArray(r, count, 0, 11);
-
-            System.out.print("Dizi:");
-            print(a, 2);
-            int [] hist = histogramData(a, 10);
-            System.out.print("Sayı dizisi:");
-            print(hist, 2);
-        }
+        System.out.println(ArrayUtil.equals(ArrayUtil.histogramData(a, 10), counts));
     }
 
-    public static void main(String[] args)
+    public static void main(String [] args)
     {
         run();
     }

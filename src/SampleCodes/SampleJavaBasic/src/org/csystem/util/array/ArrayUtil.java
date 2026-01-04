@@ -1,13 +1,13 @@
-/**
- * Utility class for array operations
- * Last Update: 15th May 2025
- * @author Java-Jan-2024 Group
- */
 package org.csystem.util.array;
 
 
 import java.util.random.RandomGenerator;
 
+/**
+ * Utility class for array operations
+ * Last Update: 30th November 2025
+ * @author Java-Sep-2024 Group
+ */
 public final class ArrayUtil {
     private ArrayUtil()
     {
@@ -24,7 +24,7 @@ public final class ArrayUtil {
     private static void bubbleSortDescending(int [] a)
     {
         for (int i = 0; i < a.length - 1; ++i)
-            for (int k = 0; k < a.length -1 - i; ++k)
+            for (int k = 0; k < a.length - 1 - i; ++k)
                 if (a[k] < a[k + 1])
                     swap(a, k, k + 1);
     }
@@ -42,6 +42,7 @@ public final class ArrayUtil {
                     min = a[k];
                     minIndex = k;
                 }
+
             a[minIndex] = a[i];
             a[i] = min;
         }
@@ -60,20 +61,35 @@ public final class ArrayUtil {
                     max = a[k];
                     maxIndex = k;
                 }
+
             a[maxIndex] = a[i];
             a[i] = max;
         }
     }
 
+    public static void add(int [] a, int val)
+    {
+        for (int i = 0; i < a.length; ++i)
+            a[i] += val;
+    }
+
+    public static void addBy(int [][] a, int value)
+    {
+        for (int i = 0; i < a.length; ++i)
+            for (int j = 0; j < a[i].length; ++j)
+                a[i][j] += value;
+    }
+
     public static double average(int [] a)
     {
-        return sum(a) / (double)a.length;
+        return (double) sum(a) / a.length;
     }
 
     public static void bubbleSort(int [] a)
     {
         bubbleSort(a, false);
     }
+
 
     public static void bubbleSort(int [] a, boolean descending)
     {
@@ -83,179 +99,182 @@ public final class ArrayUtil {
             bubbleSortAscending(a);
     }
 
-    public static void drawHistogram(int [] data, int n, char ch)
+    public static boolean equals(int [] a, int [] b)
     {
-        int maxValue = ArrayUtil.max(data);
+        if (a.length != b.length)
+            return false;
 
-        for (int grade : data) {
-            int count = (int)Math.floor(grade * n / (double)maxValue);
+        for (int i = 0; i < a.length; ++i)
+            if (a[i] != b[i])
+                return false;
 
-            while (count-- > 0)
-                System.out.print(ch);
-
-            System.out.println();
-        }
+        return true;
     }
 
-    public static int [] generateRandomArray(RandomGenerator randomGenerator, int count, int origin, int bound)
+    public static boolean equals(int [][] a, int [][] b)
+    {
+        if (a.length != b.length)
+            return false;
+
+        int len = a.length;
+
+        for (int i = 0; i < len; ++i)
+            if (!equals(a[i], b[i]))
+                return false;
+
+        return true;
+    }
+
+    public static boolean equals(String [] a, String [] b)
+    {
+        if (a.length != b.length)
+            return false;
+
+        for (int i = 0; i < a.length; ++i)
+            if (!a[i].equals(b[i]))
+                return false;
+
+        return true;
+    }
+
+    public static boolean equalsIgnoreCase(String [] a, String [] b)
+    {
+        if (a.length != b.length)
+            return false;
+
+        for (int i = 0; i < a.length; ++i)
+            if (!a[i].equalsIgnoreCase(b[i]))
+                return false;
+
+        return true;
+    }
+
+    public static void fillRandomArray(int [][] a, RandomGenerator randomGenerator, int min, int bound)
+    {
+        for (int i = 0; i < a.length; ++i)
+            for (int j = 0; j < a[i].length; ++j)
+                a[i][j] = randomGenerator.nextInt(min, bound);
+    }
+
+    public static void fillRandomArray(int [] a, RandomGenerator randomGenerator, int min, int bound)
+    {
+        for (int i = 0; i < a.length; ++i)
+            a[i] = randomGenerator.nextInt(min, bound);
+    }
+
+    public static int [] randomArray(RandomGenerator randomGenerator, int count, int min, int bound)
     {
         int [] a = new int[count];
 
-        for (int i = 0; i < count; ++i)
-            a[i] = randomGenerator.nextInt(origin, bound);
-
-        return a;
-    }
-
-    public static double [] generateRandomArray(RandomGenerator randomGenerator, int count, double origin, double bound)
-    {
-        double [] a = new double[count];
-
-        for (int i = 0; i < count; ++i)
-            a[i] = randomGenerator.nextDouble(origin, bound);
-
-        return a;
-    }
-
-    public static boolean [] generateRandomArray(RandomGenerator randomGenerator, int count)
-    {
-        boolean [] a = new boolean[count];
-
-        for (int i = 0; i < count; ++i)
-            a[i] = randomGenerator.nextBoolean();
+        fillRandomArray(a, randomGenerator, min, bound);
 
         return a;
     }
 
     public static int [] histogramData(int [] a, int n)
     {
-        int [] data = new int[n + 1];
+        int [] counts = new int[n + 1];
 
         for (int val : a)
-            ++data[val];
+            ++counts[val];
 
-        return data;
+        return counts;
     }
 
     public static int max(int [] a)
     {
-        return max(a, 0);
-    }
+        int result = a[0];
 
-    public static int max(int [] a, int startIndex)
-    {
-        int result = a[startIndex];
-
-        for (int i = startIndex + 1; i < a.length; ++i)
+        for (int i = 1; i < a.length; ++i)
             result = Math.max(result, a[i]);
-
-        return result;
-    }
-
-    public static int max(int [][] a)
-    {
-        int result = Integer.MIN_VALUE;
-
-        for (int [] array : a)
-            result = Math.max(result, max(array));
 
         return result;
     }
 
     public static int min(int [] a)
     {
-        return min(a, 0);
-    }
+        int result = a[0];
 
-    public static int min(int [] a, int startIndex)
-    {
-        int result = a[startIndex];
-
-        for (int i = startIndex + 1; i < a.length; ++i)
+        for (int i = 1; i < a.length; ++i)
             result = Math.min(result, a[i]);
 
         return result;
     }
-
-    public static int min(int [][] a)
-    {
-        int result = Integer.MAX_VALUE;
-
-        for (int [] array : a)
-            result = Math.min(result, min(array));
-
-        return result;
-    }
-
-    public static void multiplyBy(int [] a, int value)
+    public static void multiply(int [] a, int val)
     {
         for (int i = 0; i < a.length; ++i)
-            a[i] *= value;
+            a[i] *= val;
     }
 
     public static void multiplyBy(int [][] a, int value)
     {
-        for (int [] array : a)
-            multiplyBy(array, value);
+        for (int i = 0; i < a.length; ++i)
+            for (int j = 0; j < a[i].length; ++j)
+                a[i][j] *= value;
     }
 
     public static int partition(int [] a, int threshold)
     {
-        int partitionPoint = 0;
+        int pi = 0;
 
-        while (partitionPoint != a.length && a[partitionPoint] < threshold)
-            ++partitionPoint;
+        while (pi != a.length && a[pi] < threshold)
+            ++pi;
 
-        if (partitionPoint == a.length)
-            return partitionPoint;
+        if (pi == a.length)
+            return pi;
 
-        for (int i = partitionPoint + 1; i < a.length; ++i)
+        for (int i = pi + 1; i < a.length; ++i)
             if (a[i] < threshold)
-                swap(a, i, partitionPoint++);
+                swap(a, i, pi++);
 
-        return partitionPoint;
+        return pi;
     }
 
     public static int partitionByEven(int [] a)
     {
-        int partitionPoint = 0;
+        int pi = 0;
 
-        while (partitionPoint != a.length && a[partitionPoint] % 2 == 0)
-            ++partitionPoint;
+        while (pi != a.length && a[pi] % 2 == 0)
+            ++pi;
 
-        if (partitionPoint == a.length)
-            return partitionPoint;
+        if (pi == a.length)
+            return pi;
 
-        for (int i = partitionPoint + 1; i < a.length; ++i)
+        for (int i = pi + 1; i < a.length; ++i)
             if (a[i] % 2 == 0)
-                swap(a, i, partitionPoint++);
+                swap(a, i, pi++);
 
-        return partitionPoint;
+        return pi;
     }
 
-    public static void print(int [] a)
+    public static void print(int [] a, int n, String sep, String end)
     {
-        print(a, ' ', '\n');
+        String fmt = "%%0%dd%%s".formatted(n);
+        for (int i = 0; i < a.length - 1; ++i)
+            System.out.printf(fmt, a[i], sep);
+
+        System.out.printf(fmt, a[a.length - 1], end);
     }
 
-    public static void print(int [] a, char sep, char end)
+    public static void print(int [] a, String sep, String end)
     {
         print(a, 1, sep, end);
     }
 
+    public static void print(int [] a)
+    {
+        print(a, " ", "\n");
+    }
     public static void print(int [] a, int n)
     {
-        print(a, n, ' ', '\n');
+        print(a, n, " ", "\n");
     }
 
-    public static void print(int [] a, int n, char sep, char end)
+
+    public static void print(int [][] a, int n)
     {
-        String fmt = String.format("%%0%dd%c", n, sep);
-
-        for (int val : a)
-            System.out.printf(fmt, val, sep);
-
-        System.out.print(end);
+        for (int [] array : a)
+            print(array, n);
     }
 
     public static void print(int [][] a)
@@ -263,45 +282,40 @@ public final class ArrayUtil {
         print(a, 1);
     }
 
-    public static void print(int [][] a, int n)
-    {
-        for (int [] array : a)
-            print(array, n, ' ', '\n');
-    }
-
-    public static void print(double [] a)
-    {
-        print(a, '\n', '\n');
-    }
-
-    public static void print(double [] a, char sep, char end)
-    {
-        for (double val : a)
-            System.out.printf("%f%c", val, sep);
-
-        System.out.print(end);
-    }
-
     public static void reverse(int [] a)
     {
-        int left = 0, right = a.length - 1;
+        int first = 0;
+        int last = a.length - 1;
 
-        while (left < right)
-            swap(a, left++, right--);
+        while (first < last)
+            swap(a, first++, last--);
     }
 
     public static void reverse(char [] a)
     {
-        int left = 0, right = a.length - 1;
+        int first = 0;
+        int last = a.length - 1;
 
-        while (left < right)
-            swap(a, left++, right--);
+        while (first < last)
+            swap(a, first++, last--);
+    }
+
+    public static int [] reversed(int [] a)
+    {
+        int [] result = new int[a.length];
+        int len = a.length;
+
+        for (int i = len - 1; i >= 0; --i)
+            result[len - 1 - i] = a[i];
+
+        return result;
     }
 
     public static void selectionSort(int [] a)
     {
         selectionSort(a, false);
     }
+
 
     public static void selectionSort(int [] a, boolean descending)
     {
@@ -310,6 +324,17 @@ public final class ArrayUtil {
         else
             selectionSortAscending(a);
     }
+
+    public static void subtract(int [] a, int val)
+    {
+        add(a, -val);
+    }
+
+    public static void subtractBy(int [][] a, int value)
+    {
+        addBy(a, -value);
+    }
+
     public static long sum(int [] a)
     {
         long total = 0;
@@ -335,6 +360,4 @@ public final class ArrayUtil {
         a[i] = a[k];
         a[k] = temp;
     }
-
-    //...
 }

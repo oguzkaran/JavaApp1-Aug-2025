@@ -1,11 +1,10 @@
-/**
- * Day of weeks
- * Last Update: 20th May 2025
- * @author Java-Jan-2024 Group
- */
 package org.csystem.datetime;
 
+/**
+ * enum class that represents day of week
+ * Last Update: 9th August 2025
+ * @author Java-Sep-2024 Group
+ */
 public enum DayOfWeek {
-    SUN, MON, TUE, WED, THU, FRI, SAT
+    SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
 }
-

@@ -1,31 +1,18 @@
 package org.csystem.util.array.test;
 
-import java.util.Random;
-import java.util.Scanner;
-
-import static org.csystem.util.array.ArrayUtil.*;
+import static org.csystem.util.array.ArrayUtil.max;
+import static org.csystem.util.array.ArrayUtil.min;
 
 public class ArrayUtilMinMaxTest {
     public static void run()
     {
-        Scanner kb = new Scanner(System.in);
-        Random r = new Random();
+        int [] a = {1, -3, 5, 90, -34, 56, 89, 3, -4};
 
-        while (true) {
-            System.out.print("Bir sayı giriniz:");
-            int count = Integer.parseInt(kb.nextLine());
-
-            if (count <= 0)
-                break;
-
-            int [] a = generateRandomArray(r, count, 0, 100);
-
-            print(a, 2);
-            System.out.printf("En büyük eleman:%d%nEn küçük eleman:%d%n", max(a), min(a));
-        }
+        System.out.println(max(a) == 90);
+        System.out.println(min(a) == -34);
     }
 
-    public static void main(String[] args)
+    public static void main(String [] args)
     {
         run();
     }

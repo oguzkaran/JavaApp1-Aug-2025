@@ -4,9 +4,14 @@ public class ProjectWorker extends Worker {
     private String m_projectName;
     private double m_extraFee;
 
-    public ProjectWorker(String name, String citizenId, String address, double feePerHour, int hourPerDay, String projectName, double extraFee)
+    public ProjectWorker()
     {
-        super(name, citizenId, address, feePerHour, hourPerDay);
+        m_projectName = "";
+    }
+
+    public ProjectWorker(String citizenId, String name, String address, double feePerHour, int hourPerDay, String projectName, double extraFee)
+    {
+        super(citizenId, name, address, feePerHour, hourPerDay);
         m_projectName = projectName;
         m_extraFee = extraFee;
     }
@@ -33,6 +38,6 @@ public class ProjectWorker extends Worker {
 
     public double calculateInsurancePayment()
     {
-        return super.calculateInsurancePayment() + m_extraFee * 30;
+        return super.calculateInsurancePayment() + m_extraFee * getFeePerHour();
     }
 }

@@ -1,99 +1,64 @@
 /**
  * Mutable class for some string operations
- * Last Update: 15th May 2025
- * @author Java-Jan-2024 Group
+ * Last Update: 30th November 2025
+ * @author Java-Sep-2024 Group
  */
 package org.csystem.string;
 
-import java.util.Arrays;
-
-public class CSDStringBuilder implements CharSequence {
-    private static final int DEFAULT_CAPACITY_IF_CURRENT_ZERO = 1;
-    private static final int CAPACITY_INCREMENT_FACTOR = 2;
-    private static final int DEFAULT_CAPACITY = 16;
-    private char [] m_chars;
-    private int m_index;
-
-    private boolean checkCapacity(String str)
-    {
-        return m_index + str.length() <= m_chars.length;
-    }
-
-    private int calculateNewCapacity(char [] str)
-    {
-        int result = m_chars.length == 0 ? DEFAULT_CAPACITY_IF_CURRENT_ZERO : m_chars.length;
-
-        while ((result = result * CAPACITY_INCREMENT_FACTOR) < m_index + str.length)
-            ;
-
-        return result;
-    }
-
-    private void enlargeCapacity(int newCapacity)
-    {
-        m_chars = Arrays.copyOf(m_chars, newCapacity);
-    }
-
+public class CSDStringBuilder  implements CharSequence {
     public CSDStringBuilder()
     {
-        this(DEFAULT_CAPACITY);
+        throw new UnsupportedOperationException("TODO");
     }
 
     public CSDStringBuilder(int capacity)
     {
-        m_chars = new char[capacity];
+        throw new UnsupportedOperationException("TODO");
     }
 
     public CSDStringBuilder(String str)
     {
-        m_chars = str.toCharArray();
-        m_index += str.length();
+        throw new UnsupportedOperationException("TODO");
     }
 
     public CSDStringBuilder append(String str)
     {
-        return append(str.toCharArray());
+        throw new UnsupportedOperationException("TODO");
     }
 
     public CSDStringBuilder append(char ch)
     {
-        return append(String.valueOf(ch));
+        throw new UnsupportedOperationException("TODO");
     }
 
     public CSDStringBuilder append(int a)
     {
-        return append(String.valueOf(a));
+        throw new UnsupportedOperationException("TODO");
     }
 
     public CSDStringBuilder append(long a)
     {
-        return append(String.valueOf(a));
+        throw new UnsupportedOperationException("TODO");
     }
 
     public CSDStringBuilder append(double a)
     {
-        return append(String.valueOf(a));
+        throw new UnsupportedOperationException("TODO");
     }
 
     public CSDStringBuilder append(char [] str)
     {
-        if (!checkCapacity(String.valueOf(str)))
-            enlargeCapacity(calculateNewCapacity(str));
-
-        System.arraycopy(str, 0, m_chars, m_index, str.length);
-        m_index += str.length;
-
-        return this;
+        throw new UnsupportedOperationException("TODO");
     }
 
     public int capacity()
     {
-        return m_chars.length;
+        throw new UnsupportedOperationException("TODO");
     }
 
     public char charAt(int index)
     {
-        return m_chars[index];
+        throw new UnsupportedOperationException("TODO");
     }
 
     public CSDStringBuilder deleteCharAt(int index)
@@ -108,8 +73,7 @@ public class CSDStringBuilder implements CharSequence {
 
     public void ensureCapacity(int minCapacity)
     {
-        if (minCapacity > m_chars.length)
-            enlargeCapacity(Math.max(minCapacity, m_chars.length * CAPACITY_INCREMENT_FACTOR));
+        throw new UnsupportedOperationException("TODO");
     }
 
     public int indexOf(String str)
@@ -152,21 +116,14 @@ public class CSDStringBuilder implements CharSequence {
         throw new UnsupportedOperationException("TODO");
     }
 
-    //...
-
-    public CharSequence subSequence(int start, int end)
-    {
-        return String.valueOf(m_chars, start, end - start); //ankara
-    }
-
     public int length()
     {
-        return m_index;
+        throw new UnsupportedOperationException("TODO");
     }
 
     public void trimToSize()
     {
-        enlargeCapacity(m_index);
+        throw new UnsupportedOperationException("TODO");
     }
 
     public boolean equals(Object other)
@@ -176,8 +133,11 @@ public class CSDStringBuilder implements CharSequence {
 
     public String toString()
     {
-        return String.valueOf(m_chars, 0, m_index);
+        throw new UnsupportedOperationException("TODO");
     }
 
-    //...
+    public CharSequence subSequence(int start, int end)
+    {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 }

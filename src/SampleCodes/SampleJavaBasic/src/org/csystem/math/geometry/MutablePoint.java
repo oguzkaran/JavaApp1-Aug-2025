@@ -1,20 +1,13 @@
-/**
- * Mutable Point class that represents a point in geometry
- * Last Update: 6th March 2025
- * @author Java-Jan-2024 Group
- */
 package org.csystem.math.geometry;
 
-import static java.lang.Math.*;
+/**
+ * MutablePoint class that represents a point in cartesian coordinates
+ * Last Update: 19th October 2025
+ * @author Java-Sep-2024 Group
+ */
 
 public class MutablePoint {
-	private double m_x;
-	private double m_y;
-
-	private static MutablePoint create(double a, double b)
-	{
-		return new MutablePoint(a, b);
-	}
+	public double m_x, m_y;
 
 	private MutablePoint(double x, double y)
 	{
@@ -22,14 +15,24 @@ public class MutablePoint {
 		m_y = y;
 	}
 
-	public static MutablePoint createCartesian(double x, double y)
+	public static MutablePoint createCartesian()
 	{
-		return create(x, y);
+		return createCartesian(0);
 	}
 
-	public static MutablePoint createPolar(double r, double theta)
+	public static MutablePoint createCartesian(double x)
 	{
-		return create(r * cos(theta), r * sin(theta));
+		return createCartesian(x, 0);
+	}
+
+	public static MutablePoint createCartesian(double x, double y)
+	{
+		return new MutablePoint(x, y);
+	}
+
+	public static MutablePoint createPolar(double radius, double theta)
+	{
+		return new MutablePoint(PointCommon.getXByPolar(radius, theta), PointCommon.getYByPolar(radius, theta));
 	}
 
 	public double getX()
@@ -56,7 +59,7 @@ public class MutablePoint {
 	{
 		return euclideanDistance(0, 0);
 	}
-	
+
 	public double euclideanDistance(MutablePoint other)
 	{
 		return euclideanDistance(other.m_x, other.m_y);
@@ -65,7 +68,7 @@ public class MutablePoint {
 	public double euclideanDistance(double x, double y)
 	{
 		return PointCommon.euclideanDistance(m_x, m_y, x, y);
-	}	
+	}
 	
 	public void offset(double dxy)
 	{
@@ -78,10 +81,10 @@ public class MutablePoint {
 		m_y += dy;
 	}
 
-	public boolean equals(Object other)
-	{
-		return other instanceof MutablePoint p && PointCommon.equals(m_x, m_y, p.m_x, p.m_y);
-	}
+    public boolean equals(Object other)
+    {
+        return other instanceof MutablePoint p && PointCommon.equals(m_x, m_y, p.m_x, p.m_y);
+    }
 
 	public String toString()
 	{

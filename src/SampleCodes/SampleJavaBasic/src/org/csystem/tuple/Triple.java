@@ -1,10 +1,10 @@
+/**
+ * Immutable class that represents a triple tuple
+ * Last Update: 3rd January 2026
+ * @author Java-Sep-2024 Group
+ */
 package org.csystem.tuple;
 
-/**
- * Immutable class that represents triple tuple
- * Last Update: 8th Aug 2025
- * @author Java-Jan-2024 Group
- */
 public class Triple<F, S, T> {
     public final F first;
     public final S second;
@@ -24,13 +24,13 @@ public class Triple<F, S, T> {
 
     public boolean equals(Object other)
     {
-        return other instanceof Triple<?,?,?> t && first.equals(t.first) && second.equals(t.second) && third.equals(t.third);
+        return other instanceof Triple<?, ?, ?> t && this.first.equals(t.first) && this.second.equals(t.second)
+                && this.third.equals(t.third);
     }
 
     public String toString()
     {
         return "(%s, %s, %s)".formatted(first, second, third);
     }
-
     //...
 }

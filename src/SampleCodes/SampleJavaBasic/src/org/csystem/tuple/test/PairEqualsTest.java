@@ -8,14 +8,15 @@ public class PairEqualsTest {
     {
         Pair<Integer, String> p1 = new Pair<>(67, "Zonguldak");
         Pair<Integer, String> p2 = new Pair<>(67, "Zonguldak");
-        Pair<Integer, String> p3 = new Pair<>(34, "İstanbul");
+        Pair<Integer, String> p3 = new Pair<>(37, "Kastamonu");
 
         Console.writeLine(p1);
         Console.writeLine(p2);
         Console.writeLine(p3);
 
+
         Console.writeLine(p1.equals(p2));
-        Console.writeLine(!p1.equals(p3));
+        Console.writeLine(p1.equals(p3));
     }
 
     public static void main(String[] args)

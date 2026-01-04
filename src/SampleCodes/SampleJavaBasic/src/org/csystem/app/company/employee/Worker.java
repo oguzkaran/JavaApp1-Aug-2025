@@ -4,9 +4,13 @@ public class Worker extends Employee {
     private double m_feePerHour;
     private int m_hourPerDay;
 
-    public Worker(String name, String citizenId, String address, double feePerHour, int hourPerDay)
+    public Worker()
     {
-        super(name, citizenId, address);
+    }
+
+    public Worker(String citizenId, String name, String address, double feePerHour, int hourPerDay)
+    {
+        super(citizenId, name, address);
         m_feePerHour = feePerHour;
         m_hourPerDay = hourPerDay;
     }
@@ -35,6 +39,4 @@ public class Worker extends Employee {
     {
         return m_feePerHour * m_hourPerDay * 30;
     }
-
-    //...
 }

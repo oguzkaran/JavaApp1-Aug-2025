@@ -4,9 +4,14 @@ public class Manager extends Employee {
     private String m_department;
     private double m_salary;
 
-    public Manager(String name, String citizenId, String address, String department, double salary)
+    public Manager()
     {
-        super(name, citizenId, address);
+        m_department = "";
+    }
+
+    public Manager(String citizenId, String name, String address, String department, double salary)
+    {
+        super(citizenId, name, address);
         m_department = department;
         m_salary = salary;
     }
@@ -18,7 +23,6 @@ public class Manager extends Employee {
 
     public void setDepartment(String department)
     {
-        //...
         m_department = department;
     }
 
@@ -29,7 +33,6 @@ public class Manager extends Employee {
 
     public void setSalary(double salary)
     {
-        //...
         m_salary = salary;
     }
 
