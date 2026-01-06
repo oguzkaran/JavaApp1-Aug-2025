@@ -5100,7 +5100,7 @@ class Application {
 }
 ```
 
-Log4J2 ile loglar için `log4j.xml` konfigürasyon dosyası kullanılarak çeşitli belirlemeler yapılabilir. Aşağıdaki örnek log4j.xml dosyasında info ve üstü seviyesindeki log'lar hem dosyaya hem de stdout'a yönlendirilmiştir. Yalnızca debug log'lar stdout'a yönlendirilmiştir. 
+Log4J2 ile loglar için `log4j.xml` konfigürasyon dosyası kullanılarak çeşitli belirlemeler yapılabilir. Aşağıdaki örnek log4j.xml dosyasında info ve üstü seviyesindeki log'lar hem dosyaya hem de stdout'a yönlendirilmiştir. Yalnızca debug log'lar stderr'ye yönlendirilmiştir. 
 
 ```xml
 <!-- log4j.xml -->
@@ -5189,11 +5189,9 @@ Slf4J ile arka planda Log4J kullanılabilmesi için aşağıdaki iki dependency 
 </dependency>
 ```
 
-Bu dependency ile birlikte Log4J konfigürasyonu SLf4J ile kullanılabilecektir.
+Bu dependency ile birlikte Log4J konfigürasyonu SLf4J ile kullanılabilecektir. Şüphesiz zaman içerisinde versiyonlar güncellenecektir.
 
 **Anahtar Notlar:** Yukarıda anlatılan ortamlar dışında da logging ortamları bulunur. Bazıları bazı ortamlar ile birlikte kullanılabilir. Temel hedef benzer olmakla beraber kendine özgü farklılıklar içerebilirler.
-
-
 ##### Lombok
 
 Programcının sürekli olarak yazması gereken (boilerplate code) kod genel parçalarının build aşamasında üretilmesini sağlayan bir plugin'dir. Lombok ile getter, setter, ctor gibi kodlar da üretilebilmektedir. Lombok genel olarak SOURCE retention'ınına sahip annotation'lara sahiptir. Dolayısıyla üretilen koda bir maliyetli genel olarak yoktur. Lombok kullanılabilmesi için aşağıdaki dependency ve plugin'ler `pom.xml` dosyasına eklenmelidir.
@@ -5222,6 +5220,80 @@ Programcının sürekli olarak yazması gereken (boilerplate code) kod genel par
 ```
 
 Lombok ile çok kullanılan logging ortamları için Logger türden static veri elemanı bildirimi build aşamasında annotation ile yapılabilmektedir. Buna göre `java.util.logging` için `Log`, `Log4j` için `Log4j`, `Log4j2` için `Log4j2` ve `Slf4J` için `Slf4j` annotation'ları kullanılabilir. Lombok'a ilişkin diğer annotation'lar projeler içerisinde ele alınacaktır.
+##### Temel Reflection İşlemleri
+
+Java derleyicisi byte code'a metadata denilen bilgiler yazar. Örneğin, bir sınıfın veri elemanları, bunların isimleri, erişim belirleyicileri, static olup olmamaları ve türleri gibi bilgiler byte code içerisinde bulunur. Benzer şekilde sınıfın diğer elemanlarına ilişkin bilgiler de bulunur. Reflection, çalışma zamanında metadata'ya göre işlem yapmaktır. Örneğin, bir metodun bir sınıf içerisinde yazılıp yazılmadığı kontrol edilerek (override ile karıştırmayınız) yazılmışsa çağrılması sağlanabilir ya da örneğin bir framework bir sınıfın bir annotation ile işaretlenmiş metotlarını elde edip gereken yerde çağırabilir. Reflection kullanılarak çalışma zamanında sınıfın private bölümüne de erişilebilir.
+
+Reflection'ın en temel sınıfı `java.lang.Class<T>` isimli sınıftır. **Java'da çalışma zamanında kullanılan her tür için (temel türler de dahil) bir Class nesnesi yaratılır. Yani kullanılan her türe karşılık bir Class nesne vardır.** Java programcısı çalışma zamanında ilgili türe ilişkin `Class` nesnesinin referansını elde ederek reflection işlemlerini yapabilir. Bu nesneler JVm tarafından optimize bir biçimde yaratılır yani genel olarak kullanılmayan türler için `Class` nesneleri yaratılmaz. 
+
+Bir türe ilişkin `Class` nesnesinin referansı 3 biçimde elde edilebilir:
+1. Tür ismi ve nokta operatörü ile birlikte **class** anahtar sözcüğü kullanılarak. Buna class expression denir
+2. `Class` sınıfının static `forName` metodu ile
+3. `Object` sınıfının `getClass` metodu ile
+
+Bu 3 yöntem birbirine alternatif değildir. Duruma göre bir tanesi tercih edilir. `Class` sınıfının `getName` metodu ile türün `fully qualified` ismi string olarak elde edilebilir. 
+
+Aşağıdaki demo örnekte class expression kullanılarak ilgili türlerin `Class` nesnelerinin referansları elde edilmiştir.
+
+```java
+package org.csystem.app;  
+  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.string.StringUtil;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var clsInt = int.class;  
+        var clsDouble = double.class;  
+        var clsString = String.class;  
+        var clsStringUtil = StringUtil.class;  
+        var clsIntArray = int[].class;  
+        var clsStringArray = String[].class;  
+  
+        log.info("Name:{}", clsInt.getName());  
+        log.info("Name:{}", clsDouble.getName());  
+        log.info("Name:{}", clsString.getName());  
+        log.info("Name:{}", clsStringUtil.getName());  
+        log.info("Name:{}", clsIntArray.getName()); //[I  
+        log.info("Name:{}", clsStringArray.getName()); //[Ljava/lang/String;  
+    }  
+}
+```
+
+Burada temel türlere ilişkin Class sınıfının açılımı ne olacaktır? Bu açılım doğrudan iki şekilde yazılabilir: `Class<?>`, `Class <sarmalayan sınıf>`. Burada istisna bir durum olarak temel bir türe ilişkin `Class` nesnesinin referansı `Class` sınıfının ilgili temel türün sarmalayan sınıfı açılımını doğrudan atanabilir. Anımsanacağı gibi generic açılımlarda `?` (wildcard) `any type`anlamına gelir ve genel olarak açılıma ilişkin türün derleme zamanında önemsiz olduğu yani kullanılmadığı ama açılımın da gerektiği durumlarda kullanılır. 
+
+Class sınıfının static forName metodu parametresi ile aldığı UDT ismine ilişkin tür varsa (yani çalışma zamanında bu tür biliniyorsa) ona ilişkin `Class` nesnesinin referansına geri döner, yoksa `ClassNotFoundExcetion` fırlatır. Bu metot ile temel bir türe ilişkin `Class` nesnesinin referansı elde edilemez. 
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        while (true) {  
+            try {  
+                var clsName = Console.read("Input class name:");  
+                if ("exit".equals(clsName))  
+                    break;  
+                var cls = Class.forName(clsName);  
+  
+                log.info("Name: {}", cls.getName());  
+            } catch (ClassNotFoundException e) {  
+                log.error("Class not found:{}", e.getMessage());  
+            }  
+        }  
+    }  
+}
+```
+
 
 
 
