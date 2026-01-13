@@ -5227,7 +5227,7 @@ Java derleyicisi byte code'a metadata denilen bilgiler yazar. Örneğin, bir sı
 Reflection'ın en temel sınıfı `java.lang.Class<T>` isimli sınıftır. **Java'da çalışma zamanında kullanılan her tür için (temel türler de dahil) bir Class nesnesi yaratılır. Yani kullanılan her türe karşılık bir Class nesne vardır.** Java programcısı çalışma zamanında ilgili türe ilişkin `Class` nesnesinin referansını elde ederek reflection işlemlerini yapabilir. Bu nesneler JVm tarafından optimize bir biçimde yaratılır yani genel olarak kullanılmayan türler için `Class` nesneleri yaratılmaz. 
 
 Bir türe ilişkin `Class` nesnesinin referansı 3 biçimde elde edilebilir:
-1. Tür ismi ve nokta operatörü ile birlikte **class** anahtar sözcüğü kullanılarak. Buna class expression denir
+1. Tür ismi ve nokta operatörü ile birlikte **class** anahtar sözcüğü kullanılarak. Buna `class expression` denir
 2. `Class` sınıfının static `forName` metodu ile
 3. `Object` sınıfının `getClass` metodu ile
 
@@ -5264,7 +5264,7 @@ class Application {
 
 Burada temel türlere ilişkin Class sınıfının açılımı ne olacaktır? Bu açılım doğrudan iki şekilde yazılabilir: `Class<?>`, `Class <sarmalayan sınıf>`. Burada istisna bir durum olarak temel bir türe ilişkin `Class` nesnesinin referansı `Class` sınıfının ilgili temel türün sarmalayan sınıfı açılımını doğrudan atanabilir. Anımsanacağı gibi generic açılımlarda `?` (wildcard) `any type`anlamına gelir ve genel olarak açılıma ilişkin türün derleme zamanında önemsiz olduğu yani kullanılmadığı ama açılımın da gerektiği durumlarda kullanılır. 
 
-Class sınıfının static forName metodu parametresi ile aldığı UDT ismine ilişkin tür varsa (yani çalışma zamanında bu tür biliniyorsa) ona ilişkin `Class` nesnesinin referansına geri döner, yoksa `ClassNotFoundExcetion` fırlatır. Bu metot ile temel bir türe ilişkin `Class` nesnesinin referansı elde edilemez. 
+Class sınıfının static forName metodu parametresi ile aldığı UDT ismine ilişkin tür varsa (yani çalışma zamanında bu tür biliniyorsa) ona ilişkin `Class` nesnesinin referansına geri döner, yoksa `ClassNotFoundException` fırlatır. Bu metot ile temel bir türe ilişkin `Class` nesnesinin referansı elde edilemez. 
 
 Aşağıdaki demo örneği inceleyiniz
 
@@ -5294,15 +5294,289 @@ class Application {
 }
 ```
 
+`Object` sınıfının `getClass` metodu referansın dinamik türüne ilişkin `Class` nesnesinin referansına geri döner.
+
+```java
+package org.csystem.app.generator;  
+  
+import org.csystem.math.Complex;  
+import org.csystem.math.geometry.AnalyticalCircle;  
+import org.csystem.math.geometry.Circle;  
+import org.csystem.math.geometry.Point;  
+import org.csystem.util.string.StringUtil;  
+  
+import java.util.Random;  
+import java.util.random.RandomGenerator;  
+  
+public class ObjectArrayGenerator {  
+    private final RandomGenerator m_randomGenerator = new Random();  
+  
+  
+    private Object createObject()  
+    {  
+        return switch (m_randomGenerator.nextInt(0, 10)) {  
+            case 0 -> Point.createCartesian(m_randomGenerator.nextDouble(-100, 100), m_randomGenerator.nextDouble(-100, 100));  
+            case 1 -> new Complex(m_randomGenerator.nextDouble(-10, 10), m_randomGenerator.nextDouble(-10, 10));  
+            case 2 -> new Circle(m_randomGenerator.nextInt(0, 10));  
+            case 3 -> new AnalyticalCircle(m_randomGenerator.nextInt(0, 10), m_randomGenerator.nextInt(-100, 100), m_randomGenerator.nextInt(-100, 100));  
+            case 4 -> StringUtil.randomTextEN(m_randomGenerator, m_randomGenerator.nextInt(5, 16));  
+            case 5 -> m_randomGenerator.nextInt(-128, 128);  
+            case 6 -> (char)((m_randomGenerator.nextBoolean() ? 'A' : 'a') + m_randomGenerator.nextInt(26));  
+            case 7 -> m_randomGenerator.nextDouble();  
+            case 8 -> m_randomGenerator.nextBoolean();  
+            default -> new Random();  
+        };  
+    }  
+  
+    public Object [] createObjectArray(int count)  
+    {  
+        var objects = new Object[count];  
+  
+        for (var i = 0; i < count; ++i)  
+            objects[i] = createObject();  
+  
+        return objects;  
+    }  
+}
+```
 
 
+```java
+package org.csystem.app.generator;  
+  
+import org.csystem.math.Complex;  
+import org.csystem.math.geometry.AnalyticalCircle;  
+import org.csystem.math.geometry.Circle;  
+import org.csystem.math.geometry.Point;  
+import org.csystem.util.string.StringUtil;  
+  
+import java.util.Random;  
+import java.util.random.RandomGenerator;  
+  
+public class ObjectArrayGenerator {  
+    private final RandomGenerator m_randomGenerator = new Random();  
+  
+  
+    private Object createObject()  
+    {  
+        return switch (m_randomGenerator.nextInt(0, 10)) {  
+            case 0 -> Point.createCartesian(m_randomGenerator.nextDouble(-100, 100), m_randomGenerator.nextDouble(-100, 100));  
+            case 1 -> new Complex(m_randomGenerator.nextDouble(-10, 10), m_randomGenerator.nextDouble(-10, 10));  
+            case 2 -> new Circle(m_randomGenerator.nextInt(-10, 10));  
+            case 3 -> new AnalyticalCircle(m_randomGenerator.nextInt(-10, 10), m_randomGenerator.nextInt(-100, 100), m_randomGenerator.nextInt(-100, 100));  
+            case 4 -> StringUtil.randomTextEN(m_randomGenerator, m_randomGenerator.nextInt(5, 16));  
+            case 5 -> m_randomGenerator.nextInt(-128, 128);  
+            case 6 -> (char)((m_randomGenerator.nextBoolean() ? 'A' : 'a') + m_randomGenerator.nextInt(26));  
+            case 7 -> m_randomGenerator.nextDouble();  
+            case 8 -> m_randomGenerator.nextBoolean();  
+            default -> new Random();  
+        };  
+    }  
+  
+    public Object [] createObjectArray(int count)  
+    {  
+        var objects = new Object[count];  
+  
+        for (var i = 0; i < count; ++i)  
+            objects[i] = createObject();  
+  
+        return objects;  
+    }  
+}
+```
 
+`Class` sınıfının `getDeclaredXXXs`  metotları ile ilgili türün tüm elemanlarına ilişkin bilgiler elde edilebilir.  Bu metotlar ile sınıfın tüm bölümlerindeki (public, no-modifier, protected, private) elemanlara ilişkin bilgiler elde edilebilir. Bu metotlar ile taban sınıfın hiç bir bölümüne ilişkin bilgi elde edilemez. Bu metotlar ilgili elemana ilişkin metadata'yı temsil eden sınıf türünden dizi referansına geri dönerler. Örneğin, `getDeclaredMethods` metodu `Method []` türüne geri döner. Method sınıfı bir metoda ilişkin metadata'yı elde etmek için kullanılır. Bu metot ile elde edilmek istenen eleman ilgili türde yoksa length'i sıfır olan bir dizi referansı elde edilir. `Class` ` sınıfının getXXXs` metotları ile taban sınıfın da dahil olmak üzere tüm elemanlara ilişkin bilgi elde edilebilir. Taban sınıfın yalnızca public bölümüne ilişkin bilgiler elde edilebilir. İlgili sınıfın tüm bölümlerine ilişkin bilgi elde edilebilir. Bu metotların sonunda `s` olmayanları aldıkları parametrelere ilişkin spesifik bir elemanın bilgisini elde etmek için kullanılabilir.
 
+Aşağıdaki demo örnekte singleton olarak tasarlanmış bir sınıfın ctor'una çalışma zamanında erişilip nesne yaratılmıştır. Sınıfın lazy implementation olarak yazıldığına dikkat ediniz
 
+```java
+package org.csystem.app;  
+  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.lang.reflect.InvocationTargetException;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            var cls = Singleton.class;  
+            var ctor = cls.getDeclaredConstructor(int.class);  
+  
+            ctor.setAccessible(true);  
+            var s = ctor.newInstance(10);  
+  
+            ctor.setAccessible(false);  
+  
+            log.info("Value:{}", s.getValue());  
+        }  
+        catch (NoSuchMethodException e) {  
+            log.error("No such constructor");  
+        }  
+        catch (InvocationTargetException | InstantiationException | IllegalAccessException | IllegalArgumentException e) {  
+            log.error("Exception occurred:{}, Message:{}", e.getClass().getSimpleName(), e.getMessage());  
+        }  
+    }  
+}  
+  
+class Singleton {  
+    private static Singleton ms_instance;  
+    private int m_value;  
+  
+    private Singleton()  
+    {  
+        //...  
+    }  
+  
+    private Singleton(int value)  
+    {  
+        m_value = value;  
+    }  
+  
+    public static Singleton getInstance()  
+    {  
+        return getInstance(0);  
+    }  
+  
+    public static Singleton getInstance(int x)  
+    {  
+        if (ms_instance == null)  
+            ms_instance = new Singleton(x);  
+  
+        return ms_instance;  
+    }  
+  
+    public int getValue()  
+    {  
+        return m_value;  
+    }  
+  
+    public void setValue(int value)  
+    {  
+        m_value = value;  
+    }  
+}
+```
 
+Aşağıdaki demo örnekte kullanılan flag değerine erişilmiş ve yine nesne yaratılabilmiştir.
 
+```java
+package org.csystem.app;  
+  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.lang.reflect.InvocationTargetException;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            var cls = Singleton.class;  
+            var clsCreatedFlag = cls.getDeclaredField("ms_created");  
+            var ctor = cls.getDeclaredConstructor();  
+            clsCreatedFlag.setAccessible(true);  
+            clsCreatedFlag.set(null, false);  
+            clsCreatedFlag.setAccessible(false);  
+            ctor.setAccessible(true);  
+            var s = ctor.newInstance();  
+            ctor.setAccessible(false);  
+  
+            s.setValue(10);  
+  
+            log.info("Value:{}", s.getValue());  
+        }  
+        catch (NoSuchMethodException e) {  
+            log.error("No such constructor");  
+        }  
+        catch (NoSuchFieldException e) {  
+            log.error("No such field: {}", e.getMessage());  
+        }  
+        catch (InvocationTargetException | InstantiationException | IllegalAccessException | IllegalArgumentException e) {  
+            log.error("Exception occurred:{}, Message:{}{}", e.getClass().getSimpleName(), e.getMessage(), e.getCause() != null ? "Cause Message: " + e.getCause().getMessage() : "");  
+        }  
+    }  
+}  
+  
+class Singleton {  
+    public static final Singleton INSTANCE = new Singleton();  
+    private static boolean ms_created;  
+    private int m_value;  
+  
+    private Singleton()  
+    {  
+        if (ms_created)  
+            throw new UnsupportedOperationException("Can not instantiate Singleton object");  
+  
+        ms_created = true;  
+    }  
+  
+    public int getValue()  
+    {  
+        return m_value;  
+    }  
+  
+    public void setValue(int value)  
+    {  
+        m_value = value;  
+    }  
+}
+```
 
+Aşağıdaki demo örnekte enum sınıfı kullanıldığından programcı reflection kullanarak bile nesne yaratamaz
 
+```java
+package org.csystem.app;  
+  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.lang.reflect.InvocationTargetException;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            var cls = Singleton.class;  
+            var ctor = cls.getDeclaredConstructor();  
+  
+            ctor.setAccessible(true);  
+            var s = ctor.newInstance();  
+            ctor.setAccessible(false);  
+  
+            s.setValue(10);  
+  
+            log.info("Value:{}", s.getValue());  
+        }  
+        catch (NoSuchMethodException e) {  
+            log.error("No such constructor");  
+        }  
+        catch (InvocationTargetException | InstantiationException | IllegalAccessException | IllegalArgumentException e) {  
+            log.error("Exception occurred:{}, Message:{}{}", e.getClass().getSimpleName(), e.getMessage(), e.getCause() != null ? "Cause Message: " + e.getCause().getMessage() : "");  
+        }  
+    }  
+}  
+  
+enum Singleton {  
+    INSTANCE;  
+    private int m_value;  
+      
+    public int getValue()  
+    {  
+        return m_value;  
+    }  
+  
+    public void setValue(int value)  
+    {  
+        m_value = value;  
+    }  
+}
+```
+
+**Yukarıdaki singleton sınıfları reflection işlemlerini göstermek için yazılmıştır. Pratikte eager implementation'da hiç nesne yaratılamasın diye enum sınıfı kullanılmaz, enum sınıfı okunabilirliği/algılanabilirliği artırmak için singleton'ın eager implementation'ı için kullanılır. Demo örneklerde reflection'ın nasıl kullanıldığına odaklanınız.**
+
+**Anahtar Notlar:** Reflection, göreli yavaş bir işlemdir. Programcının reflection kullanması için bir gerekçesi olmalıdır. Reflection dışındaki bir çözüm yerine reflection kullanmak performansı olumsuz etkileyebilir.
 
 
 
