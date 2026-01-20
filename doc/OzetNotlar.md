@@ -5385,7 +5385,7 @@ public class ObjectArrayGenerator {
 }
 ```
 
-`Class` sınıfının `getDeclaredXXXs`  metotları ile ilgili türün tüm elemanlarına ilişkin bilgiler elde edilebilir.  Bu metotlar ile sınıfın tüm bölümlerindeki (public, no-modifier, protected, private) elemanlara ilişkin bilgiler elde edilebilir. Bu metotlar ile taban sınıfın hiç bir bölümüne ilişkin bilgi elde edilemez. Bu metotlar ilgili elemana ilişkin metadata'yı temsil eden sınıf türünden dizi referansına geri dönerler. Örneğin, `getDeclaredMethods` metodu `Method []` türüne geri döner. Method sınıfı bir metoda ilişkin metadata'yı elde etmek için kullanılır. Bu metot ile elde edilmek istenen eleman ilgili türde yoksa length'i sıfır olan bir dizi referansı elde edilir. `Class` ` sınıfının getXXXs` metotları ile taban sınıfın da dahil olmak üzere tüm elemanlara ilişkin bilgi elde edilebilir. Taban sınıfın yalnızca public bölümüne ilişkin bilgiler elde edilebilir. İlgili sınıfın tüm bölümlerine ilişkin bilgi elde edilebilir. Bu metotların sonunda `s` olmayanları aldıkları parametrelere ilişkin spesifik bir elemanın bilgisini elde etmek için kullanılabilir.
+`Class` sınıfının `getDeclaredXXXs`  metotları ile ilgili türün tüm elemanlarına ilişkin bilgiler elde edilebilir.  Bu metotlar ile sınıfın tüm bölümlerindeki (public, no-modifier, protected, private) elemanlara ilişkin bilgiler elde edilebilir. Bu metotlar ile taban sınıfın hiç bir bölümüne ilişkin bilgi elde edilemez. Bu metotlar ilgili elemana ilişkin metadata'yı temsil eden sınıf türünden dizi referansına geri dönerler. Örneğin, `getDeclaredMethods` metodu `Method []` türüne geri döner. Method sınıfı bir metoda ilişkin metadata'yı elde etmek için kullanılır. Bu metot ile elde edilmek istenen eleman ilgili türde yoksa length'i sıfır olan bir dizi referansı elde edilir. `Class` ` sınıfının getXXXs` metotları ile taban sınıfın da dahil olmak üzere tüm elemanlara ilişkin bilgi elde edilebilir. Taban sınıfın yalnızca public bölümüne ilişkin bilgiler elde edilebilir. İlgili sınıfın da yalnızca public bölümüne ilişkin elemanlar elde edilebilir. Bu metotların sonunda `s` olmayanları aldıkları parametrelere ilişkin spesifik bir elemanın bilgisini elde etmek için kullanılabilir.
 
 Aşağıdaki demo örnekte singleton olarak tasarlanmış bir sınıfın ctor'una çalışma zamanında erişilip nesne yaratılmıştır. Sınıfın lazy implementation olarak yazıldığına dikkat ediniz
 
@@ -5575,6 +5575,9 @@ enum Singleton {
 ```
 
 **Yukarıdaki singleton sınıfları reflection işlemlerini göstermek için yazılmıştır. Pratikte eager implementation'da hiç nesne yaratılamasın diye enum sınıfı kullanılmaz, enum sınıfı okunabilirliği/algılanabilirliği artırmak için singleton'ın eager implementation'ı için kullanılır. Demo örneklerde reflection'ın nasıl kullanıldığına odaklanınız.**
+
+Aşağıdaki ReflectionUtil sınıfını ve test kodlarını inceleyiniz. 
+
 
 **Anahtar Notlar:** Reflection, göreli yavaş bir işlemdir. Programcının reflection kullanması için bir gerekçesi olmalıdır. Reflection dışındaki bir çözüm yerine reflection kullanmak performansı olumsuz etkileyebilir.
 
