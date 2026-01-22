@@ -5679,6 +5679,43 @@ public final class ReflectionUtil {
         }  
     }  
   
+    public static void doWithDeclaredMethods(Class<?> cls, IMethodCallback methodCallback, IMethodFilter methodFilter)  
+    {  
+        try {  
+            for (var method : cls.getDeclaredMethods())  
+                if (methodFilter.matches(method))  
+                    methodCallback.doWith(method);  
+        }  
+        catch (Exception e) {  
+            throw new RuntimeException(e);  
+        }  
+    }  
+  
+    public static void doWithDeclaredMethods(Class<?> cls, IMethodCallback methodCallback)  
+    {  
+        try {  
+            for (var method : cls.getDeclaredMethods())  
+                methodCallback.doWith(method);  
+        }  
+        catch (Exception e) {  
+            throw new RuntimeException(e);  
+        }  
+    }  
+  
+    public static void doWithFields(Class<?> cls, IFieldCallback fieldCallback, IFieldFilter fieldFilter)  
+    {  
+        try {  
+            for (var method : cls.getFields())  
+                if (fieldFilter.matches(method))  
+                    fieldCallback.doWith(method);  
+        }  
+        catch (Exception e) {  
+            throw new RuntimeException(e);  
+        }  
+    }  
+  
+    //...  
+  
     public static Method findDeclaredMethod(Class<?> cls, String name)  
     {  
         Method method = null;  
@@ -5749,12 +5786,12 @@ public final class ReflectionUtil {
         return field;  
     }  
   
-    public static Field findDField(Class<?> cls, String name)  
+    public static Field findField(Class<?> cls, String name)  
     {  
         Field field;  
   
         try {  
-            field = cls.getDeclaredField(name);  
+            field = cls.getField(name);  
         }  
         catch (NoSuchFieldException ignore) {  
             field = findDeclaredField(cls, name);  
