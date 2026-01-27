@@ -5805,6 +5805,242 @@ public final class ReflectionUtil {
 
 **Anahtar Notlar:** Reflection, göreli yavaş bir işlemdir. Programcının reflection kullanması için bir gerekçesi olmalıdır. Reflection dışındaki bir çözüm yerine reflection kullanmak performansı olumsuz etkileyebilir.
 
+###### Repeatable Annotation
+
+Bir annotation default olarak bir sentaktik elemana birden fazla işaretlenemez. Bir annotation'ın birden fazla işaretlenebilmesi için (repeatable) aşağıdaki adımlardan geçilmesi gerekir:
+1. Annotation, `Repeatable` annotation'ı ile işaretlenir. Repeatable annotation'ının value attribute'u Class sınıfının bir annotation açılımı türündendir. value attribute'una tipik bir `class expression` olur.
+2. Repeatable annotation'ının value attribute'una verilen annotation'ın Repeatable ile işaretlenen annotation dizi türünden value isimli attribute'u olmalıdır. 
+
+Repeatable olarak işaretlenen annotation ile Repeatable annotation'ına verilen annotation'ın Target ve Retention'ları nasıl olmalıdır? Genel olarak aynı yapılsa da, Repeatable annotation'ına verilen annotation'ın Target kümesi, Repeatable annotation'ı ile işaretlenen annotation'ın Target bilgilerinin bir alt kümesi olması gerekir. Repeatable annotation'ı ile işaretlenen annotation'ın Repeatable annotation'ına verilen annotation'dan daha az erişilir olabilir. Bu anlamda retention için en yükseğinden düşüğüne doğru şu erişilebilirlik hiyerarşisi söylenebilir: 
+1. RUNTIME 
+2. CLASS 
+3. SOURCE 
+
+Tüm bu detaylara karşın pratikte (best practice) Target ve Retention bilgileri genel olarak aynı olur. Repeatable bir annotation ile birden fazla işaretleme işlemi, o repeatable annotation'a işaretlenen Repeatable annotation'ına verilen annotation ile de yapılabilir. Bunlar tamamen aynı anlamdadır.
+
+Aşağıdaki demo örnekte `RUNTIME` annotation'lar çalışma zamanında elde edilmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.lang.annotation.*;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var clsSample = Sample.class;  
+  
+        log.info("All annotations:");  
+  
+        for (Annotation annotation : clsSample.getDeclaredAnnotations())  
+            log.info(annotation.getClass().getTypeName());  
+  
+        MyAnnotation [] myAnnotations = clsSample.getDeclaredAnnotationsByType(MyAnnotation.class);  
+  
+        log.info("@MyAnnotation status:");  
+        if (myAnnotations.length != 0)  
+            for (MyAnnotation myAnnotation : myAnnotations)  
+                log.info("value:{}, message:{}", myAnnotation.value(), myAnnotation.message());  
+        else  
+            log.info("Not annotated with @MyAnnotation");  
+  
+        for (var method : clsSample.getDeclaredMethods()) {  
+            var commands = method.getDeclaredAnnotationsByType(Command.class);  
+  
+            if (commands.length != 0) {  
+                log.info("{} method annotated with @Command", method.getName());  
+                for (var command : commands)  
+                    log.info("value:{}", command.value());  
+            }  
+            else  
+                log.info("{} method not annotated with @Command", method.getName());  
+        }  
+    }  
+}  
+  
+@Retention(RetentionPolicy.RUNTIME)  
+@Target(ElementType.TYPE)  
+@Repeatable(MyAnnotations.class)   
+@interface MyAnnotation {  
+    int value() default 0;  
+    String message() default "default message";  
+}  
+  
+@Retention(RetentionPolicy.RUNTIME)  
+@Target(ElementType.TYPE)  
+@interface MyAnnotations {  
+    MyAnnotation[] value();  
+}  
+  
+@Retention(RetentionPolicy.RUNTIME)  
+@Target(ElementType.TYPE)  
+@interface YourAnnotation {  
+    //...  
+}  
+  
+@Retention(RetentionPolicy.RUNTIME)  
+@Target(ElementType.TYPE)  
+@MyAnnotation(value = 45, message = "Manisa")  
+@interface TheirAnnotation {  
+    //...  
+}  
+  
+@MyAnnotation(67)  
+@MyAnnotation(value = 34, message = "istanbul")  
+@YourAnnotation  
+@TheirAnnotation  
+@Slf4j  
+class Sample {  
+    @Command("test")  
+    @Command  
+    @Command("foo")  
+    public void foo()  
+    {  
+        //...  
+    }  
+  
+    @Commands({@Command, @Command("mest")})  
+    public void bar()  
+    {  
+        //...  
+    }  
+  
+    public void tar()  
+    {  
+        //...  
+    }  
+}  
+  
+@Retention(RetentionPolicy.RUNTIME)  
+@Target({ElementType.METHOD})  
+@Repeatable(Commands.class)  
+@interface Command {  
+    String value() default "";  
+}  
+@Retention(RetentionPolicy.RUNTIME)  
+@Target({ElementType.METHOD})  
+@interface Commands {  
+    Command [] value();  
+}
+```
+
+Aşağıdaki demo örnekte `ReflectionUtil` sınıfı kullanılmıştır
+
+```java
+package org.csystem.app;  
+  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.reflect.ReflectionUtil;  
+  
+import java.lang.annotation.*;  
+import java.lang.reflect.Method;  
+  
+@Slf4j  
+class Application {  
+    private static void methodCallback(Method method)  
+    {  
+        var commands = method.getDeclaredAnnotationsByType(Command.class);  
+  
+        if (commands.length != 0) {  
+            log.info("{} method annotated with @Command", method.getName());  
+            for (var command : commands)  
+                log.info("value:{}", command.value());  
+        }  
+        else  
+            log.info("{} method not annotated with @Command", method.getName());  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        var clsSample = Sample.class;  
+  
+        log.info("All annotations:");  
+  
+        for (Annotation annotation : clsSample.getDeclaredAnnotations())  
+            log.info(annotation.getClass().getTypeName());  
+  
+        MyAnnotation [] myAnnotations = clsSample.getDeclaredAnnotationsByType(MyAnnotation.class);  
+  
+        log.info("@MyAnnotation status:");  
+        if (myAnnotations.length != 0)  
+            for (MyAnnotation myAnnotation : myAnnotations)  
+                log.info("value:{}, message:{}", myAnnotation.value(), myAnnotation.message());  
+        else  
+            log.info("Not annotated with @MyAnnotation");  
+  
+        ReflectionUtil.doWithDeclaredMethods(clsSample, Application::methodCallback);  
+    }  
+}  
+  
+@Retention(RetentionPolicy.RUNTIME)  
+@Target(ElementType.TYPE)  
+@Repeatable(MyAnnotations.class)  
+@interface MyAnnotation {  
+    int value() default 0;  
+    String message() default "default message";  
+}  
+  
+@Retention(RetentionPolicy.RUNTIME)  
+@Target(ElementType.TYPE)  
+@interface MyAnnotations {  
+    MyAnnotation[] value();  
+}  
+  
+@Retention(RetentionPolicy.RUNTIME)  
+@Target(ElementType.TYPE)  
+@interface YourAnnotation {  
+    //...  
+}  
+  
+@Retention(RetentionPolicy.RUNTIME)  
+@Target(ElementType.TYPE)  
+@MyAnnotation(value = 45, message = "Manisa")  
+@interface TheirAnnotation {  
+    //...  
+}  
+  
+@MyAnnotation(67)  
+@MyAnnotation(value = 34, message = "istanbul")  
+@YourAnnotation  
+@TheirAnnotation  
+@Slf4j  
+class Sample {  
+    @Command("test")  
+    @Command  
+    @Command("foo")  
+    public void foo()  
+    {  
+        //...  
+    }  
+  
+    @Commands({@Command, @Command("mest")})  
+    public void bar()  
+    {  
+        //...  
+    }  
+  
+    public void tar()  
+    {  
+        //...  
+    }  
+}  
+  
+@Retention(RetentionPolicy.RUNTIME)  
+@Target({ElementType.METHOD})  
+@Repeatable(Commands.class)  
+@interface Command {  
+    String value() default "";  
+}  
+@Retention(RetentionPolicy.RUNTIME)  
+@Target({ElementType.METHOD})  
+@interface Commands {  
+    Command [] value();  
+}
+```
 
 
 
