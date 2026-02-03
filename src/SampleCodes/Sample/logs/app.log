@@ -1,0 +1,213 @@
+2026-01-13 19:52:26.084 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - ----------------------------------------------------
+2026-01-13 19:52:26.086 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - Dynamic type: org.csystem.math.geometry.Circle
+2026-01-13 19:52:26.095 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - Radius:5.0, Area:78.53981633974483
+2026-01-13 19:52:26.095 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - ----------------------------------------------------
+2026-01-13 19:52:26.095 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - ----------------------------------------------------
+2026-01-13 19:52:26.095 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - Dynamic type: org.csystem.math.Complex
+2026-01-13 19:52:26.096 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - Norm of (-9.87, -4.00) is 10.64769909678989
+2026-01-13 19:52:26.096 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - ----------------------------------------------------
+2026-01-13 19:52:26.096 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - ----------------------------------------------------
+2026-01-13 19:52:26.096 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - Dynamic type: java.util.Random
+2026-01-13 19:52:26.096 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - Random number:-1552727081
+2026-01-13 19:52:26.096 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - ----------------------------------------------------
+2026-01-13 19:52:26.096 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - ----------------------------------------------------
+2026-01-13 19:52:26.096 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - Dynamic type: org.csystem.math.Complex
+2026-01-13 19:52:26.096 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - Norm of (-6.51, 3.72) is 7.497241003429294
+2026-01-13 19:52:26.096 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - ----------------------------------------------------
+2026-01-13 19:52:26.096 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - ----------------------------------------------------
+2026-01-13 19:52:26.096 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - Dynamic type: java.lang.Integer
+2026-01-13 19:52:26.096 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - 59 * 59 = 3481
+2026-01-13 19:52:26.097 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - ----------------------------------------------------
+2026-01-13 19:52:26.097 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - ----------------------------------------------------
+2026-01-13 19:52:26.097 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - Dynamic type: org.csystem.math.Complex
+2026-01-13 19:52:26.097 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - Norm of (-7.68, 4.08) is 8.694976194586312
+2026-01-13 19:52:26.097 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - ----------------------------------------------------
+2026-01-13 19:52:26.097 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - ----------------------------------------------------
+2026-01-13 19:52:26.097 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - Dynamic type: org.csystem.math.geometry.Point
+2026-01-13 19:52:26.097 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - Distance to origin of (52.285981, 4.695331) is 52.49638047075515
+2026-01-13 19:52:26.097 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - ----------------------------------------------------
+2026-01-13 19:52:26.097 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - ----------------------------------------------------
+2026-01-13 19:52:26.097 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - Dynamic type: org.csystem.math.geometry.AnalyticalCircle
+2026-01-13 19:52:26.098 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - Radius:2.0, Area:12.566370614359172
+2026-01-13 19:52:26.098 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - ----------------------------------------------------
+2026-01-13 19:52:26.098 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - ----------------------------------------------------
+2026-01-13 19:52:26.098 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - Dynamic type: org.csystem.math.geometry.AnalyticalCircle
+2026-01-13 19:52:26.098 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - Radius:8.0, Area:201.06192982974676
+2026-01-13 19:52:26.098 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - ----------------------------------------------------
+2026-01-13 19:52:26.098 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - ----------------------------------------------------
+2026-01-13 19:52:26.098 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - Dynamic type: org.csystem.math.Complex
+2026-01-13 19:52:26.098 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - Norm of (-5.12, 0.22) is 5.128684275295419
+2026-01-13 19:52:26.098 [main] INFO  org.csystem.app.generator.DemoObjectArrayGeneratorApp - ----------------------------------------------------
+2026-01-13 20:45:04.875 [main] INFO  org.csystem.app.Application - true
+2026-01-13 20:46:35.279 [main] INFO  org.csystem.app.Application - true
+2026-01-13 21:02:44.368 [main] ERROR org.csystem.app.Application - Exception occurred:IllegalAccessException, Message:class org.csystem.app.Application cannot access a member of class org.csystem.app.Singleton with modifiers "private"
+2026-01-13 21:03:29.618 [main] ERROR org.csystem.app.Application - Exception occurred:IllegalAccessException, Message:class org.csystem.app.Application cannot access a member of class org.csystem.app.Singleton with modifiers "private"
+2026-01-13 21:03:59.801 [main] ERROR org.csystem.app.Application - Exception occurred:IllegalAccessException, Message:class org.csystem.app.Application cannot access a member of class org.csystem.app.Singleton with modifiers "private"
+2026-01-13 21:04:43.208 [main] INFO  org.csystem.app.Application - Value:10
+2026-01-13 21:05:10.622 [main] INFO  org.csystem.app.Application - Value:10
+2026-01-13 21:06:11.093 [main] ERROR org.csystem.app.Application - Exception occurred:IllegalArgumentException, Message:wrong number of arguments: 0 expected: 1
+2026-01-13 21:06:44.249 [main] ERROR org.csystem.app.Application - Exception occurred:IllegalArgumentException, Message:wrong number of arguments: 0 expected: 1
+2026-01-13 21:06:55.563 [main] INFO  org.csystem.app.Application - Value:0
+2026-01-13 21:08:07.477 [main] INFO  org.csystem.app.Application - Value:10
+2026-01-13 21:17:57.157 [main] ERROR org.csystem.app.Application - No such constructor
+2026-01-13 21:18:22.592 [main] INFO  org.csystem.app.Application - Value:10
+2026-01-13 21:20:40.865 [main] INFO  org.csystem.app.Application - Value:10
+2026-01-13 21:21:09.007 [main] ERROR org.csystem.app.Application - Exception occurred:InvocationTargetException, Message:null
+2026-01-13 21:21:43.080 [main] ERROR org.csystem.app.Application - Exception occurred:InvocationTargetException, Message:null
+2026-01-13 21:22:07.462 [main] INFO  org.csystem.app.Application - Value:10
+2026-01-13 21:22:44.120 [main] ERROR org.csystem.app.Application - Exception occurred:InvocationTargetException, Message:null
+2026-01-13 21:23:28.793 [main] ERROR org.csystem.app.Application - Exception occurred:InvocationTargetException, Message:Can not instantiate Singleton object
+2026-01-13 21:24:18.824 [main] ERROR org.csystem.app.Application - Exception occurred:InvocationTargetException, Message:null Cause Message: Can not instantiate Singleton object
+2026-01-13 21:27:23.646 [main] ERROR org.csystem.app.Application - No such field: m_created
+2026-01-13 21:28:31.154 [main] ERROR org.csystem.app.Application - Exception occurred:InvocationTargetException, Message:null Cause Message: Can not instantiate Singleton object
+2026-01-13 21:31:19.398 [main] ERROR org.csystem.app.Application - Exception occurred:IllegalArgumentException, Message:Can not set static boolean field org.csystem.app.Singleton.ms_created to java.lang.Integer
+2026-01-13 21:32:11.200 [main] INFO  org.csystem.app.Application - Value:10
+2026-01-13 21:35:23.255 [main] ERROR org.csystem.app.Application - No such constructor
+2026-01-13 21:36:00.718 [main] ERROR org.csystem.app.Application - No such constructor
+2026-01-13 21:36:33.739 [main] ERROR org.csystem.app.Application - No such constructor
+2026-01-13 21:37:09.290 [main] ERROR org.csystem.app.Application - No such constructor
+2026-01-27 20:43:50.948 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy23
+2026-01-27 20:44:47.762 [main] INFO  org.csystem.app.Application - $Proxy23
+2026-01-27 20:44:59.486 [main] INFO  org.csystem.app.Application - $Proxy23
+2026-01-27 20:44:59.487 [main] INFO  org.csystem.app.Application - $Proxy24
+2026-01-27 20:45:16.119 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy23
+2026-01-27 20:45:16.120 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy24
+2026-01-27 20:49:34.161 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy23
+2026-01-27 20:49:34.162 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy24
+2026-01-27 20:49:34.162 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy23
+2026-01-27 20:50:12.868 [main] INFO  org.csystem.app.Application - All annotations:
+2026-01-27 20:50:12.870 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy23
+2026-01-27 20:50:12.871 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy24
+2026-01-27 20:50:12.871 [main] INFO  org.csystem.app.Application - @MyAnnotation status:
+2026-01-27 20:50:12.871 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy23
+2026-01-27 20:50:27.884 [main] INFO  org.csystem.app.Application - All annotations:
+2026-01-27 20:50:27.888 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy23
+2026-01-27 20:50:27.890 [main] INFO  org.csystem.app.Application - @MyAnnotation status:
+2026-01-27 20:50:27.890 [main] INFO  org.csystem.app.Application - Not annotated with @MyAnnotation
+2026-01-27 20:53:57.410 [main] INFO  org.csystem.app.Application - All annotations:
+2026-01-27 20:53:57.413 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy23
+2026-01-27 20:53:57.413 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy24
+2026-01-27 20:53:57.413 [main] INFO  org.csystem.app.Application - @MyAnnotation status:
+2026-01-27 20:53:57.413 [main] INFO  org.csystem.app.Application - value:0, message:default message
+2026-01-27 20:54:11.342 [main] INFO  org.csystem.app.Application - All annotations:
+2026-01-27 20:54:11.345 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy23
+2026-01-27 20:54:11.345 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy24
+2026-01-27 20:54:11.346 [main] INFO  org.csystem.app.Application - @MyAnnotation status:
+2026-01-27 20:54:11.347 [main] INFO  org.csystem.app.Application - value:67, message:default message
+2026-01-27 20:58:19.541 [main] INFO  org.csystem.app.Application - All annotations:
+2026-01-27 20:58:19.544 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy24
+2026-01-27 20:58:19.545 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy25
+2026-01-27 20:58:19.545 [main] INFO  org.csystem.app.Application - @MyAnnotation status:
+2026-01-27 20:58:19.546 [main] INFO  org.csystem.app.Application - value:67, message:default message
+2026-01-27 20:58:19.546 [main] INFO  org.csystem.app.Application - value:34, message:istanbul
+2026-01-27 21:31:58.978 [main] INFO  org.csystem.app.Application - All annotations:
+2026-01-27 21:31:58.980 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy24
+2026-01-27 21:31:58.980 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy25
+2026-01-27 21:31:58.980 [main] INFO  org.csystem.app.Application - @MyAnnotation status:
+2026-01-27 21:31:58.981 [main] INFO  org.csystem.app.Application - value:67, message:default message
+2026-01-27 21:31:58.981 [main] INFO  org.csystem.app.Application - value:34, message:istanbul
+2026-01-27 21:31:58.981 [main] INFO  org.csystem.app.Application - foo method annotated with @Command
+2026-01-27 21:31:58.982 [main] INFO  org.csystem.app.Application - value:test
+2026-01-27 21:31:58.982 [main] INFO  org.csystem.app.Application - value:
+2026-01-27 21:31:58.982 [main] INFO  org.csystem.app.Application - value:foo
+2026-01-27 21:31:58.982 [main] INFO  org.csystem.app.Application - bar method annotated with @Command
+2026-01-27 21:31:58.982 [main] INFO  org.csystem.app.Application - value:
+2026-01-27 21:31:58.982 [main] INFO  org.csystem.app.Application - value:mest
+2026-01-27 21:32:43.171 [main] INFO  org.csystem.app.Application - All annotations:
+2026-01-27 21:32:43.174 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy24
+2026-01-27 21:32:43.174 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy25
+2026-01-27 21:32:43.174 [main] INFO  org.csystem.app.Application - @MyAnnotation status:
+2026-01-27 21:32:43.175 [main] INFO  org.csystem.app.Application - value:67, message:default message
+2026-01-27 21:32:43.175 [main] INFO  org.csystem.app.Application - value:34, message:istanbul
+2026-01-27 21:32:43.177 [main] INFO  org.csystem.app.Application - foo method annotated with @Command
+2026-01-27 21:32:43.177 [main] INFO  org.csystem.app.Application - value:test
+2026-01-27 21:32:43.177 [main] INFO  org.csystem.app.Application - value:
+2026-01-27 21:32:43.177 [main] INFO  org.csystem.app.Application - value:foo
+2026-01-27 21:32:43.177 [main] INFO  org.csystem.app.Application - bar method annotated with @Command
+2026-01-27 21:32:43.178 [main] INFO  org.csystem.app.Application - value:
+2026-01-27 21:32:43.178 [main] INFO  org.csystem.app.Application - value:mest
+2026-01-27 21:32:43.178 [main] INFO  org.csystem.app.Application - tar method not annotated with @Command
+2026-01-27 21:35:29.895 [main] INFO  org.csystem.app.Application - All annotations:
+2026-01-27 21:35:29.898 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy24
+2026-01-27 21:35:29.898 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy25
+2026-01-27 21:35:29.898 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy26
+2026-01-27 21:35:29.899 [main] INFO  org.csystem.app.Application - @MyAnnotation status:
+2026-01-27 21:35:29.900 [main] INFO  org.csystem.app.Application - value:67, message:default message
+2026-01-27 21:35:29.900 [main] INFO  org.csystem.app.Application - value:34, message:istanbul
+2026-01-27 21:35:29.901 [main] INFO  org.csystem.app.Application - foo method annotated with @Command
+2026-01-27 21:35:29.901 [main] INFO  org.csystem.app.Application - value:test
+2026-01-27 21:35:29.901 [main] INFO  org.csystem.app.Application - value:
+2026-01-27 21:35:29.902 [main] INFO  org.csystem.app.Application - value:foo
+2026-01-27 21:35:29.902 [main] INFO  org.csystem.app.Application - bar method annotated with @Command
+2026-01-27 21:35:29.902 [main] INFO  org.csystem.app.Application - value:
+2026-01-27 21:35:29.902 [main] INFO  org.csystem.app.Application - value:mest
+2026-01-27 21:35:29.902 [main] INFO  org.csystem.app.Application - tar method not annotated with @Command
+2026-01-27 21:43:40.760 [main] INFO  org.csystem.app.Application - All annotations:
+2026-01-27 21:43:40.764 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy24
+2026-01-27 21:43:40.765 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy25
+2026-01-27 21:43:40.765 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy26
+2026-01-27 21:43:40.767 [main] INFO  org.csystem.app.Application - @MyAnnotation status:
+2026-01-27 21:43:40.768 [main] INFO  org.csystem.app.Application - value:67, message:default message
+2026-01-27 21:43:40.768 [main] INFO  org.csystem.app.Application - value:34, message:istanbul
+2026-01-27 21:43:40.769 [main] INFO  org.csystem.app.Application - foo method annotated with @Command
+2026-01-27 21:43:40.769 [main] INFO  org.csystem.app.Application - value:test
+2026-01-27 21:43:40.770 [main] INFO  org.csystem.app.Application - value:
+2026-01-27 21:43:40.770 [main] INFO  org.csystem.app.Application - value:foo
+2026-01-27 21:43:40.770 [main] INFO  org.csystem.app.Application - bar method annotated with @Command
+2026-01-27 21:43:40.770 [main] INFO  org.csystem.app.Application - value:
+2026-01-27 21:43:40.770 [main] INFO  org.csystem.app.Application - value:mest
+2026-01-27 21:43:40.770 [main] INFO  org.csystem.app.Application - tar method not annotated with @Command
+2026-01-27 21:57:32.004 [main] INFO  org.csystem.app.Application - All annotations:
+2026-01-27 21:57:32.006 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy24
+2026-01-27 21:57:32.006 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy25
+2026-01-27 21:57:32.006 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy26
+2026-01-27 21:57:32.007 [main] INFO  org.csystem.app.Application - @MyAnnotation status:
+2026-01-27 21:57:32.008 [main] INFO  org.csystem.app.Application - value:67, message:default message
+2026-01-27 21:57:32.008 [main] INFO  org.csystem.app.Application - value:34, message:istanbul
+2026-01-27 21:57:32.009 [main] INFO  org.csystem.app.Application - foo method annotated with @Command
+2026-01-27 21:57:32.009 [main] INFO  org.csystem.app.Application - value:test
+2026-01-27 21:57:32.009 [main] INFO  org.csystem.app.Application - value:
+2026-01-27 21:57:32.009 [main] INFO  org.csystem.app.Application - value:foo
+2026-01-27 21:57:32.009 [main] INFO  org.csystem.app.Application - bar method annotated with @Command
+2026-01-27 21:57:32.009 [main] INFO  org.csystem.app.Application - value:
+2026-01-27 21:57:32.009 [main] INFO  org.csystem.app.Application - value:mest
+2026-01-27 21:57:32.009 [main] INFO  org.csystem.app.Application - tar method not annotated with @Command
+2026-01-27 21:58:10.157 [main] INFO  org.csystem.app.Application - All annotations:
+2026-01-27 21:58:10.160 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy24
+2026-01-27 21:58:10.160 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy25
+2026-01-27 21:58:10.160 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy26
+2026-01-27 21:58:10.160 [main] INFO  org.csystem.app.Application - @MyAnnotation status:
+2026-01-27 21:58:10.161 [main] INFO  org.csystem.app.Application - value:67, message:default message
+2026-01-27 21:58:10.161 [main] INFO  org.csystem.app.Application - value:34, message:istanbul
+2026-01-27 21:58:10.162 [main] INFO  org.csystem.app.Application - foo method annotated with @Command
+2026-01-27 21:58:10.162 [main] INFO  org.csystem.app.Application - value:test
+2026-01-27 21:58:10.162 [main] INFO  org.csystem.app.Application - value:
+2026-01-27 21:58:10.162 [main] INFO  org.csystem.app.Application - value:foo
+2026-01-27 21:58:10.162 [main] INFO  org.csystem.app.Application - bar method annotated with @Command
+2026-01-27 21:58:10.162 [main] INFO  org.csystem.app.Application - value:
+2026-01-27 21:58:10.162 [main] INFO  org.csystem.app.Application - value:mest
+2026-01-27 21:58:10.162 [main] INFO  org.csystem.app.Application - tar method not annotated with @Command
+2026-01-27 21:58:10.162 [main] INFO  org.csystem.app.Application - equals method not annotated with @Command
+2026-01-27 21:58:10.162 [main] INFO  org.csystem.app.Application - toString method not annotated with @Command
+2026-01-27 21:58:10.163 [main] INFO  org.csystem.app.Application - hashCode method not annotated with @Command
+2026-01-27 21:58:10.163 [main] INFO  org.csystem.app.Application - getClass method not annotated with @Command
+2026-01-27 21:58:10.163 [main] INFO  org.csystem.app.Application - notify method not annotated with @Command
+2026-01-27 21:58:10.163 [main] INFO  org.csystem.app.Application - notifyAll method not annotated with @Command
+2026-01-27 21:58:10.163 [main] INFO  org.csystem.app.Application - wait method not annotated with @Command
+2026-01-27 21:58:10.163 [main] INFO  org.csystem.app.Application - wait method not annotated with @Command
+2026-01-27 21:58:10.164 [main] INFO  org.csystem.app.Application - wait method not annotated with @Command
+2026-01-27 21:58:24.871 [main] INFO  org.csystem.app.Application - All annotations:
+2026-01-27 21:58:24.874 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy24
+2026-01-27 21:58:24.875 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy25
+2026-01-27 21:58:24.875 [main] INFO  org.csystem.app.Application - org.csystem.app.$Proxy26
+2026-01-27 21:58:24.876 [main] INFO  org.csystem.app.Application - @MyAnnotation status:
+2026-01-27 21:58:24.877 [main] INFO  org.csystem.app.Application - value:67, message:default message
+2026-01-27 21:58:24.877 [main] INFO  org.csystem.app.Application - value:34, message:istanbul
+2026-01-27 21:58:24.879 [main] INFO  org.csystem.app.Application - foo method annotated with @Command
+2026-01-27 21:58:24.879 [main] INFO  org.csystem.app.Application - value:test
+2026-01-27 21:58:24.880 [main] INFO  org.csystem.app.Application - value:
+2026-01-27 21:58:24.880 [main] INFO  org.csystem.app.Application - value:foo
+2026-01-27 21:58:24.880 [main] INFO  org.csystem.app.Application - bar method annotated with @Command
+2026-01-27 21:58:24.880 [main] INFO  org.csystem.app.Application - value:
+2026-01-27 21:58:24.880 [main] INFO  org.csystem.app.Application - value:mest
+2026-01-27 21:58:24.880 [main] INFO  org.csystem.app.Application - tar method not annotated with @Command

@@ -1,45 +1,109 @@
 package org.csystem.app;
 
 import lombok.extern.slf4j.Slf4j;
+import org.csystem.reflect.ReflectionUtil;
 
-import java.lang.reflect.InvocationTargetException;
+import java.lang.annotation.*;
+import java.lang.reflect.Method;
 
 @Slf4j
 class Application {
+    private static void methodCallback(Method method)
+    {
+        var commands = method.getDeclaredAnnotationsByType(Command.class);
+
+        if (commands.length != 0) {
+            log.info("{} method annotated with @Command", method.getName());
+            for (var command : commands)
+                log.info("value:{}", command.value());
+        }
+        else
+            log.info("{} method not annotated with @Command", method.getName());
+    }
+
     public static void run(String[] args)
     {
-        try {
-            var cls = Singleton.class;
-            var ctor = cls.getDeclaredConstructor();
+        var clsSample = Sample.class;
 
-            ctor.setAccessible(true);
-            var s = ctor.newInstance();
-            ctor.setAccessible(false);
+        log.info("All annotations:");
 
-            s.setValue(10);
+        for (Annotation annotation : clsSample.getDeclaredAnnotations())
+            log.info(annotation.getClass().getTypeName());
 
-            log.info("Value:{}", s.getValue());
-        }
-        catch (NoSuchMethodException e) {
-            log.error("No such constructor");
-        }
-        catch (InvocationTargetException | InstantiationException | IllegalAccessException | IllegalArgumentException e) {
-            log.error("Exception occurred:{}, Message:{}{}", e.getClass().getSimpleName(), e.getMessage(), e.getCause() != null ? "Cause Message: " + e.getCause().getMessage() : "");
-        }
+        MyAnnotation [] myAnnotations = clsSample.getDeclaredAnnotationsByType(MyAnnotation.class);
+
+        log.info("@MyAnnotation status:");
+        if (myAnnotations.length != 0)
+            for (MyAnnotation myAnnotation : myAnnotations)
+                log.info("value:{}, message:{}", myAnnotation.value(), myAnnotation.message());
+        else
+            log.info("Not annotated with @MyAnnotation");
+
+        ReflectionUtil.doWithDeclaredMethods(clsSample, Application::methodCallback);
     }
 }
 
-enum Singleton {
-    INSTANCE;
-    private int m_value;
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@Repeatable(MyAnnotations.class)
+@interface MyAnnotation {
+    int value() default 0;
+    String message() default "default message";
+}
 
-    public int getValue()
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@interface MyAnnotations {
+    MyAnnotation[] value();
+}
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@interface YourAnnotation {
+    //...
+}
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@MyAnnotation(value = 45, message = "Manisa")
+@interface TheirAnnotation {
+    //...
+}
+
+@MyAnnotation(67)
+@MyAnnotation(value = 34, message = "istanbul")
+@YourAnnotation
+@TheirAnnotation
+@Slf4j
+class Sample {
+    @Command("test")
+    @Command
+    @Command("foo")
+    public void foo()
     {
-        return m_value;
+        //...
     }
 
-    public void setValue(int value)
+    @Commands({@Command, @Command("mest")})
+    public void bar()
     {
-        m_value = value;
+        //...
     }
+
+    public void tar()
+    {
+        //...
+    }
+}
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD})
+@Repeatable(Commands.class)
+@interface Command {
+    String value() default "";
+}
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD})
+@interface Commands {
+    Command [] value();
 }
