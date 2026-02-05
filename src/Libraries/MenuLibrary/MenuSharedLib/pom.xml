@@ -11,10 +11,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>com.ahmetarslan</groupId>
-    <artifactId>com-ahmetarslan-menuplugin</artifactId>
+    <groupId>org.csystem</groupId>
+    <artifactId>org-csystem-framework-menu-plugin</artifactId>
     <version>1.0.0</version>
-    <name>com-ahmetarslan-menuplugin</name>
+    <name>org-csystem-framework-menu-plugin</name>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -22,25 +22,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>javaapp1-aug-2025-maven-repo</id>
-            <url>https://raw.github.com/oguzkaran/javaapp1-aug-2025-maven-repo/main</url>
-        </repository>
-
-        <repository>
-            <id>javaapp1-aug-2025-karandev-maven-repo</id>
-            <url>https://raw.github.com/oguzkaran/javaapp1-aug-2025-karandev-maven-repo/main</url>
-        </repository>
-    </repositories>
-
     <dependencies>
-        <dependency>
-            <groupId>org.csystem</groupId>
-            <artifactId>org-csystem-framework-menu-plugin</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

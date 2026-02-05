@@ -1,6 +1,7 @@
 package com.ahmentarslan.menuplugin;
 
-import org.csystem.plugin.IMenu;
+
+import org.csystem.framework.menu.plugin.IMenu;
 
 public class DeleteMenu implements IMenu {
     //...
