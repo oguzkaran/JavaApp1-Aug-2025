@@ -106,7 +106,7 @@ public class Menu {
             }
         }
         catch (Exception e) {
-            Console.Error.writeLine("Exception occurred:%s", e.getMessage());
+            Console.Error.writeLine("Exception occurred:%s, %s", e.getClass().getName(), e.getMessage());
         }
     }
 }

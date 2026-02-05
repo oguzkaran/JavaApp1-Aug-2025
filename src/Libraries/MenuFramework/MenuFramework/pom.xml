@@ -46,6 +46,7 @@
             <groupId>org.csystem</groupId>
             <artifactId>org-csystem-framework-menu-plugin</artifactId>
             <version>1.0.0</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
