@@ -6042,7 +6042,7 @@ class Sample {
 }
 ```
 
-
+**Sınıf Çalışması:** [MenuFramework](https://github.com/oguzkaran/JavaApp1-Aug-2025/tree/main/src/Libraries/MenuFramework) framework'ünü ve  [DemoRuntimePluginApp](https://github.com/oguzkaran/JavaApp1-Aug-2025/tree/main/src/Projects/004-DemoRuntimePluginApp) uygulamasını inceleyiniz.
 
 
 
