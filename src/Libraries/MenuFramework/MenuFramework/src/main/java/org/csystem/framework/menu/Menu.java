@@ -3,9 +3,8 @@ package org.csystem.framework.menu;
 import com.karandev.io.util.console.Console;
 import lombok.AllArgsConstructor;
 import org.csystem.framework.menu.plugin.IMenu;
-import org.csystem.reflect.ReflectionUtil;
+import org.csystem.util.reflect.ReflectionUtil;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -28,12 +27,37 @@ public class Menu {
         Method doOptionMethod;
     }
 
+    private class RefreshMenu implements IMenu {
+        @Override
+        public int order()
+        {
+            return m_menuInfoList.size();
+        }
+
+        @Override
+        public String optionString()
+        {
+            return "refresh";
+        }
+
+        @Override
+        public String name()
+        {
+            return "Refresh";
+        }
+
+        @Override
+        public void doOption()
+        {
+            refreshMenu();
+        }
+    }
+
     private void displayMenu() throws IllegalAccessException, InvocationTargetException
     {
         for (var menuInfo : m_menuInfoList)
             Console.writeLine("%s-%s", menuInfo.orderMethod.invoke(menuInfo.singleton), menuInfo.nameMethod.invoke(menuInfo.singleton));
 
-        //TODO (Oğuz):Add refresh menu
         Console.write("Option:");
     }
 
@@ -68,23 +92,33 @@ public class Menu {
         Console.writeLine("Invalid option!...");
     }
 
+    private static MenuInfo createMenuInfo(Object object, Class<?> cls) throws NoSuchMethodException
+    {
+        var orderMethod = cls.getDeclaredMethod(ORDER_METHOD_NAME);
+        var nameMethod = cls.getDeclaredMethod(NAME_METHOD_NAME);
+        var optionStringMethod = cls.getDeclaredMethod(OPTION_STRING_METHOD_NAME);
+        var doOptionMethod = cls.getDeclaredMethod(DO_OPTION_METHOD_NAME);
+
+        return new MenuInfo(object, orderMethod, nameMethod, optionStringMethod, doOptionMethod);
+    }
+
     private void createMenuInfoList(List<Class<?>> menuClsList) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException
     {
         m_menuInfoList.clear();
-        for (var cls : menuClsList) {
-            var object = cls.getDeclaredConstructor().newInstance();
-            var orderMethod = cls.getDeclaredMethod(ORDER_METHOD_NAME);
-            var nameMethod = cls.getDeclaredMethod(NAME_METHOD_NAME);
-            var optionStringMethod = cls.getDeclaredMethod(OPTION_STRING_METHOD_NAME);
-            var doOptionMethod = cls.getDeclaredMethod(DO_OPTION_METHOD_NAME);
+        for (var cls : menuClsList)
+            m_menuInfoList.add(createMenuInfo(cls.getDeclaredConstructor().newInstance(), cls));
 
-            m_menuInfoList.add(new MenuInfo(object, orderMethod, nameMethod, optionStringMethod, doOptionMethod));
-        }
+        m_menuInfoList.add(createMenuInfo(new RefreshMenu(), RefreshMenu.class));
     }
 
-    private void refreshMenu() throws IOException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException
+    private void refreshMenu()
     {
-        createMenuInfoList(ReflectionUtil.getImplementedClassesByJars(m_dirPath, IMenu.class));
+        try {
+            createMenuInfoList(ReflectionUtil.getImplementedClassesByJars(m_dirPath, IMenu.class));
+        }
+        catch (Exception e) {
+            Console.Error.writeLine("Exception occurred in refresh menu:%s, %s", e.getClass().getName(), e.getMessage());
+        }
     }
 
     public Menu(String dirPath)
@@ -95,8 +129,8 @@ public class Menu {
     public void run()
     {
         try {
+            refreshMenu();
             while (true) {
-                refreshMenu();
                 m_menuInfoList.sort(Menu::compareCallback);
 
                 displayMenu();
