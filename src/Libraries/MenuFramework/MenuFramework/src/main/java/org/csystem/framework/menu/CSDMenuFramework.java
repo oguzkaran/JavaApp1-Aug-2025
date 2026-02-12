@@ -1,7 +1,10 @@
 package org.csystem.framework.menu;
 
 import com.karandev.io.util.console.Console;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.experimental.Accessors;
 import org.csystem.framework.menu.plugin.IMenu;
 import org.csystem.util.reflect.ReflectionUtil;
 
@@ -10,13 +13,30 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Menu {
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Accessors(prefix = "m_")
+public class CSDMenuFramework {
     private static final String NAME_METHOD_NAME = "name";
     private static final String ORDER_METHOD_NAME = "order";
     private static final String OPTION_STRING_METHOD_NAME = "optionString";
     private static final String DO_OPTION_METHOD_NAME = "doOption";
+
     private final String m_dirPath;
     private final List<MenuInfo> m_menuInfoList = new ArrayList<>();
+
+    @Builder.Default
+    private String m_refreshMenuOptionString = "refresh";
+    @Builder.Default
+    private String m_refreshMenuName = "Refresh";
+    @Builder.Default
+    private String m_optionText = "Option";
+    @Builder.Default
+    private String m_invalidOptionText = "Invalid Option!...";
+    @Builder.Default
+    private String m_refreshMenuExceptionMessagePrefix = "Exception occurred in refresh menu";
+    @Builder.Default
+    private String m_runExceptionMessagePrefix = "Exception occurred";
 
     @AllArgsConstructor
     private static class MenuInfo {
@@ -37,13 +57,13 @@ public class Menu {
         @Override
         public String optionString()
         {
-            return "refresh";
+            return m_refreshMenuOptionString;
         }
 
         @Override
         public String name()
         {
-            return "Refresh";
+            return m_refreshMenuName;
         }
 
         @Override
@@ -58,7 +78,7 @@ public class Menu {
         for (var menuInfo : m_menuInfoList)
             Console.writeLine("%s-%s", menuInfo.orderMethod.invoke(menuInfo.singleton), menuInfo.nameMethod.invoke(menuInfo.singleton));
 
-        Console.write("Option:");
+        Console.write("%s:", m_optionText);
     }
 
     private static int compareCallback(MenuInfo mi1, MenuInfo mi2)
@@ -70,7 +90,6 @@ public class Menu {
             return (int)orderMethod1.invoke(mi1.singleton) - (int)orderMethod2.invoke(mi2.singleton);
         }
         catch (Exception e) {
-            System.err.printf("Error while comparing: %s\n", e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -81,7 +100,7 @@ public class Menu {
             var object = menuInfo.singleton;
             var optionStringMethod = menuInfo.optionStringMethod;
 
-            if (option.length() >= 3 && optionStringMethod.invoke(object).toString().startsWith(option)) {
+            if (optionStringMethod.invoke(object).toString().equals(option)) {
                 var doOptionMethod = menuInfo.doOptionMethod;
 
                 doOptionMethod.invoke(object);
@@ -89,7 +108,7 @@ public class Menu {
             }
         }
 
-        Console.writeLine("Invalid option!...");
+        Console.writeLine(m_invalidOptionText);
     }
 
     private static MenuInfo createMenuInfo(Object object, Class<?> cls) throws NoSuchMethodException
@@ -117,13 +136,8 @@ public class Menu {
             createMenuInfoList(ReflectionUtil.getImplementedClassesByJars(m_dirPath, IMenu.class));
         }
         catch (Exception e) {
-            Console.Error.writeLine("Exception occurred in refresh menu:%s, %s", e.getClass().getName(), e.getMessage());
+            Console.Error.writeLine("%s:%s, %s", m_refreshMenuExceptionMessagePrefix, e.getClass().getName(), e.getMessage());
         }
-    }
-
-    public Menu(String dirPath)
-    {
-        m_dirPath = dirPath;
     }
 
     public void run()
@@ -131,7 +145,7 @@ public class Menu {
         try {
             refreshMenu();
             while (true) {
-                m_menuInfoList.sort(Menu::compareCallback);
+                m_menuInfoList.sort(CSDMenuFramework::compareCallback);
 
                 displayMenu();
                 var option = Console.readLine();
@@ -140,7 +154,7 @@ public class Menu {
             }
         }
         catch (Exception e) {
-            Console.Error.writeLine("Exception occurred:%s, %s", e.getClass().getName(), e.getMessage());
+            Console.Error.writeLine("%s:%s, %s", m_runExceptionMessagePrefix, e.getClass().getName(), e.getMessage());
         }
     }
 }
