@@ -12,9 +12,9 @@
     </parent>
 
     <groupId>org.csystem</groupId>
-    <artifactId>org-csystem-framework-menu</artifactId>
+    <artifactId>org-csystem-framework</artifactId>
     <version>1.0.0</version>
-    <name>org-csystem-framework-menu</name>
+    <name>org-csystem-framework</name>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
