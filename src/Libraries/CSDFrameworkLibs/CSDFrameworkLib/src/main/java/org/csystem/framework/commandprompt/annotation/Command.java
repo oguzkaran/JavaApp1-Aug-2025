@@ -8,3 +8,4 @@ import java.lang.annotation.*;
 public @interface Command {
     String value() default "";
 }
+

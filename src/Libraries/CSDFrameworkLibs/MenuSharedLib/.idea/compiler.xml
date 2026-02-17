@@ -6,8 +6,8 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="MenuSharedLib" />
         <module name="GenericLib" />
+        <module name="org-csystem-framework-menu-plugin" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -19,6 +19,7 @@
       <module name="GenericApp" options="-parameters" />
       <module name="GenericLib" options="-parameters" />
       <module name="MenuSharedLib" options="-parameters" />
+      <module name="org-csystem-framework-menu-plugin" options="-parameters" />
     </option>
   </component>
 </project>
