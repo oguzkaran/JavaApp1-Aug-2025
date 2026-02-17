@@ -6035,6 +6035,7 @@ class Sample {
 @interface Command {  
     String value() default "";  
 }  
+
 @Retention(RetentionPolicy.RUNTIME)  
 @Target({ElementType.METHOD})  
 @interface Commands {  
@@ -6042,7 +6043,9 @@ class Sample {
 }
 ```
 
-**Sınıf Çalışması:** [MenuFramework](https://github.com/oguzkaran/JavaApp1-Aug-2025/tree/main/src/Libraries/MenuFramework) framework'ünü ve  [DemoRuntimePluginApp](https://github.com/oguzkaran/JavaApp1-Aug-2025/tree/main/src/Projects/004-DemoRuntimePluginApp) uygulamasını inceleyiniz.
+**Sınıf Çalışması:** [CSDFramework](https://github.com/oguzkaran/JavaApp1-Aug-2025/tree/main/src/Libraries/CSDFrameworkLibs) framework'ünü ve  [DemoRuntimePluginApp](https://github.com/oguzkaran/JavaApp1-Aug-2025/tree/main/src/Projects/004-DemoRuntimePluginApp) uygulamasını inceleyiniz.
+
+**Sınıf Çalışması:** [CSDFramework](https://github.com/oguzkaran/JavaApp1-Aug-2025/tree/main/src/Libraries/CSDFrameworkLibs) framework'ünü ve  [DemoCommandPromptApp](https://github.com/oguzkaran/JavaApp1-Aug-2025/tree/main/src/Projects/005-DemoCommandPromptApp) uygulamasını inceleyiniz.
 
 
 

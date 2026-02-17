@@ -118,8 +118,10 @@ public class CSDCommandPrompt {
 
             if (commands.length == 0) {
                 if (m_errorCommandMethod == null && method.getDeclaredAnnotation(ErrorCommand.class) != null
-                        && method.getTypeParameters().length == 0)
+                        && method.getTypeParameters().length == 0) {
+                    method.setAccessible(true);
                     m_errorCommandMethod = method;
+                }
             }
             else
                 registerCommands(commands, method);
