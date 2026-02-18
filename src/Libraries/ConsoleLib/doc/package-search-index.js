@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.karandev.io.util.console"},{"l":"com.karandev.io.util.console.annotation"}];updateSearchResults();
