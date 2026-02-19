@@ -6045,3 +6045,71 @@ class Sample {
 
 **Anahtar Notlar:** Reflection, göreli yavaş bir işlemdir. Programcının reflection kullanması için bir gerekçesi olmalıdır. Reflection dışındaki bir çözüm yerine reflection kullanmak performansı olumsuz etkileyebilir.
 
+##### JavaSE Collections
+
+Java'da veri yapılarına ilişkin türlere (user defined type) **collections** denir. Bu bölümde JavaSE'de bulunan ve pratikte çok kullanılan collection'lar ele alınacaktır. Geri kalan collection'lar `Java ile Uygulama Geliştirme II` kursunda ele alınacaktır.
+
+###### Iterator Kalıbı
+
+Bir veri yapısına ait elemanların, veri yapısı içerisinde nasıl tutulduğundan ve veri yapısının algoritmasından bağımsız olarak dolaşılabilmesi (iteration) için kullanılan tasarım kalıbına **iterator pattern** denir. Yani aslında veriler bir iterator yardımıyla tutulur. Iterator ile her adımda mantıksal ilgili elemana erişilir. Böylelikle programcı verilerin nasıl tutulduğundan bağımsız dolaşılan kodlar yazabilir. Java'da iterator kalıbının implementasyonu için `Iterable` ve `Iterator` arayüzleri kullanılır. 
+
+###### Iterable ve Iterator Arayüzleri
+
+Bu arayüzler generic'dir. Iterable arayüzünün Iterator referansına geri dönen bir `iterator` isimli bir metodu bulunur. Iterator arayüzünün ise Java 8'den itibaren `hasNext` ve `next` isimli iki tane absract metodu bulunmaktadır. Java 8'den önce `remove` isimli metot da abstract olarak bulunmaktaydı, Java 8 ile birlikte remove metodu default metot olarak bulunur ve default olarak yalnızca `UnsupportedOperationException` fırlatır. Bu arayüzün Java 8 ile eklenen `forEachRemaning` isimli default bir metodu vardır. Bu metot ileride ele alınacaktır. Iterable arayüzünün de yine Java 8 ile birlikte eklenen `forEach` ve `spliterator` isimli default metotları da bulunur. Bu metotlar da yine ileride ele alınacaktır.
+
+Iterator arayüzünün `hasNext` metodu elemanın var olup olmadığına ilişkin (tipik olarak bir sonraki eleman var mı?) boolean türden bir değere geri döner. `next` metodu ile ilgili eleman elde edilerek (tipik olarak bir sonraki eleman) iterator **mantıksal olarak** artırılır. next metodu eleman yoksa `NoSuchElement` exception fırlatır. Bu durumda bir `Iterator` referansı ile veri yapısının dolaşımı tipik olarak şu şekilde yapılabilir:
+
+```java
+ArrayList<String> texts = new ArrayList<>();
+
+//...
+
+Iterator<String> iter = texts.iterator();
+
+while (iter.hasNext()) {
+	String s = iter.next();
+	
+	//...
+}
+```
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.ArrayList;  
+import java.util.Iterator;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var texts = new ArrayList<String>();  
+  
+        while (true) {  
+            var s = Console.read("Input text:");  
+  
+            if ("quit".equals(s))  
+                break;  
+  
+            texts.add(s);  
+        }  
+  
+        Iterator<String> iter = texts.iterator();  
+  
+        while (iter.hasNext()) {  
+            String s = iter.next();  
+  
+            log.info(s);  
+        }  
+    }  
+}
+```
+
+
+
+

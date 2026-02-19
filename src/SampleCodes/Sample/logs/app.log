@@ -211,3 +211,6 @@
 2026-01-27 21:58:24.880 [main] INFO  org.csystem.app.Application - value:
 2026-01-27 21:58:24.880 [main] INFO  org.csystem.app.Application - value:mest
 2026-01-27 21:58:24.880 [main] INFO  org.csystem.app.Application - tar method not annotated with @Command
+2026-02-19 22:14:39.283 [main] INFO  org.csystem.app.Application - ali
+2026-02-19 22:14:39.284 [main] INFO  org.csystem.app.Application - veli
+2026-02-19 22:14:39.284 [main] INFO  org.csystem.app.Application - selami
