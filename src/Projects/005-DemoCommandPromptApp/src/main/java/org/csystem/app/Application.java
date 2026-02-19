@@ -10,7 +10,7 @@ class Application {
     {
         CSDCommandPrompt.builder()
                 .prompt("CSD")
-                //.suffix(">")
+                .suffix(">")
                 .invalidCommand("INVALID COMMAND!...")
                 .registerObject(new CommandDetails())
                 .build()

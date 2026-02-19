@@ -13,7 +13,7 @@
 
     <groupId>org.csystem</groupId>
     <artifactId>org-csystem-framework</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <name>org-csystem-framework</name>
 
     <properties>
@@ -44,8 +44,8 @@
 
         <dependency>
             <groupId>org.csystem</groupId>
-            <artifactId>org-csystem-framework-menu-plugin</artifactId>
-            <version>1.0.0</version>
+            <artifactId>org-csystem-framework-menu-shared</artifactId>
+            <version>1.1.0</version>
             <scope>provided</scope>
         </dependency>
 

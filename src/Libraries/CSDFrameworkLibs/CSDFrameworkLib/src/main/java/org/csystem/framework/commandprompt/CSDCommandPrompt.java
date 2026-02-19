@@ -22,7 +22,7 @@ import java.util.Arrays;
 public class CSDCommandPrompt {
     private Object m_registerObject;
     private final ArrayList<CommandInfo> m_commands = new ArrayList<>();
-    private Method m_errorCommandMethod;
+    private final ArrayList<Method> m_errorCommands = new ArrayList<>();
 
     @Builder.Default
     private String m_prompt = "csd";
@@ -74,8 +74,10 @@ public class CSDCommandPrompt {
         }
 
         if (!commandFound) {
-            if (m_errorCommandMethod != null)
-                m_errorCommandMethod.invoke(m_registerObject);
+            if (!m_errorCommands.isEmpty()) {
+                for (var method: m_errorCommands)
+                    method.invoke(m_registerObject);
+            }
             else
                 Console.Error.writeLine(m_invalidCommand);
         }
@@ -117,10 +119,9 @@ public class CSDCommandPrompt {
             var commands = method.getDeclaredAnnotationsByType(Command.class);
 
             if (commands.length == 0) {
-                if (m_errorCommandMethod == null && method.getDeclaredAnnotation(ErrorCommand.class) != null
-                        && method.getTypeParameters().length == 0) {
+                if (method.getDeclaredAnnotation(ErrorCommand.class) != null && method.getTypeParameters().length == 0) {
                     method.setAccessible(true);
-                    m_errorCommandMethod = method;
+                    m_errorCommands.add(method);
                 }
             }
             else

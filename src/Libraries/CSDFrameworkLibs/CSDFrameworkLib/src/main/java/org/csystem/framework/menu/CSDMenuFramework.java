@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.experimental.Accessors;
-import org.csystem.framework.menu.plugin.IMenu;
 import org.csystem.util.reflect.ReflectionUtil;
 
 import java.lang.reflect.InvocationTargetException;
@@ -18,7 +17,6 @@ import java.util.List;
 @Accessors(prefix = "m_")
 public class CSDMenuFramework {
     private static final String NAME_METHOD_NAME = "name";
-    private static final String ORDER_METHOD_NAME = "order";
     private static final String OPTION_STRING_METHOD_NAME = "optionString";
     private static final String DO_OPTION_METHOD_NAME = "doOption";
 
@@ -37,23 +35,20 @@ public class CSDMenuFramework {
     private String m_refreshMenuExceptionMessagePrefix = "Exception occurred in refresh menu";
     @Builder.Default
     private String m_runExceptionMessagePrefix = "Exception occurred";
+    @Builder.Default
+    private boolean m_sorted = true;
+    @Builder.Default
+    private String m_menuPrefix = "- ";
 
     @AllArgsConstructor
     private static class MenuInfo {
         Object singleton;
-        Method orderMethod;
         Method nameMethod;
         Method optionStringMethod;
         Method doOptionMethod;
     }
 
     private class RefreshMenu implements IMenu {
-        @Override
-        public int order()
-        {
-            return m_menuInfoList.size();
-        }
-
         @Override
         public String optionString()
         {
@@ -76,7 +71,7 @@ public class CSDMenuFramework {
     private void displayMenu() throws IllegalAccessException, InvocationTargetException
     {
         for (var menuInfo : m_menuInfoList)
-            Console.writeLine("%s-%s", menuInfo.orderMethod.invoke(menuInfo.singleton), menuInfo.nameMethod.invoke(menuInfo.singleton));
+            Console.writeLine("%s%s",  m_menuPrefix, menuInfo.nameMethod.invoke(menuInfo.singleton));
 
         Console.write("%s:", m_optionText);
     }
@@ -84,10 +79,10 @@ public class CSDMenuFramework {
     private static int compareCallback(MenuInfo mi1, MenuInfo mi2)
     {
         try {
-            var orderMethod1 = mi1.orderMethod;
-            var orderMethod2 = mi2.orderMethod;
+            var nameMethod1 = mi1.nameMethod;
+            var nameMethod2 = mi2.nameMethod;
 
-            return (int)orderMethod1.invoke(mi1.singleton) - (int)orderMethod2.invoke(mi2.singleton);
+            return nameMethod1.invoke(mi1.singleton).toString().compareTo(nameMethod2.invoke(mi2.singleton).toString());
         }
         catch (Exception e) {
             throw new RuntimeException(e);
@@ -113,12 +108,11 @@ public class CSDMenuFramework {
 
     private static MenuInfo createMenuInfo(Object object, Class<?> cls) throws NoSuchMethodException
     {
-        var orderMethod = cls.getDeclaredMethod(ORDER_METHOD_NAME);
         var nameMethod = cls.getDeclaredMethod(NAME_METHOD_NAME);
         var optionStringMethod = cls.getDeclaredMethod(OPTION_STRING_METHOD_NAME);
         var doOptionMethod = cls.getDeclaredMethod(DO_OPTION_METHOD_NAME);
 
-        return new MenuInfo(object, orderMethod, nameMethod, optionStringMethod, doOptionMethod);
+        return new MenuInfo(object, nameMethod, optionStringMethod, doOptionMethod);
     }
 
     private void createMenuInfoList(List<Class<?>> menuClsList) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException
@@ -134,6 +128,8 @@ public class CSDMenuFramework {
     {
         try {
             createMenuInfoList(ReflectionUtil.getImplementedClassesByJars(m_dirPath, IMenu.class));
+            if (m_sorted)
+                m_menuInfoList.sort(CSDMenuFramework::compareCallback);
         }
         catch (Exception e) {
             Console.Error.writeLine("%s:%s, %s", m_refreshMenuExceptionMessagePrefix, e.getClass().getName(), e.getMessage());
@@ -145,7 +141,7 @@ public class CSDMenuFramework {
         try {
             refreshMenu();
             while (true) {
-                m_menuInfoList.sort(CSDMenuFramework::compareCallback);
+
 
                 displayMenu();
                 var option = Console.readLine();

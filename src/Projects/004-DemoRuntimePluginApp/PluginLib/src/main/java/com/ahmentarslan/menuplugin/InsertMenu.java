@@ -1,15 +1,9 @@
 package com.ahmentarslan.menuplugin;
 
-import org.csystem.framework.menu.plugin.IMenu;
+import org.csystem.framework.menu.IMenu;
 
 public class InsertMenu implements IMenu {
     //...
-    @Override
-    public int order()
-    {
-        return 1;
-    }
-
     @Override
     public String optionString()
     {

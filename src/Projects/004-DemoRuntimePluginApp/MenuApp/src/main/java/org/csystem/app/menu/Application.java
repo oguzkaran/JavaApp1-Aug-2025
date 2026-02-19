@@ -16,7 +16,8 @@ class Application {
                     .dirPath(args[0])
                     .invalidOptionText("Invalid Option. Be careful!...")
                     .refreshMenuOptionString("ref")
-                    //.refreshMenuName("yenile")
+                    //.menuPrefix("-- ")
+                    //.sorted(false)
                     .build();
 
             menu.run();

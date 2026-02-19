@@ -5801,10 +5801,6 @@ public final class ReflectionUtil {
     }  
 }
 ```
-
-
-**Anahtar Notlar:** Reflection, göreli yavaş bir işlemdir. Programcının reflection kullanması için bir gerekçesi olmalıdır. Reflection dışındaki bir çözüm yerine reflection kullanmak performansı olumsuz etkileyebilir.
-
 ###### Repeatable Annotation
 
 Bir annotation default olarak bir sentaktik elemana birden fazla işaretlenemez. Bir annotation'ın birden fazla işaretlenebilmesi için (repeatable) aşağıdaki adımlardan geçilmesi gerekir:
@@ -6047,5 +6043,5 @@ class Sample {
 
 **Sınıf Çalışması:** [CSDFramework](https://github.com/oguzkaran/JavaApp1-Aug-2025/tree/main/src/Libraries/CSDFrameworkLibs) framework'ünü ve  [DemoCommandPromptApp](https://github.com/oguzkaran/JavaApp1-Aug-2025/tree/main/src/Projects/005-DemoCommandPromptApp) uygulamasını inceleyiniz.
 
-
+**Anahtar Notlar:** Reflection, göreli yavaş bir işlemdir. Programcının reflection kullanması için bir gerekçesi olmalıdır. Reflection dışındaki bir çözüm yerine reflection kullanmak performansı olumsuz etkileyebilir.
 

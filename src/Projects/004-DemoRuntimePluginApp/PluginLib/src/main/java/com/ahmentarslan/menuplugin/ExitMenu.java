@@ -1,15 +1,9 @@
 package com.ahmentarslan.menuplugin;
 
-import org.csystem.framework.menu.plugin.IMenu;
+import org.csystem.framework.menu.IMenu;
 
 public class ExitMenu implements IMenu {
     //...
-    @Override
-    public int order()
-    {
-        return 6;
-    }
-
     @Override
     public String optionString()
     {

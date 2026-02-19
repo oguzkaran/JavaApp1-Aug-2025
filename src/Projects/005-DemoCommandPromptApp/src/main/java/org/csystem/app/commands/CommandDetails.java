@@ -39,6 +39,12 @@ public class CommandDetails {
     @ErrorCommand
     private void error()
     {
-        System.err.println("ERROR OCCURRED");
+        System.err.println("FIRST ERROR OCCURRED");
+    }
+
+    @ErrorCommand
+    private void error2()
+    {
+        System.err.println("SECOND ERROR OCCURRED");
     }
 }

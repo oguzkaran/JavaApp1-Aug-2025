@@ -37,7 +37,7 @@
     <dependencies>
         <dependency>
             <groupId>org.csystem</groupId>
-            <artifactId>org-csystem-framework-menu-plugin</artifactId>
+            <artifactId>org-csystem-framework-menu-shared</artifactId>
             <version>1.0.0</version>
         </dependency>
 
