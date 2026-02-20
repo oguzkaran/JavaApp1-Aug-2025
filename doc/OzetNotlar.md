@@ -6057,7 +6057,7 @@ Bir veri yapısına ait elemanların, veri yapısı içerisinde nasıl tutulduğ
 
 Bu arayüzler generic'dir. Iterable arayüzünün Iterator referansına geri dönen bir `iterator` isimli bir metodu bulunur. Iterator arayüzünün ise Java 8'den itibaren `hasNext` ve `next` isimli iki tane absract metodu bulunmaktadır. Java 8'den önce `remove` isimli metot da abstract olarak bulunmaktaydı, Java 8 ile birlikte remove metodu default metot olarak bulunur ve default olarak yalnızca `UnsupportedOperationException` fırlatır. Bu arayüzün Java 8 ile eklenen `forEachRemaning` isimli default bir metodu vardır. Bu metot ileride ele alınacaktır. Iterable arayüzünün de yine Java 8 ile birlikte eklenen `forEach` ve `spliterator` isimli default metotları da bulunur. Bu metotlar da yine ileride ele alınacaktır.
 
-Iterator arayüzünün `hasNext` metodu elemanın var olup olmadığına ilişkin (tipik olarak bir sonraki eleman var mı?) boolean türden bir değere geri döner. `next` metodu ile ilgili eleman elde edilerek (tipik olarak bir sonraki eleman) iterator **mantıksal olarak** artırılır. next metodu eleman yoksa `NoSuchElement` exception fırlatır. Bu durumda bir `Iterator` referansı ile veri yapısının dolaşımı tipik olarak şu şekilde yapılabilir:
+Iterator arayüzünün `hasNext` metodu elemanın var olup olmadığına ilişkin (tipik olarak bir sonraki eleman var mı?) boolean türden bir değere geri döner. `next` metodu ile ilgili eleman elde edilerek (tipik olarak bir sonraki eleman) iterator **mantıksal olarak** ilerletilir. next metodu eleman yoksa `NoSuchElement` exception fırlatır. Bu durumda bir `Iterator` referansı ile veri yapısının dolaşımı tipik olarak şu şekilde yapılabilir:
 
 ```java
 ArrayList<String> texts = new ArrayList<>();
