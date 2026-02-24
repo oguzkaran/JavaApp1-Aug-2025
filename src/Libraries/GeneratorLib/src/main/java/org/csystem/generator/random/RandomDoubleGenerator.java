@@ -9,14 +9,14 @@ import java.util.random.RandomGenerator;
 
 @AllArgsConstructor
 @Accessors(prefix = "m_")
-public class RandomIntGenerator implements Iterable<Integer> {
+public class RandomDoubleGenerator implements Iterable<Double> {
     private final RandomGenerator m_randomGenerator;
     private final int m_count;
-    private final int m_origin;
-    private final int m_bound;
+    private final double m_origin;
+    private final double m_bound;
 
     @Override
-    public Iterator<Integer> iterator()
+    public Iterator<Double> iterator()
     {
         return new Iterator<>() {
             int idx;
@@ -27,14 +27,14 @@ public class RandomIntGenerator implements Iterable<Integer> {
             }
 
             @Override
-            public Integer next()
+            public Double next()
             {
                 if (!hasNext())
                     throw new NoSuchElementException("Can not generate a value");
 
                 ++idx;
 
-                return m_randomGenerator.nextInt(m_origin, m_bound);
+                return m_randomGenerator.nextDouble(m_origin, m_bound);
             }
         };
     }
