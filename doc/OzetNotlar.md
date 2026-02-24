@@ -6110,6 +6110,271 @@ class Application {
 }
 ```
 
+for-each döngüsünün : den sonraki kısmına ilişkin referansın `Iterable`arayüzünü destekleyen bir referans türünden olması gerekir. Aksi durumda error oluşur. Iterable arayüzü de Java 5 ile eklenmiştir.  a, `Iterable<T>` arayüzünü destekleyen bir tür ise 
 
+```java
+for (T t : a)
+	<deyim>
+```
+
+döngüsü için derleyici yaklaşık olarak aşağıdaki kodu üretir:
+
+```java
+{
+	Iterator<T> iter = a.iterator();
+	T t;
+	
+	while (iter.hasNext()) {
+		t = iter.next();
+		<deyim>
+	}		
+}
+```
+
+**Anahtar Notlar:** Diziler sentaks olarak for-each döngüsü ile dolaşılabilirdir ancak `Iterable` arayüzünü desteklemezler.
+
+Aşağıdaki test kolarını ve ilgili sınıfı inceleyiniz
+
+```java
+package org.csystem.generator.random;  
+  
+import lombok.AllArgsConstructor;  
+import lombok.experimental.Accessors;  
+  
+import java.util.Iterator;  
+import java.util.NoSuchElementException;  
+import java.util.random.RandomGenerator;  
+  
+@AllArgsConstructor  
+@Accessors(prefix = "m_")  
+public class RandomIntGenerator implements Iterable<Integer> {  
+    private final RandomGenerator m_randomGenerator;  
+    private final int m_count;  
+    private final int m_origin;  
+    private final int m_bound;  
+  
+    @Override  
+    public Iterator<Integer> iterator()  
+    {  
+        return new Iterator<>() {  
+            int idx;  
+            @Override  
+            public boolean hasNext()  
+            {  
+                return idx < m_count;  
+            }  
+  
+            @Override  
+            public Integer next()  
+            {  
+                if (!hasNext())  
+                    throw new NoSuchElementException("Can not generate a value");  
+  
+                ++idx;  
+  
+                return m_randomGenerator.nextInt(m_origin, m_bound);  
+            }  
+        };  
+    }  
+}
+```
+
+```java
+package org.csystem.generator.random;  
+  
+import org.junit.jupiter.api.Assertions;  
+import org.junit.jupiter.api.Test;  
+  
+import java.util.Random;  
+  
+public class RandomIntGeneratorTest {  
+    private static boolean isBetween(int a, int origin, int bound)  
+    {  
+        return origin <= a && a < bound;  
+    }  
+  
+    @Test  
+    public void iterate_whenCIncrementCounter_thenEqualCount()  
+    {  
+        var count = 10;  
+        var origin = 1;  
+        var bound = 100;  
+        var generator = new RandomIntGenerator(new Random(), count, origin, bound);  
+        int counter = 0;  
+  
+        for (var ignore : generator)  
+            ++counter;  
+  
+        Assertions.assertEquals(count, counter);  
+    }  
+  
+    @Test  
+    public void iterate_whenGenerateValues_thenAllInRange()  
+    {  
+        var count = 10;  
+        var origin = 1;  
+        var bound = 100;  
+        var generator = new RandomIntGenerator(new Random(), count, origin, bound);  
+  
+        for (var val : generator)  
+            Assertions.assertTrue(isBetween(val, origin, bound));  
+    }  
+}
+```
+
+Iterable arayüzünün `forEach` default metodu, default implementasyonda for-each döngüsü ile her adımda `Consumer` arayüzü ile aldığı callable'ı çağırır.
+
+Yukarıdaki test kodları aşağıdaki gibi de yazılabilir
+
+```java
+package org.csystem.generator.random;  
+  
+import org.junit.jupiter.api.Assertions;  
+import org.junit.jupiter.api.Test;  
+  
+import java.util.Random;  
+  
+public class RandomIntGeneratorTest {  
+    private int m_counter;  
+    private static boolean isBetween(int a, int origin, int bound)  
+    {  
+        return origin <= a && a < bound;  
+    }  
+  
+    @Test  
+    public void iterate_whenCIncrementCounter_thenEqualCount()  
+    {  
+        var count = 10;  
+        var origin = 1;  
+        var bound = 100;  
+        var generator = new RandomIntGenerator(new Random(), count, origin, bound);  
+  
+        generator.forEach(i -> ++m_counter);  
+        Assertions.assertEquals(count, m_counter);  
+    }  
+  
+    @Test  
+    public void iterate_whenGenerateValues_thenAllInRange()  
+    {  
+        var count = 10;  
+        var origin = 1;  
+        var bound = 100;  
+        var generator = new RandomIntGenerator(new Random(), count, origin, bound);  
+  
+        generator.forEach(val -> Assertions.assertTrue(isBetween(val, origin, bound)));  
+    }  
+}
+```
+
+Aşağıdaki test kolarını ve ilgili sınıfı inceleyiniz. (Sınıfın adım adım implementasyonunu github'dan inceleyiniz)
+
+```java
+package org.csystem.generator.range;  
+  
+import lombok.AllArgsConstructor;  
+import lombok.experimental.Accessors;  
+  
+import java.util.Iterator;  
+import java.util.NoSuchElementException;  
+import java.util.function.IntUnaryOperator;  
+  
+@AllArgsConstructor  
+@Accessors(prefix = "m_")  
+public class IntRange implements Iterable<Integer> {  
+    private final int m_begin;  
+    private final int m_end;  
+    private final IntUnaryOperator m_intUnaryOperator;  
+  
+    public IntRange(int begin, int end)  
+    {  
+        this(begin, end, 1);  
+    }  
+  
+    public IntRange(int begin, int end, int step)  
+    {  
+        this(begin, end, a -> a + step);  
+    }  
+  
+    @Override  
+    public Iterator<Integer> iterator()  
+    {  
+        return new Iterator<>() {  
+            int value = m_begin;  
+  
+            @Override  
+            public boolean hasNext()  
+            {  
+                return value <= m_end;  
+            }  
+  
+            @Override  
+            public Integer next()  
+            {  
+                if (!hasNext())  
+                    throw new NoSuchElementException("Can not generate a value");  
+  
+                var result = value;  
+                value = m_intUnaryOperator.applyAsInt(value);  
+  
+                return result;  
+            }  
+        };  
+    }  
+}
+```
+
+```java
+package org.csystem.generator.range;  
+  
+import org.junit.jupiter.api.Assertions;  
+import org.junit.jupiter.api.Test;  
+  
+public class IntRangeTest {  
+    private int m_value;  
+  
+    private void step2ForEachCallback(int val, int step)  
+    {  
+        Assertions.assertEquals(m_value, val);  
+        m_value += step;  
+    }  
+  
+    private void operatorForEachCallback(int val)  
+    {  
+        Assertions.assertEquals(m_value, val);  
+        m_value = 2 * m_value + 1;  
+    }  
+  
+    @Test  
+    public void givenStep_whenOne_thenGenerateValues()  
+    {  
+        var begin = 10;  
+        var end = 20;  
+        m_value = begin;  
+  
+        new IntRange(begin, end).forEach(val -> Assertions.assertEquals(m_value++, val));  
+    }  
+  
+    @Test  
+    public void givenStep_whenTwo_thenGenerateValues()  
+    {  
+        var begin = 10;  
+        var end = 20;  
+        var step = 2;  
+        m_value = begin;  
+  
+        new IntRange(begin, end, step).forEach(val -> step2ForEachCallback(val, step));  
+    }  
+  
+    @Test  
+    public void givenOperator_whenTwoTimesPlusOne_thenGenerateValues()  
+    {  
+        var begin = 10;  
+        var end = 500;  
+        m_value = begin;  
+  
+        new IntRange(begin, end, a -> 2 * a + 1).forEach(this::operatorForEachCallback);  
+    }  
+}
+```
 
 

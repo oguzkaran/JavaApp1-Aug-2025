@@ -91,7 +91,7 @@
 
         <dependency>
             <groupId>org.csystem</groupId>
-            <artifactId>org-csystem-generator</artifactId>
+            <artifactId>org-csystem-util-collection</artifactId>
             <version>1.0.0</version>
         </dependency>
 

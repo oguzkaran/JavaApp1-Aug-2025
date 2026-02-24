@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Random;
 
 public class RandomIntGeneratorTest {
+    private int m_counter;
     private static boolean isBetween(int a, int origin, int bound)
     {
         return origin <= a && a < bound;
@@ -18,12 +19,9 @@ public class RandomIntGeneratorTest {
         var origin = 1;
         var bound = 100;
         var generator = new RandomIntGenerator(new Random(), count, origin, bound);
-        int counter = 0;
 
-        for (var ignore : generator)
-            ++counter;
-
-        Assertions.assertEquals(count, counter);
+        generator.forEach(i -> ++m_counter);
+        Assertions.assertEquals(count, m_counter);
     }
 
     @Test
@@ -34,7 +32,6 @@ public class RandomIntGeneratorTest {
         var bound = 100;
         var generator = new RandomIntGenerator(new Random(), count, origin, bound);
 
-        for (var val : generator)
-            Assertions.assertTrue(isBetween(val, origin, bound));
+        generator.forEach(val -> Assertions.assertTrue(isBetween(val, origin, bound)));
     }
 }
