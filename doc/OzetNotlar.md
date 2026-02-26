@@ -6045,6 +6045,327 @@ class Sample {
 
 **Anahtar Notlar:** Reflection, göreli yavaş bir işlemdir. Programcının reflection kullanması için bir gerekçesi olmalıdır. Reflection dışındaki bir çözüm yerine reflection kullanmak performansı olumsuz etkileyebilir.
 
+##### Optional Sınıfları
+
+
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.generator.random.RandomIntGenerator;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.util.Random;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        while (true) {  
+            var count = Console.readInt("Input count:");  
+  
+            if (count <= 0)  
+                break;  
+  
+            var origin = Console.readInt("Origin:");  
+            var bound = Console.readInt("Bound:");  
+            var generator = new RandomIntGenerator(new Random(), count, origin, bound);  
+            var optInt = generator.findFirst(NumberUtil::isPrime);  
+  
+            if (optInt.isPresent())  
+                log.info("First prime number:{}", optInt.getAsInt());  
+            else  
+                log.info("Not any prime number generated");  
+        }  
+    }  
+}
+```
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.generator.random.RandomIntGenerator;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.util.Random;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        while (true) {  
+            var count = Console.readInt("Input count:");  
+  
+            if (count <= 0)  
+                break;  
+  
+            var origin = Console.readInt("Origin:");  
+            var bound = Console.readInt("Bound:");  
+            var generator = new RandomIntGenerator(new Random(), count, origin, bound);  
+            var optInt = generator.findFirst(NumberUtil::isPrime);  
+  
+            if (optInt.isEmpty())  
+                log.info("Not any prime number generated");  
+            else  
+                log.info("First prime number:{}", optInt.getAsInt());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.generator.random.RandomIntGenerator;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.util.Random;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        while (true) {  
+            var count = Console.readInt("Input count:");  
+  
+            if (count <= 0)  
+                break;  
+  
+            var origin = Console.readInt("Origin:");  
+            var bound = Console.readInt("Bound:");  
+            var generator = new RandomIntGenerator(new Random(), count, origin, bound);  
+            var optInt = generator.findFirst(NumberUtil::isPrime);  
+  
+            optInt.ifPresentOrElse(v -> log.info("First prime number:{}", v), () -> log.info("Not any prime number generated"));  
+        }  
+    }  
+}
+```
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.generator.random.RandomIntGenerator;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.util.Random;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        while (true) {  
+            var count = Console.readInt("Input count:");  
+  
+            if (count <= 0)  
+                break;  
+  
+            var origin = Console.readInt("Origin:");  
+            var bound = Console.readInt("Bound:");  
+            var generator = new RandomIntGenerator(new Random(), count, origin, bound);  
+            var optInt = generator.findFirst(NumberUtil::isPrime);  
+  
+            optInt.ifPresent(v -> log.info("First prime number:{}", v));  
+        }  
+    }  
+}
+```
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.generator.random.RandomIntGenerator;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.util.Random;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        while (true) {  
+            var count = Console.readInt("Input count:");  
+  
+            if (count <= 0)  
+                break;  
+  
+            var generator = new RandomIntGenerator(new Random(), count, 1, 97);  
+            var optInt = generator.findFirst(NumberUtil::isPrime);  
+  
+            log.info("Value:{}", optInt.orElse(97));  
+        }  
+    }  
+}
+```
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.generator.random.RandomIntGenerator;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.util.NoSuchElementException;  
+import java.util.Random;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        while (true) {  
+            try {  
+                var count = Console.readInt("Input count:");  
+  
+                if (count <= 0)  
+                    break;  
+  
+                var generator = new RandomIntGenerator(new Random(), count, 1, 97);  
+                var optInt = generator.findFirst(NumberUtil::isPrime);  
+  
+                log.info("First prime number:{}", optInt.orElseThrow());  
+            }  
+            catch (NoSuchElementException ignore) {  
+                log.info("Not any prime number generated");  
+            }  
+        }  
+    }  
+}
+```
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.generator.random.RandomIntGenerator;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.util.InputMismatchException;  
+import java.util.NoSuchElementException;  
+import java.util.Random;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        while (true) {  
+            try {  
+                var count = Console.readInt("Input count:");  
+  
+                if (count <= 0)  
+                    break;  
+  
+                var generator = new RandomIntGenerator(new Random(), count, 1, 97);  
+                var optInt = generator.findFirst(NumberUtil::isPrime);  
+  
+                log.info("First prime number:{}", optInt.orElseThrow(InputMismatchException::new));  
+            }  
+            catch (InputMismatchException ignore) {  
+                log.info("Not any prime number generated");  
+            }  
+        }  
+    }  
+}
+```
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.generator.random.RandomIntGenerator;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.util.InputMismatchException;  
+import java.util.NoSuchElementException;  
+import java.util.Random;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        while (true) {  
+            try {  
+                var count = Console.readInt("Input count:");  
+  
+                if (count <= 0)  
+                    break;  
+  
+                var generator = new RandomIntGenerator(new Random(), count, 1, 97);  
+                var optInt = generator.findFirst(NumberUtil::isPrime);  
+  
+                log.info("First prime number:{}", optInt.orElseThrow((() -> new InputMismatchException("Not any prime number generated"))));  
+            }  
+            catch (InputMismatchException e) {  
+                log.info(e.getMessage());  
+            }  
+        }  
+    }  
+}
+```
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.generator.random.RandomIntGenerator;  
+import org.csystem.util.numeric.NumberUtil;  
+
+import java.util.Random;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        while (true) {  
+            var count = Console.readInt("Input count:");  
+  
+            if (count <= 0)  
+                break;  
+  
+            var generator = new RandomIntGenerator(new Random(), count, 1, 97);  
+            var optInt = generator.findFirst(NumberUtil::isPrime);  
+  
+            var value = optInt.orElseGet(() -> new Random().nextInt(200, 500));  
+  
+            log.info("value:{}", value);  
+        }  
+    }  
+}
+```
+
+Aşağıdaki demo örneği inceleyiniz
+
 ##### JavaSE Collections
 
 Java'da veri yapılarına ilişkin türlere (user defined type) **collections** denir. Bu bölümde JavaSE'de bulunan ve pratikte çok kullanılan collection'lar ele alınacaktır. Geri kalan collection'lar `Java ile Uygulama Geliştirme II` kursunda ele alınacaktır.
@@ -6377,4 +6698,43 @@ public class IntRangeTest {
 }
 ```
 
+Iterator arayüzünün `forEachRemaining`  default metodu, default implementasyonda `Consumer` arayüzü ile aldığı callable'ı aşağıdaki döngü ile dolaşır biçimde çağırır:
+
+```java
+while (iter.hasNext())
+	action.accept(iter.next());
+```
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.ArrayList;  
+import java.util.Iterator;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var texts = new ArrayList<String>();  
+  
+        while (true) {  
+            var s = Console.read("Input text:");  
+  
+            if ("quit".equals(s))  
+                break;  
+  
+            texts.add(s);  
+        }  
+  
+        Iterator<String> iter = texts.iterator();  
+  
+        iter.forEachRemaining(log::info);  
+    }  
+}
+```
 

@@ -5,6 +5,8 @@ import lombok.experimental.Accessors;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.OptionalInt;
+import java.util.function.IntPredicate;
 import java.util.random.RandomGenerator;
 
 @AllArgsConstructor
@@ -14,6 +16,15 @@ public class RandomIntGenerator implements Iterable<Integer> {
     private final int m_count;
     private final int m_origin;
     private final int m_bound;
+
+    public OptionalInt findFirst(IntPredicate predicate)
+    {
+        for (var v : this)
+            if (predicate.test(v))
+                return OptionalInt.of(v);
+
+        return OptionalInt.empty();
+    }
 
     @Override
     public Iterator<Integer> iterator()

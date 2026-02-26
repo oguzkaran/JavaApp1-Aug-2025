@@ -5,6 +5,10 @@ import lombok.experimental.Accessors;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.function.DoublePredicate;
+import java.util.function.IntPredicate;
 import java.util.random.RandomGenerator;
 
 @AllArgsConstructor
@@ -14,6 +18,15 @@ public class RandomDoubleGenerator implements Iterable<Double> {
     private final int m_count;
     private final double m_origin;
     private final double m_bound;
+
+    public OptionalDouble findFirst(DoublePredicate predicate)
+    {
+        for (var v : this)
+            if (predicate.test(v))
+                return OptionalDouble.of(v);
+
+        return OptionalDouble.empty();
+    }
 
     @Override
     public Iterator<Double> iterator()
