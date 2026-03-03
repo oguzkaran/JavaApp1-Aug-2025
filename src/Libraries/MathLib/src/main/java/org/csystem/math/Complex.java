@@ -1,12 +1,14 @@
-/**
- * Complex class that represents a complex number in math
- * Last Update: 6th March 2025
- * @author Java-Jan-2024 Group
- */
 package org.csystem.math;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.experimental.Accessors;
 
 import static java.lang.Math.sqrt;
 
+@AllArgsConstructor
+@Accessors(prefix = "m_")
+@Getter
 public class Complex {
 	private static final double DELTA = 0.00001;
 	private final double m_real;
@@ -32,13 +34,7 @@ public class Complex {
 		m_real = real;
 		m_imag = 0;
 	}
-	
-	public Complex(double real, double imag)
-	{
-		m_real = real;
-		m_imag = imag;
-	}
-	
+
 	public static Complex add(double val, Complex z)
 	{
 		return add(val, 0, z.m_real, z.m_imag);

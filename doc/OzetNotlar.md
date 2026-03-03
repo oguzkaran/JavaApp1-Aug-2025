@@ -6044,7 +6044,6 @@ class Sample {
 **Sınıf Çalışması:** [CSDFramework](https://github.com/oguzkaran/JavaApp1-Aug-2025/tree/main/src/Libraries/CSDFrameworkLibs) framework'ünü ve  [DemoCommandPromptApp](https://github.com/oguzkaran/JavaApp1-Aug-2025/tree/main/src/Projects/005-DemoCommandPromptApp) uygulamasını inceleyiniz.
 
 **Anahtar Notlar:** Reflection, göreli yavaş bir işlemdir. Programcının reflection kullanması için bir gerekçesi olmalıdır. Reflection dışındaki bir çözüm yerine reflection kullanmak performansı olumsuz etkileyebilir.
-
 ##### Optional Sınıfları
 
 Programlamada sıklıkla karşımıza çıkan bir durum vardır: Bir koşul sağlandığında bir bilgiye elde etmek isteriz. Örneğin, T.C. Kimlik numarasına bir kişinin bilgilerini veren bir metot yazacak olalım. Bu metot parametre olarak aldığı kimlik numarasında bir kişi olmadığı durumda ne dönecektir? Şüphesiz, böylesi bir metot muhtemel bir sınıf türünden referansa geri dönecektir. Bu durumda bulunamadığı koşulda `null` adrese geri dönülebilir. Ancak `null` adrese geri dönülmesi metodu çağıran programcı açısından fark edilmeden kullanımda `NullPointerException` oluşumuna da yol açabilecektir. Yine örneğin bir metot exception fırlatmadan yazıyı sayıya çevirmek isterse, geri dönüş değeri olarak ne dönecektir? Eğer `int` türüne geri dönerse geçersiz değer için hangi değere geri dönecektir? Şüphesiz, bu metot `Integer` referansına geri dönebilir ve dönüştürülememesi durumunda `null` değere geri döner. Bu da görece olarak okunabilir **olmaz**. Üstelik yine `null` adres döndürülmüş olur. Yine örneğin, bir kişinin adı, ikinci adı ve soyadı bilgileri tutulduğunda ikinci adı olmayan kişiler için bu bilgi `null` olarak veya boş string tutulabilir. Bu da yine iyi bir tasarım **değildir**.
@@ -6386,7 +6385,579 @@ class Application {
 }
 ```
 
+`Optional<T>` sınıfının `or` metodu, optional boş ise parametresi ile aldığı callback'den elde edilen `Optional<T>`'ye geri döner.
 
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.math.Complex;  
+import org.csystem.math.util.ComplexUtil;  
+import org.csystem.math.util.RandomComplexFactory;  
+  
+import java.util.Optional;  
+import java.util.Random;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var factory = new RandomComplexFactory(new Random());  
+        var count = Console.readUInt("Input count:");  
+        var lengthThreshold = Console.readUInt("Input threshold:");  
+  
+        var zs = factory.createRandom(count, -10, 11);  
+  
+        for (var z : zs)  
+            Console.write("%s ", z);  
+  
+        Console.writeLine();  
+  
+        var optComplex = ComplexUtil.findFirst(zs, z -> z.getLength() > lengthThreshold);  
+  
+        optComplex.or(() -> Optional.of(new Complex(100, 100))).ifPresent(Console::writeLine);  
+    }  
+}
+```
+
+`Optional<T>` sınıfının `filter` metodu, optional dolu ve parametresi aldığı koşulu (predicate) sağlıyorsa dolu, sağlamıyorsa boş optional nesnesine geri döner.
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.math.util.RandomComplexFactory;  
+  
+import java.util.Optional;  
+import java.util.Random;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var factory = new RandomComplexFactory(new Random());  
+        var lengthThreshold = Console.readUInt("Input threshold:");  
+        var optZ = Optional.of(factory.createRandom(-10, 11)).filter(z -> z.getLength() > lengthThreshold);  
+  
+        optZ.ifPresentOrElse(Console::writeLine, () -> Console.writeLine("Complex not generated"));  
+    }  
+}
+```
+
+Optional sınıflarının `map` metotları ile bir optional'dan **başka** bir optional elde edilebilir. 
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.math.Complex;  
+import org.csystem.math.util.RandomComplexFactory;  
+  
+import java.util.Optional;  
+import java.util.Random;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var factory = new RandomComplexFactory(new Random());  
+        var lengthThreshold = Console.readUInt("Input threshold:");  
+        Optional.of(factory.createRandom(-10, 11))  
+                .filter(z -> z.getLength() > lengthThreshold)  
+                .map(Complex::toString)  
+                .ifPresentOrElse(s -> Console.writeLine("z = %s", s), () -> Console.writeLine("Complex not generated"));  
+    }  
+}
+```
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.math.Complex;  
+import org.csystem.math.util.RandomComplexFactory;  
+  
+import java.util.Optional;  
+import java.util.Random;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var factory = new RandomComplexFactory(new Random());  
+        var lengthThreshold = Console.readUInt("Input threshold:");  
+        Optional.of(factory.createRandom(-10, 11))  
+                .filter(z -> z.getLength() > lengthThreshold)  
+                .map(Complex::getLength)  
+                .ifPresentOrElse(s -> Console.writeLine("norm = %s", s), () -> Console.writeLine("Complex not generated"));  
+    }  
+}
+```
+
+  `Optional<T>` sınıfının `ofNullable` metodu parametresi ile null referans alırsa boş optional, null dışı bir referans alırsa referans ile birlikte dolu optional'a geri döner.
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.math.Complex;  
+import org.csystem.math.util.RandomComplexFactory;  
+  
+import java.util.Optional;  
+import java.util.Random;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var factory = new RandomComplexFactory(new Random());  
+        var lengthThreshold = Console.readUInt("Input threshold:");  
+  
+        var z = factory.createRandom(-10, 11);  
+  
+        Optional.ofNullable(z.getLength() > lengthThreshold ? z : null)  
+                .map(Complex::toString)  
+                .ifPresentOrElse(s -> Console.writeLine("z = %s", s), () -> Console.writeLine("Complex not generated"));  
+    }  
+}
+```
+
+Yukarıdaki demo örneklerde kullanılan sınıflar:
+
+```java
+package org.csystem.math;  
+  
+import lombok.AllArgsConstructor;  
+import lombok.Getter;  
+import lombok.experimental.Accessors;  
+  
+import static java.lang.Math.sqrt;  
+  
+@AllArgsConstructor  
+@Accessors(prefix = "m_")  
+@Getter  
+public class Complex {  
+    private static final double DELTA = 0.00001;  
+    private final double m_real;  
+    private final double m_imag;  
+      
+    private static Complex add(double re1, double im1, double re2, double im2)  
+    {  
+       return new Complex(re1 + re2, im1 + im2);  
+    }  
+      
+    private static Complex subtract(double re1, double im1, double re2, double im2)  
+    {  
+       return add(re1, im1, -re2, -im2);       
+    }  
+      
+    public Complex()  
+    {  
+       m_real = m_imag = 0;  
+    }  
+      
+    public Complex(double real)  
+    {  
+       m_real = real;  
+       m_imag = 0;  
+    }  
+  
+    public static Complex add(double val, Complex z)  
+    {  
+       return add(val, 0, z.m_real, z.m_imag);  
+    }  
+      
+    public Complex add(Complex other)  
+    {  
+       return add(m_real, m_imag, other.m_real, other.m_imag);  
+    }  
+      
+    public Complex add(double val)  
+    {  
+       return add(m_real, m_imag, val, 0);  
+    }    
+      
+    public static Complex subtract(double val, Complex z)  
+    {  
+       return subtract(val, 0, z.m_real, z.m_imag);  
+    }  
+      
+    public Complex subtract(Complex other)  
+    {  
+       return subtract(m_real, m_imag, other.m_real, other.m_imag);  
+    }  
+      
+    public Complex subtract(double val)  
+    {  
+       return subtract(m_real, m_imag, val, 0);  
+    }  
+  
+    public Complex getConjugate()  
+    {             
+       return new Complex(m_real, -m_imag);  
+    }  
+      
+    public double getNorm()  
+    {  
+       return sqrt(m_real * m_real + m_imag * m_imag);  
+    }  
+      
+    public double getLength()  
+    {  
+       return getNorm();  
+    }  
+  
+    public boolean equals(Object other)  
+    {  
+       return other instanceof Complex z && Math.abs(m_real - z.m_real) < DELTA && Math.abs(m_imag - z.m_imag) < DELTA;  
+    }  
+  
+    public String toString()  
+    {  
+       return "(%.2f, %.2f)".formatted(m_real, m_imag);  
+    }  
+}
+```
+
+
+```java
+package org.csystem.math.util;  
+  
+import org.csystem.math.Complex;  
+  
+import java.util.Optional;  
+import java.util.function.Predicate;  
+  
+public final class ComplexUtil {  
+    private ComplexUtil()  
+    {  
+        throw new UnsupportedOperationException("Utility class");  
+    }  
+  
+    public static Optional<Complex> findFirst(Complex [] zs, Predicate<Complex> predicate)  
+    {  
+        for (var z : zs)  
+            if (predicate.test(z))  
+                return Optional.of(z);  
+  
+        return Optional.empty();  
+    }  
+  
+  
+}
+```
+
+```java
+package org.csystem.math.util;  
+  
+import org.csystem.math.Complex;  
+  
+import java.util.Optional;  
+import java.util.function.Predicate;  
+import java.util.random.RandomGenerator;  
+  
+public class RandomComplexFactory {  
+    private final RandomGenerator m_randomGenerator;  
+  
+    public RandomComplexFactory(RandomGenerator randomGenerator)  
+    {  
+        m_randomGenerator = randomGenerator;  
+    }  
+  
+    public Complex createRandom(double origin, double bound)  
+    {  
+        return new Complex(m_randomGenerator.nextDouble(origin, bound), m_randomGenerator.nextDouble(origin, bound));  
+    }  
+  
+    public Complex [] createRandom(int count, double origin, double bound)  
+    {  
+        var result = new Complex[count];  
+  
+        for (var i = 0; i < count; i++)  
+            result[i] = createRandom(origin, bound);  
+  
+        return result;  
+    }  
+}
+```
+
+Aşağıdaki, ikinci dereceden denklemin köklerini hesaplayan metodu ve test kodlarını inceleyiniz
+
+```java
+package org.csystem.math.util.equation;  
+  
+import java.util.Optional;  
+  
+public final class EquationUtil {  
+    private EquationUtil()  
+    {  
+        throw new UnsupportedOperationException("Utility class");  
+    }  
+  
+    public static Optional<QuadraticEquationRoots> solveQuadraticEquation(double a, double b, double c)  
+    {  
+        var disc = b * b - 4 * a * c;  
+  
+        if (disc >= 0) {  
+            var sqrt = Math.sqrt(disc);  
+  
+            return Optional.of(new QuadraticEquationRoots((-b + sqrt) / (2 * a), (-b - sqrt) / (2 * a)));  
+        }  
+  
+        return Optional.empty();  
+    }  
+    
+    //...
+}
+```
+
+```java
+package org.csystem.math.util.equation;  
+  
+import lombok.AllArgsConstructor;  
+import lombok.ToString;  
+  
+@AllArgsConstructor  
+@ToString  
+public class QuadraticEquationRoots {  
+    private static final double VALUE = 0.000001;  
+    public final double x1;  
+    public final double x2;  
+  
+    //...
+   
+    @Override  
+    public boolean equals(Object other)  
+    {  
+        return other instanceof QuadraticEquationRoots r  
+                && Math.abs(x1 - r.x1) < VALUE  
+                && Math.abs(x2 - r.x2) < VALUE;  
+    }  
+}
+```
+
+
+Test kodları
+
+```java
+package org.csystem.util.equation;  
+  
+import org.csystem.math.util.equation.EquationUtil;  
+import org.csystem.math.util.equation.QuadraticEquationRoots;  
+import org.junit.jupiter.api.Assertions;  
+import org.junit.jupiter.api.Test;  
+  
+public class EquationUtilQuadraticEquationTests {  
+    @Test  
+    public void givenValues_whenCoefficients_thenReturnDifferentRoots()  
+    {  
+        var a = 1;  
+        var b = -3;  
+        var c = -18;  
+        var expected = new QuadraticEquationRoots(6, -3);  
+        var actualOpt = EquationUtil.solveQuadraticEquation(a, b, c);  
+  
+        Assertions.assertTrue(actualOpt.isPresent());  
+        Assertions.assertEquals(expected, actualOpt.get());  
+    }  
+  
+    @Test  
+    public void givenValues_whenCoefficients_thenReturnSameRoots()  
+    {  
+        var a = 1;  
+        var b = 4;  
+        var c = 4;  
+        var expected = new QuadraticEquationRoots(-2, -2);  
+        var actualOpt = EquationUtil.solveQuadraticEquation(a, b, c);  
+  
+        Assertions.assertTrue(actualOpt.isPresent());  
+        Assertions.assertEquals(expected, actualOpt.get());  
+    }  
+  
+    @Test  
+    public void givenValues_whenCoefficients_thenNoRealRoots()  
+    {  
+        var a = 1;  
+        var b = 1;  
+        var c = 1;  
+        var actualOpt = EquationUtil.solveQuadraticEquation(a, b, c);  
+  
+        Assertions.assertTrue(actualOpt.isEmpty());  
+    }  
+}
+```
+
+Bir sınıfın bir veri elemanı da optional bir sınıf türünden olabilir. Pratikte çok karşımıza çıkmasa da bazı durumlarda anlamlı olabilmektedir. 
+
+Aşağıdaki demo sınıfı inceleyiniz
+
+```java
+class Student {  
+    private String m_firstName;  
+    private Optional<String> m_middleName;  
+    private String m_familyName;  
+    private Optional<LocalDate> m_graduationDate;  
+  
+    //...  
+  
+    public Student(String firstName, String familyName)  
+    {  
+        this(firstName, null, familyName, null);  
+    }  
+  
+    public Student(String firstName, String middleName, String familyName)  
+    {  
+        this(firstName, middleName, familyName, null);  
+    }  
+  
+    public Student(String firstName, String familyName, LocalDate graduationDate)  
+    {  
+        this(firstName, null, familyName, graduationDate);  
+    }  
+  
+    public Student(String firstName, String middleName, String familyName, LocalDate graduationDate)  
+    {  
+        m_firstName = firstName;  
+        m_middleName = Optional.ofNullable(middleName);  
+        m_familyName = familyName;  
+        m_graduationDate = Optional.ofNullable(graduationDate);  
+    }  
+  
+    public String getFirstName()  
+    {  
+        return m_firstName;  
+    }  
+  
+    public Optional<String> getMiddleName()  
+    {  
+        return m_middleName;  
+    }  
+  
+    public String getFamilyName()  
+    {  
+        return m_familyName;  
+    }  
+  
+    public Optional<LocalDate> getGraduationDate()  
+    {  
+        return m_graduationDate;  
+    }  
+  
+    public void setFirstName(String firstName)  
+    {  
+        m_firstName = firstName;  
+    }  
+  
+    public void setFamilyName(String familyName)  
+    {  
+        m_familyName = familyName;  
+    }  
+  
+    public void setMiddleName(String middleName)  
+    {  
+        m_middleName = Optional.ofNullable(middleName);  
+    }  
+  
+    public void setGraduationDate(LocalDate graduationDate)  
+    {  
+        m_graduationDate = Optional.ofNullable(graduationDate);  
+    }  
+  
+    //...  
+}
+```
+
+**Anahtar Notlar:** Sınıf veri elemanının optional sınıf türünden olması durumunda bazı static kod analizi araçları uyarı verebilmektedir. Programcının ya bu uyarı ile devam etmesi ya da static kod analizi aracının konfigürasyonunda uyarıyı kaldırması gerekir. Şüphesiz uyarı ciddiye alınmalıdır ve emin olunduktan sonra devam edilmelidir.
+
+Optional bir sınıf türden değişken metot parametre değişkeni olarak kullanılabilse de pratikte çok çok kullanışlı değildir. Bu tarz bir durum çoğu zaman başka tekniklerle de daha okunabilir/algılanabilir olarak çözülebilir.
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.math.geometry.Point;  
+  
+import java.time.LocalDate;  
+import java.util.Optional;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var p1 = Point.createCartesian(100, 100);  
+        var p2 = Point.createCartesian(200, 300);  
+          
+        Util.write(p1, Optional.of(LocalDate.now()));  
+        Util.write(p2, Optional.empty());  
+    }  
+}  
+  
+class Util {  
+    public static void write(Point p, Optional<LocalDate> dateOpt)  
+    {  
+        if (dateOpt.isPresent())  
+            Console.writeLine("Point:%s, Date:%s", p, dateOpt.get());  
+        else  
+            Console.writeLine("Point:%s", p);
+    }  
+}
+```
+
+Aşağıdaki write metodu overload edilerek de aynı işlem yapılabilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.math.geometry.Point;  
+  
+import java.time.LocalDate;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var p1 = Point.createCartesian(100, 100);  
+        var p2 = Point.createCartesian(200, 300);  
+  
+        Util.write(p1, LocalDate.now());  
+        Util.write(p2);  
+    }  
+}  
+  
+class Util {  
+    public static void write(Point p, LocalDate localDate)  
+    {  
+        Console.writeLine("Point:%s, Date:%s", p, localDate);  
+        //...  
+    }  
+  
+    public static void write(Point p)  
+    {  
+        Console.writeLine("Point:%s", p);  
+        //...  
+    }  
+}
+```
 ##### JavaSE Collections
 
 Java'da veri yapılarına ilişkin türlere (user defined type) **collections** denir. Bu bölümde JavaSE'de bulunan ve pratikte çok kullanılan collection'lar ele alınacaktır. Geri kalan collection'lar `Java ile Uygulama Geliştirme II` kursunda ele alınacaktır.
@@ -6719,7 +7290,7 @@ public class IntRangeTest {
 }
 ```
 
-Iterator arayüzünün `forEachRemaining`  default metodu, default implementasyonda `Consumer` arayüzü ile aldığı callable'ı aşağıdaki döngü ile dolaşır biçimde çağırır:
+Iterator arayüzünün `forEachRemaining`  default metodu, default implementasyonda `Consumer` arayüzü ile aldığı callable'ı aşağıdaki biçimde çalışarak çağırır:
 
 ```java
 while (iter.hasNext())
