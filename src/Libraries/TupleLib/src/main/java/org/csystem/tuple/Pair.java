@@ -15,11 +15,13 @@ public class Pair<F, S> {
         this.second = second;
     }
 
+    @Override
     public boolean equals(Object other)
     {
         return other instanceof Pair<?, ?> p && this.first.equals(p.first) && this.second.equals(p.second);
     }
 
+    @Override
     public String toString()
     {
         return "(%s, %s)".formatted(first, second);
