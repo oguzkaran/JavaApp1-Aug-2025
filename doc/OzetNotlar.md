@@ -6667,7 +6667,6 @@ package org.csystem.math.util;
   
 import org.csystem.math.Complex;  
   
-import java.util.Optional;  
 import java.util.function.Predicate;  
 import java.util.random.RandomGenerator;  
   
@@ -6958,6 +6957,238 @@ class Util {
     }  
 }
 ```
+
+
+##### Invariance Covariance ve ContraVariance Kavramları
+
+Bunlar generic türler ve inheritance ilişkisinin kullanımını içeren ileri düzey kavramlardır. A ve B sınıfları arasında aşağıdaki gibi bir türetme ilişkisi olsun.
+
+![variance-inheritance](./media/variance-inheritance.png)
+
+ve aşağıdaki gibi bir generic sınıf olsun
+
+![variance-generic-class](./media/variance-generic-class.png)
+
+Java'da default olarak `X<B>` türünden bir referans `X<A>` türünden bir referansa doğrudan (implicit) atanamaz. Buradaki implicit conversion'ın yapılamamasına `invariance` denilmektedir. Bu durumda Java UDT'ler açısından default olarak invariant'dır.  Örneğin:
+
+```java
+ArrayList<Integer> integers = new ArrayList<>();  
+  
+//...  
+  
+ArrayList<Number> number = integers; //error
+```
+
+`X<B>` türünden bir referansın `X<A>` türünden bir referansa doğrudan (implicit) atanabilmesine `covariance` denir. Bu durumda `covariant` yapılabilmesi `? extends <taban tür>` sentaksı ile açılım yapılarak gerçekleştirilir. Örneğin.
+
+```java
+ArrayList<Integer> integers = new ArrayList<>();  
+  
+//...  
+  
+ArrayList<? extends Number> numbers = integers;
+```
+
+Burada aslında bir üst sınır verilmiştir. Bu durumda numbers ile doğrudan add gibi collecion'a ekleme yapan metotlar çağrılamaz, get gibi geri dönüş değeri generic parametre türünden olan bir metot çağrılabilir. Çünkü burada add'in açılıma ilişkin parametresi doğrudan bir türü belirtmez. Yukarıdaki durumu daha genelleştirmek amaçlı aşağıdaki demo örneği inceleyiniz.
+
+```java
+package org.csystem.app;  
+  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.ArrayList;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        X<B> xb = new X<>();  
+        X<? extends A> xa = xb;  
+  
+        xb.foo(new B());  
+        xa.foo(new A());  //error
+    }  
+}  
+  
+  
+class A {  
+    //  
+}  
+  
+class B extends A {  
+    //...  
+}  
+class X<T> {  
+    public void foo(T t)  
+    {  
+        //...  
+    }  
+}
+```
+
+Buna göre aslında bu durum `read only` ya da `read safety` bir kullanımdır. 
+
+`X<A>` türünden bir referansın `X<B>` türünden bir referansa doğrudan (implicit) atanabilmesine `contravariance` denir. Bu durumda `contravariant` yapılabilmesi `? super <taban tür>` sentaksı ile açılım yapılarak gerçekleştirilir. Örneğin
+
+```java
+package org.csystem.app;  
+  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.ArrayList;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        ArrayList<Number> numbers = new ArrayList<>();  
+  
+        //...  
+  
+        ArrayList<? super Integer> integers = numbers;  
+    }  
+}
+```
+
+
+Burada aslında bir alt sınır verilmiştir. Bu durumda integers ile add gibi bir metot çağrılabilir. Yukarıdaki durumu daha genelleştirmek amaçlı aşağıdaki demo örneği inceleyiniz.
+
+```java
+package org.csystem.app;  
+  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.ArrayList;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        X<A> xa = new X<>();  
+        X<? super B> xb = xa;  
+  
+        xb.foo(new B());  
+    }  
+}  
+  
+  
+class A {  
+    //  
+}  
+  
+class B extends A {  
+    //...  
+}  
+class X<T> {  
+    public void foo(T t)  
+    {  
+        //...  
+    }
+}
+```
+
+Buna göre aslında bu durum `writable` ya da `writable friendly` bir kullanımdır. 
+
+Yukarıdaki kurallara göre `covariance` bir `producer (produce data)`, `contravariance ` ise bir `consumer (consume data)` olarak düşünülebilir. Pratikte bu kavrama `Get/Put principle` da denir. Ayrıca pek çok kaynakta bu kavram için `PECS (Producer Extends Consumer Super` terime de kullanılmaktadır.  
+
+Aşağıdaki metodu  ve test kodlarını inceleyiniz
+
+```java
+package org.csystem.util.numeric;
+
+public final class ArrayUtil {
+	//...
+	public static void copy(List<? extends Number> src, List<? super Number> dest)  
+	{  
+	    for (var n : src)  
+	       dest.add(n);  
+	}
+}
+```
+
+```java
+package org.csystem.util.numeric;  
+  
+import org.junit.jupiter.api.Assertions;  
+import org.junit.jupiter.api.Test;  
+  
+import java.util.ArrayList;  
+import java.util.List;  
+  
+public class NumberUtilCopyTest {  
+    @Test  
+    void givenTwoLists_whenIntegerAnNumberInstantiate_thenCopy()  
+    {  
+        List<Integer> src = new ArrayList<>();  
+  
+        src.add(10);  
+        src.add(20);  
+        src.add(30);  
+  
+        List<Number> dest = new ArrayList<>();  
+        List<Number> expected = new ArrayList<>();  
+  
+        expected.add(10);  
+        expected.add(20);  
+        expected.add(30);  
+  
+        NumberUtil.copy(src, dest);  
+  
+        Assertions.assertEquals(src.size(), dest.size());  
+        Assertions.assertEquals(expected, dest);  
+    }  
+  
+    @Test  
+    void givenTwoLists_whenIntegerAndObjectInstantiate_thenCopy()  
+    {  
+        List<Integer> src = new ArrayList<>();  
+  
+        src.add(10);  
+        src.add(20);  
+        src.add(30);  
+  
+        List<Object> dest = new ArrayList<>();  
+        List<Object> expected = new ArrayList<>();  
+  
+        expected.add(10);  
+        expected.add(20);  
+        expected.add(30);  
+  
+        NumberUtil.copy(src, dest);  
+  
+        Assertions.assertEquals(src.size(), dest.size());  
+        Assertions.assertEquals(expected, dest);  
+    }  
+}
+```
+
+Java'da variance kavramının bu şekilde kullanımına `use-site variance` da denilmektedir.
+
+Java'da referans dizileri covariance özelliktedir. 
+
+```java
+package org.csystem.app;  
+  
+import lombok.extern.slf4j.Slf4j;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        String [] str = {"ankara", "istanbul", "izmir"};  
+        Object [] objs = str;  
+  
+        for (var s : objs)  
+            System.out.println(s);  
+    }  
+}
+```
+
+
+
+
+
+
 ##### JavaSE Collections
 
 Java'da veri yapılarına ilişkin türlere (user defined type) **collections** denir. Bu bölümde JavaSE'de bulunan ve pratikte çok kullanılan collection'lar ele alınacaktır. Geri kalan collection'lar `Java ile Uygulama Geliştirme II` kursunda ele alınacaktır.
