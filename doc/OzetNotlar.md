@@ -7186,7 +7186,7 @@ class Application {
 
 ##### Comparable Arayüzü
 
-Bu arayüz mantıksal olarak iki nesnesi sıraya sokulabilen (ordering) sınıflar tarafından bir convention olarak implemente edilir. Sıraya sokma işlemi yapan pek çok metot bu arayüzü destekleyen sınıflar türünden nesnelerin referanslarını alır ve arayüzün `compareTo` metodunu çağırarak karşılaştırmayı yapar. Bu karşılaştırmaya Java'da `natural comaprison` da denilmektedir. Bu durumda mantıksal olarak sıraya sokulabilecek kavramlara ilişkin sınıfların bu arayüzü desteklemesi tavsiye edilir. Bu arayüzü destekleyen sınıflara şunlar örnek olarak verilebilir: **Boolean türü dışında kalan sarmalayan sınıflar, String sınıfı, enum sınıfları vb.**
+Bu arayüz mantıksal olarak iki nesnesi sıraya sokulabilen (ordering) sınıflar tarafından bir convention olarak implemente edilir. Sıraya sokma işlemi yapan pek çok metot bu arayüzü destekleyen sınıflar türünden nesnelerin referanslarını alır ve arayüzün `compareTo` metodunu çağırarak karşılaştırmayı yapar. Bu karşılaştırmaya Java'da `natural comaprison` da denilmektedir. Bu durumda mantıksal olarak sıraya sokulabilecek kavramlara ilişkin sınıfların bu arayüzü desteklemesi tavsiye edilir. Bu arayüzü destekleyen sınıflara şunlar örnek olarak verilebilir: Boolean türü dışında kalan sarmalayan sınıflar, String sınıfı, enum sınıfları vb.
 
 Aşağıdaki Fraction sınıfını inceleyiniz
 
@@ -7375,12 +7375,11 @@ public class Fraction implements Comparable<Fraction>{
 ```
 
 Comparable arayüzünün desteklenmediği ancak bir sırlamanın gerektiği durumda fonksiyonel bir arayüz olan `Comparator` arayüzü kullanılır. Buna göre örneğin Comparator parametreli bir metot karşılaştırma kriterini bir callable olarak almış olur.
-
 ##### Objects sınıfı
 
 JavaSE'ye Java 7 ile birlikte `Objects` isimli utility bir sınıf eklenmiştir. Bu sınıfın temel amacı bir takım kontrollerin kolay bir biçimde yapılabilmesini sağlamaktır. Bu sınıf eklendikten sonra var olan diğer sınıfların hemen hepsi ilgili kontrolleri yaparken bu sınıfı kullanmakta ve dokümantasyonda da bu sınıfın ilgili metodunu çağrıldığını söylemektedir. Java programcısının ilgili kontrollerde bu sınıfı kullanması tavsiye edilir.
 
-Bu sınıfın `equals` metodu iki tane object'in mantıksal eşitlik karşılaştırmasını yapar. Bu metodun aldığı argümanların her ikisi de null ise true değerine geri döner, birinci argüman null dışı ise, birinci parametreye ilişkin referans ile equals metodunu çağırır ve geri dönüş değerine geri döner. Bunlar dışında false değerine geri döner.
+Sınıfın `equals` metodu iki tane object'in mantıksal eşitlik karşılaştırmasını yapar. Bu metodun aldığı argümanların her ikisi de null ise true değerine geri döner, birinci argüman null dışı ise, birinci parametreye ilişkin referans ile equals metodunu çağırır ve geri dönüş değerine geri döner. Bunlar dışında false değerine geri döner.
 
 Aşağıdaki metodu ve test kodlarını inceleyiniz
 
@@ -7495,7 +7494,7 @@ public class CSDArrayListEqualsTest {
 }
 ```
 
-Bu sınıfın `compare` metodu aldığı `Comparator<T>` fonksiyonel arayüzü ile birinci ve ikinci parametresi ile aldığı referansları mantıksal karşılaştırır. Duruma göre klasik comparison değerlerine geri döner. 
+Bu sınıfın `compare` metodu aldığı `Comparator<T>` fonksiyonel arayüzü ile birinci ve ikinci parametresi ile aldığı referansları mantıksal karşılaştırır. Duruma göre klasik comparison değerlerinden birine geri döner. 
 
 Aşağıdaki metotları ve test kodlarını inceleyiniz
 
@@ -7586,35 +7585,11 @@ public class ArrayUtil {
 ```
 
 
-
-
 Sınıfın `requireNonNullElse` metodu aldığı referans null ise ikinci parametresi ile aldığı referansa geri dönmektedir. Bu metot Java 9 ile eklenmiştir.
 
 Aşağıdaki metodu inceleyiniz
+
 ```java
-
-public class StringUtil {
-	//...
-	public static String randomText(RandomGenerator randomGenerator, int count, CharSequence charSequence)  
-	{  
-	    randomGenerator = Objects.requireNonNullElseGet(randomGenerator, Random::new);  
-	    char [] c = new char[count];  
-	  
-	    for (int i = 0; i < count; ++i)  
-	       c[i] = charSequence.charAt(randomGenerator.nextInt(charSequence.length()));  
-	  
-	    return String.valueOf(c);  
-	}
-	
-	//...
-}
-```
-
-Sınıfın `requireNonNullElseGet` metodu aldığı referans ile null ise ikinci parametresi ile aldığı aldığı `Supplier<? extends T>` ile elde ettiği referansa geri döner. Bu metot Java 9 ile eklenmiştir.
-
-Aşağıdaki metodu inceleyiniz
-```java
-
 public class ArrayUtil {
 	//...
 	public static int [] randomArray(RandomGenerator randomGenerator, int count, int origin, int bound)  
@@ -7632,6 +7607,29 @@ public class ArrayUtil {
 	//...
 }
 ```
+
+Sınıfın `requireNonNullElseGet` metodu aldığı referans ile null ise ikinci parametresi ile aldığı aldığı `Supplier<? extends T>` ile elde ettiği referansa geri döner. Bu metot Java 9 ile eklenmiştir.
+
+Aşağıdaki metodu inceleyiniz
+
+```java
+public class StringUtil {
+	//...
+	public static String randomText(RandomGenerator randomGenerator, int count, CharSequence charSequence)  
+	{  
+	    randomGenerator = Objects.requireNonNullElseGet(randomGenerator, Random::new);  
+	    char [] c = new char[count];  
+	  
+	    for (int i = 0; i < count; ++i)  
+	       c[i] = charSequence.charAt(randomGenerator.nextInt(charSequence.length()));  
+	  
+	    return String.valueOf(c);  
+	}
+	
+	//...
+}
+```
+
 
 Sınıfın diğer metotları örnekler içerisinde kullanılarak ele alınacaktır.
 
