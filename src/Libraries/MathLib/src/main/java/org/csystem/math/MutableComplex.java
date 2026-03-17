@@ -102,11 +102,13 @@ public class MutableComplex {
 		return getNorm();
 	}	
 
+	@Override
 	public boolean equals(Object other)
 	{
 		return other instanceof MutableComplex z && Math.abs(m_real - z.m_real) < DELTA && Math.abs(m_imag - z.m_imag) < DELTA;
 	}
 
+	@Override
 	public String toString()
 	{
 		return "(%.2f, %.2f)".formatted(m_real, m_imag);

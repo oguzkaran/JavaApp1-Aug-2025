@@ -1,8 +1,3 @@
-/**
- * Immutable Point class that represents a point in geometry
- * Last Update: 6th March 2025
- * @author Java-Jan-2024 Group
- */
 package org.csystem.math.geometry;
 
 import static java.lang.Math.cos;
@@ -58,11 +53,13 @@ public class Point {
 		return PointCommon.euclideanDistance(m_x, m_y, x, y);
 	}	
 
+	@Override
 	public boolean equals(Object other)
 	{
 		return other instanceof Point p && PointCommon.equals(m_x, m_y, p.m_x, p.m_y);
 	}
 
+	@Override
 	public String toString()
 	{
 		return PointCommon.toString(m_x, m_y);

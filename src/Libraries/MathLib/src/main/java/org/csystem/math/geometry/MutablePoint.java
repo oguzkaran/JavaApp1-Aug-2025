@@ -79,11 +79,13 @@ public class MutablePoint {
 		m_y += dy;
 	}
 
+	@Override
 	public boolean equals(Object other)
 	{
 		return other instanceof MutablePoint p && PointCommon.equals(m_x, m_y, p.m_x, p.m_y);
 	}
 
+	@Override
 	public String toString()
 	{
 		return PointCommon.toString(m_x, m_y);

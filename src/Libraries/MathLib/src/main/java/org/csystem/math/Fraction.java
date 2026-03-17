@@ -1,12 +1,6 @@
-/**
- * Fraction class that represents fraction
- * Last Update: 24th April 2025
- * @author Java-Jan-2024 Group
- */
-
 package org.csystem.math;
 
-public class Fraction {
+public class Fraction implements Comparable<Fraction>{
     private int m_a;
     private int m_b;
 
@@ -167,16 +161,19 @@ public class Fraction {
         m_a -= m_b;
     }
 
+    @Override
     public int compareTo(Fraction other)
     {
         return m_a * other.m_b - other.m_a * m_b;
     }
 
+    @Override
     public boolean equals(Object other)
     {
         return other instanceof Fraction f && compareTo(f) == 0;
     }
 
+    @Override
     public String toString()
     {
          return "%d%s".formatted(m_a, m_b != 1 ? " / %d = %.6f".formatted(m_b, getRealValue()) : "");

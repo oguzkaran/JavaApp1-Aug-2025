@@ -7096,7 +7096,7 @@ Aşağıdaki metodu  ve test kodlarını inceleyiniz
 ```java
 package org.csystem.util.numeric;
 
-public final class ArrayUtil {
+public final class NumberUtil {
 	//...
 	public static void copy(List<? extends Number> src, List<? super Number> dest)  
 	{  
@@ -7162,7 +7162,7 @@ public class NumberUtilCopyTest {
 }
 ```
 
-Java'da variance kavramının bu şekilde kullanımına `use-site variance` da denilmektedir.
+Java'da variance kavramının bu şekilde kullanımına `use-site variance` da denilmektedir. Bazı programlama dillerinde (örneğin Kotlin) covariance veya contravariance tü tanımlamasında (declaration site) belirlenebilmektedir. Java böyle bir bildirim yoktur. 
 
 Java'da referans dizileri covariance özelliktedir. 
 
@@ -7184,10 +7184,456 @@ class Application {
 }
 ```
 
+##### Comparable Arayüzü
+
+Bu arayüz mantıksal olarak iki nesnesi sıraya sokulabilen (ordering) sınıflar tarafından bir convention olarak implemente edilir. Sıraya sokma işlemi yapan pek çok metot bu arayüzü destekleyen sınıflar türünden nesnelerin referanslarını alır ve arayüzün `compareTo` metodunu çağırarak karşılaştırmayı yapar. Bu karşılaştırmaya Java'da `natural comaprison` da denilmektedir. Bu durumda mantıksal olarak sıraya sokulabilecek kavramlara ilişkin sınıfların bu arayüzü desteklemesi tavsiye edilir. Bu arayüzü destekleyen sınıflara şunlar örnek olarak verilebilir: **Boolean türü dışında kalan sarmalayan sınıflar, String sınıfı, enum sınıfları vb.**
+
+Aşağıdaki Fraction sınıfını inceleyiniz
+
+```java
+package org.csystem.math;  
+  
+public class Fraction implements Comparable<Fraction>{  
+    private int m_a;  
+    private int m_b;  
+  
+    private static Fraction add(int a1, int b1, int a2, int b2)  
+    {  
+        return new Fraction(a1 * b2 + a2 * b1, b1 * b2);  
+    }  
+  
+    private static Fraction subtract(int a1, int b1, int a2, int b2)  
+    {  
+        return add(a1, b1, -a2, b2);  
+    }  
+  
+    private static Fraction multiply(int a1, int b1, int a2, int b2)  
+    {  
+        return new Fraction(a1 * a2, b1 * b2);  
+    }  
+  
+    private static Fraction divide(int a1, int b1, int a2, int b2)  
+    {  
+        return multiply(a1, b1, b2, a2);  
+    }  
+  
+    private static void check(int a, int b)  
+    {  
+        if (b == 0)  
+            throw new IllegalArgumentException(a == 0 ? "Indeterminate" : "Undefined");  
+    }  
+  
+    private void setSign()  
+    {  
+        if (m_b < 0) {  
+            m_a = -m_a;  
+            m_b = -m_b;  
+        }  
+    }  
+  
+    private void simplify()  
+    {  
+        int min = Math.min(Math.abs(m_a), m_b);  
+  
+        for (int i = min; i >= 2; --i)  
+            if (m_a % i == 0 && m_b % i == 0) {  
+                m_a /= i;  
+                m_b /= i;  
+                break;  
+            }  
+    }  
+  
+    private void setFields(int a, int b)  
+    {  
+        m_a = a;  
+        m_b = b;  
+    }  
+  
+    private void set(int a, int b)  
+    {  
+        if (a == 0) {  
+            setFields(0, 1);  
+            return;  
+        }  
+  
+        setFields(a, b);  
+        setSign();  
+        simplify();  
+    }  
+  
+    public Fraction()  
+    {  
+        this(0);  
+    }  
+  
+    public Fraction(int a)  
+    {  
+        m_a = a;  
+        m_b = 1;  
+    }  
+  
+    public Fraction(int a, int b)  
+    {  
+        check(a, b);  
+        set(a, b);  
+    }  
+  
+    public int getNumerator()  
+    {  
+        return m_a;  
+    }  
+  
+    public void setNumerator(int val)  
+    {  
+        set(val, m_b);  
+    }  
+  
+    public int getDenominator()  
+    {  
+        return m_b;  
+    }  
+  
+    public void setDenominator(int val)  
+    {  
+        check(m_a, val);  
+        set(m_a, val);  
+    }  
+  
+    public double getRealValue()  
+    {  
+        return (double) m_a / m_b;  
+    }  
+  
+    public Fraction add(Fraction other)  
+    {  
+        return add(m_a, m_b, other.m_a, other.m_b);  
+    }  
+  
+    public Fraction add(int val)  
+    {  
+        return add(m_a, m_b, val, 1);  
+    }  
+  
+    public Fraction subtract(Fraction other)  
+    {  
+        return subtract(m_a, m_b, other.m_a, other.m_b);  
+    }  
+  
+    public Fraction subtract(int val)  
+    {  
+        return subtract(m_a, m_b, val, 1);  
+    }  
+  
+    public Fraction multiply(Fraction other)  
+    {  
+        return multiply(m_a, m_b, other.m_a, other.m_b);  
+    }  
+  
+    public Fraction multiply(int val)  
+    {  
+        return multiply(m_a, m_b, val, 1);  
+    }  
+  
+    public Fraction divide(Fraction other)  
+    {  
+        return divide(m_a, m_b, other.m_a, other.m_b);  
+    }  
+  
+    public Fraction divide(int val)  
+    {  
+        return divide(m_a, m_b, val, 1);  
+    }  
+  
+    public void inc()  
+    {  
+        m_a += m_b;  
+    }  
+  
+    public void dec()  
+    {  
+        m_a -= m_b;  
+    }  
+  
+    @Override  
+    public int compareTo(Fraction other)  
+    {  
+        return m_a * other.m_b - other.m_a * m_b;  
+    }  
+  
+    @Override  
+    public boolean equals(Object other)  
+    {  
+        return other instanceof Fraction f && compareTo(f) == 0;  
+    }  
+  
+    @Override  
+    public String toString()  
+    {  
+         return "%d%s".formatted(m_a, m_b != 1 ? " / %d = %.6f".formatted(m_b, getRealValue()) : "");  
+    }  
+}
+```
+
+Comparable arayüzünün desteklenmediği ancak bir sırlamanın gerektiği durumda fonksiyonel bir arayüz olan `Comparator` arayüzü kullanılır. Buna göre örneğin Comparator parametreli bir metot karşılaştırma kriterini bir callable olarak almış olur.
+
+##### Objects sınıfı
+
+JavaSE'ye Java 7 ile birlikte `Objects` isimli utility bir sınıf eklenmiştir. Bu sınıfın temel amacı bir takım kontrollerin kolay bir biçimde yapılabilmesini sağlamaktır. Bu sınıf eklendikten sonra var olan diğer sınıfların hemen hepsi ilgili kontrolleri yaparken bu sınıfı kullanmakta ve dokümantasyonda da bu sınıfın ilgili metodunu çağrıldığını söylemektedir. Java programcısının ilgili kontrollerde bu sınıfı kullanması tavsiye edilir.
+
+Bu sınıfın `equals` metodu iki tane object'in mantıksal eşitlik karşılaştırmasını yapar. Bu metodun aldığı argümanların her ikisi de null ise true değerine geri döner, birinci argüman null dışı ise, birinci parametreye ilişkin referans ile equals metodunu çağırır ve geri dönüş değerine geri döner. Bunlar dışında false değerine geri döner.
+
+Aşağıdaki metodu ve test kodlarını inceleyiniz
+
+```java
+
+public class CSDArrayList<E> {
+	//...
+	@Override  
+	public boolean equals(Object other)  
+	{  
+	    if (other == this)  
+	        return true;  
+	  
+	    if (!(other instanceof CSDArrayList<?> otherList))  
+	        return false;  
+	  
+	    if (otherList.size() != m_index)  
+	        return false;  
+	  
+	    for (var  i = 0; i < m_index; ++i)  
+	        if (!Objects.equals(m_elements[i], otherList.m_elements[i]))  
+	            return false;  
+	  
+	    return true;  
+	}
+	//...
+}
+```
+
+```java
+package org.csystem.collection;  
+  
+import org.junit.jupiter.api.Test;  
+  
+import static org.junit.jupiter.api.Assertions.assertEquals;  
+import static org.junit.jupiter.api.Assertions.assertNotEquals;  
+  
+public class CSDArrayListEqualsTest {  
+    @Test  
+    void givenValues_whenLists_thenEquals()  
+    {  
+        var list1 = new CSDArrayList<String>();  
+        var list2 = new CSDArrayList<String>();  
+  
+        list1.add("1");  
+        list1.add("2");  
+        list1.add("3");  
+  
+        list2.add("1");  
+        list2.add("2");  
+        list2.add("3");  
+  
+        assertEquals(list1, list2);  
+    }  
+  
+    @Test  
+    void givenValues_whenLists_thenLengthNotEqual()  
+    {  
+        var list1 = new CSDArrayList<String>();  
+        var list2 = new CSDArrayList<String>();  
+  
+        list1.add("1");  
+        list1.add("2");  
+        list1.add("3");  
+  
+        list2.add("1");  
+        list2.add("2");  
+  
+        assertNotEquals(list1, list2);  
+    }  
+  
+    @Test  
+    void givenValues_whenLists_thenDataNotEqual()  
+    {  
+        var list1 = new CSDArrayList<String>();  
+        var list2 = new CSDArrayList<String>();  
+  
+        list1.add("1");  
+        list1.add("2");  
+        list1.add("3");  
+  
+        list2.add("1");  
+        list2.add("2");  
+        list2.add("4");  
+  
+        assertNotEquals(list1, list2);  
+    }  
+  
+    @Test  
+    void givenValues_whenSameLists_thenEquals()  
+    {  
+        var list1 = new CSDArrayList<String>();  
+  
+        list1.add("1");  
+        list1.add("2");  
+        list1.add("3");  
+  
+        assertEquals(list1, list1);  
+    }  
+  
+  
+    @Test  
+    void givenValues_whenListAndOtherTypedObject_thenNotEqual()  
+    {  
+        var list1 = new CSDArrayList<String>();  
+  
+        list1.add("1");  
+        var s = "1";  
+  
+        assertNotEquals(list1, s);  
+    }  
+}
+```
+
+Bu sınıfın `compare` metodu aldığı `Comparator<T>` fonksiyonel arayüzü ile birinci ve ikinci parametresi ile aldığı referansları mantıksal karşılaştırır. Duruma göre klasik comparison değerlerine geri döner. 
+
+Aşağıdaki metotları ve test kodlarını inceleyiniz
+
+```java
+public final class ArrayUtil {
+	//...
+	public static <T extends Comparable<? super T>> void bubbleSort(T[] a)  
+	{  
+	    for (var i = 0; i < a.length - 1; ++i)  
+	        for (var k = 0; k < a.length - 1 - i; ++k)  
+	            if (a[k + 1].compareTo(a[k]) < 0)  
+	                swap(a, k, k + 1);  
+	}  
+	  
+	public static <T> void bubbleSort(T[] a, Comparator<? super T> comparator)  
+	{  
+	    for (var i = 0; i < a.length - 1; ++i)  
+	        for (var k = 0; k < a.length - 1 - i; ++k)  
+	            if (Objects.compare(a[k + 1], a[k], comparator) < 0)  
+	                swap(a, k, k + 1);  
+	}
+	//...
+}
+```
+
+```java
+package org.csystem.util.array;  
+  
+import org.junit.jupiter.api.Test;  
+  
+import java.math.BigDecimal;  
+  
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;  
+  
+public class ArrayUtilGenericBubbleSortTest {  
+    @Test  
+    void givenValue_whenBigDecimalArray_thenReturnsSortedAscending()  
+    {  
+        BigDecimal[] a = {BigDecimal.valueOf(1), BigDecimal.valueOf(0), BigDecimal.valueOf(3),  
+                BigDecimal.valueOf(5), BigDecimal.valueOf(-4), BigDecimal.valueOf(10)};  
+        BigDecimal[] expected = {BigDecimal.valueOf(-4), BigDecimal.valueOf(0), BigDecimal.valueOf(1),  
+                BigDecimal.valueOf(3), BigDecimal.valueOf(5), BigDecimal.valueOf(10)};  
+  
+        ArrayUtil.bubbleSort(a);  
+  
+        assertArrayEquals(expected, a);  
+    }  
+  
+    @Test  
+    void givenValue_whenBigDecimalArray_thenReturnsSortedDescending()  
+    {  
+        BigDecimal[] a = {BigDecimal.valueOf(1), BigDecimal.valueOf(0), BigDecimal.valueOf(3),  
+                BigDecimal.valueOf(5), BigDecimal.valueOf(-4), BigDecimal.valueOf(10)};  
+        BigDecimal[] expected = {BigDecimal.valueOf(10), BigDecimal.valueOf(5), BigDecimal.valueOf(3),  
+                BigDecimal.valueOf(1), BigDecimal.valueOf(0), BigDecimal.valueOf(-4)};  
+  
+  
+        ArrayUtil.bubbleSort(a, (b1, b2) -> b2.compareTo(b1));  
+  
+        assertArrayEquals(expected, a);  
+    }  
+}
+```
+
+Sınıfın `isNull` ve `nonNull`metotları  parametreleri ile aldıkları referansların null olup olmadığını test ederler. Bu metotlar özellikle `Predicate` arayüzlere method reference olarak verilebilmesi için bulundurulmuştur. Programcı da kontrollerinde kullanabilir.
+
+Sınıfın `requireNonNull` metotları parametreleri ile aldığı referansların null olması durumunda`NullPointerException` fırlatırlar, null değilse referansa geri dönerler. Metodun String parametreli overload'u `NullPointerException` fırlatılması durumunda geçilecek mesajı alır. Metodun `Supplier<String>` parametreli overload'u exception mesajına ilişkin bir supplier callback almaktadır. Bu metot Java 8 ile eklenmiştir. 
+
+Aşağıdaki metodu inceleyiniz
+
+```java
+public class ArrayUtil {
+	public static void drawHistogram(int [] data, int n, char ch)  
+	{  
+	    Objects.requireNonNull(data, "data can not be null");  
+	    var maxValue = ArrayUtil.max(data);  
+	  
+	    for (var grade : data) {  
+	        var count = (int)Math.floor(grade * n / (double)maxValue);  
+	  
+	        while (count-- > 0)  
+	            System.out.print(ch);  
+	  
+	        System.out.println();  
+	    }  
+	}
+}
+```
 
 
 
 
+Sınıfın `requireNonNullElse` metodu aldığı referans null ise ikinci parametresi ile aldığı referansa geri dönmektedir. Bu metot Java 9 ile eklenmiştir.
+
+Aşağıdaki metodu inceleyiniz
+```java
+
+public class StringUtil {
+	//...
+	public static String randomText(RandomGenerator randomGenerator, int count, CharSequence charSequence)  
+	{  
+	    randomGenerator = Objects.requireNonNullElseGet(randomGenerator, Random::new);  
+	    char [] c = new char[count];  
+	  
+	    for (int i = 0; i < count; ++i)  
+	       c[i] = charSequence.charAt(randomGenerator.nextInt(charSequence.length()));  
+	  
+	    return String.valueOf(c);  
+	}
+	
+	//...
+}
+```
+
+Sınıfın `requireNonNullElseGet` metodu aldığı referans ile null ise ikinci parametresi ile aldığı aldığı `Supplier<? extends T>` ile elde ettiği referansa geri döner. Bu metot Java 9 ile eklenmiştir.
+
+Aşağıdaki metodu inceleyiniz
+```java
+
+public class ArrayUtil {
+	//...
+	public static int [] randomArray(RandomGenerator randomGenerator, int count, int origin, int bound)  
+	{  
+	    randomGenerator = Objects.requireNonNullElse(randomGenerator, new Random());  
+	  
+	    var a = new int[count];  
+	  
+	    for (var i = 0; i < count; ++i)  
+	        a[i] = randomGenerator.nextInt(origin, bound);  
+	  
+	    return a;  
+	}
+	
+	//...
+}
+```
+
+Sınıfın diğer metotları örnekler içerisinde kullanılarak ele alınacaktır.
 
 ##### JavaSE Collections
 
