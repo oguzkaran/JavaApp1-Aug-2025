@@ -7374,7 +7374,7 @@ public class Fraction implements Comparable<Fraction>{
 }
 ```
 
-Comparable arayüzünün desteklenmediği ancak bir sırlamanın gerektiği durumda fonksiyonel bir arayüz olan `Comparator` arayüzü kullanılır. Buna göre örneğin Comparator parametreli bir metot karşılaştırma kriterini bir callable olarak almış olur.
+Comparable arayüzünün desteklenmediği ancak sıralamanın gerektiği durumlarda genel olarak fonksiyonel bir arayüz olan `Comparator` arayüzü kullanılır. Buna göre örneğin Comparator parametreli bir metot karşılaştırma kriterini bir callable olarak almış olur.
 ##### Objects sınıfı
 
 JavaSE'ye Java 7 ile birlikte `Objects` isimli utility bir sınıf eklenmiştir. Bu sınıfın temel amacı bir takım kontrollerin kolay bir biçimde yapılabilmesini sağlamaktır. Bu sınıf eklendikten sonra var olan diğer sınıfların hemen hepsi ilgili kontrolleri yaparken bu sınıfı kullanmakta ve dokümantasyonda da bu sınıfın ilgili metodunu çağrıldığını söylemektedir. Java programcısının ilgili kontrollerde bu sınıfı kullanması tavsiye edilir.
@@ -8004,4 +8004,80 @@ class Application {
     }  
 }
 ```
+
+###### Collection Arayüzü
+
+`Collection<E>` arayüzü `Iterable<E>` arayüzünden türetilmiştir. Neredeyse tüm collection sınıfların Collection parametreli bir ctor'u vardır ayrıca bu arayüzün Collection parametreli `addAll` metodu da bulunmaktadır. `Collection<E>` arayüzü adeta bir collection olma anlaşmasıdır (contract). Örneğin `Collection` arayüzünü implemente eden bir sınıf `addAll` metodu ile başka bir `Collection` arayüzünü implemente eden collection sınıftaki verileri alabilir. Yani `Collection` arayüzünü implemente eden sınıflar arasında uygun açılıma göre kolay bir biçimde veri transferi yapılabilir.
+
+Arayüzün `add` metodu ilgili collection'a ekleme yapmak için kullanılır. Bu metodun geri dönüş değeri `boolean` türdendir. `add` metodu, collection sınıfın algoritmasına göre ekleme işleminin başarı durumuna geri döner. Örneğin, `ArrayList`'in `add` metodu her zaman true dönecek şekilde override edilmiştir. Ancak örneğin, `HashSet` sınıfının add metodu aynı elemandan collection içerisinde varsa false değerine geri dönecek şekilde override edilmiştir. `HashSet` collection sınıfı ileride ele alınacaktır.
+
+`Collection` arayüzünün `addAll` metodu `Collection<? extends E>` parametrelidir. Bu metot tipik olarak başka bir collection sınıfın elemanlarının kolaylıkla eklenmesi için kullanılır.
+ 
+`Collection` arayüzünün `clear` metodu collection içerisinde tutulan elemanların tamamını silmek için kullanılır.
+ 
+ `Collection` arayüzünün `contains` metodu tipik olarak bir elemanın collection içerisinde olup olmadığını test etmek için kullanılır. Bu metot null değeri aranmıyorsa equals metodunu çağırır.
+  
+  `Collection` arayüzünün `isEmpty` metodu collection'ın boş olup olmadığını test etmek için kullanılır.
+ 
+ `Collection` arayüzünün `remove` metodu parametresi ile aldığı Object referansına göre bulduğu ilk elemanı siler. Yine hangi elemanı sileceğini eğer null değeri aranmıyorsa equals metoduna bakarak anlar.
+ 
+ `Collection` arayüzünün `size` metodu ilgili collection'da tutulan eleman sayısına geri döner.
+ 
+ `Collection` arayüzünün `toArray` metotları ile collection içerisindeki elemanlardan oluşan dizi elde edilebilir.
+ 
+`Collection` arayüzünün diğer bazı metotları konular içerisinde ele alınacaktır.
+
+
+Aşağıdaki demo örneği inceleyiniz. Örnekteki `TreeSet` sınıfı ileride detaylı olarak ele alınacaktır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.ArrayList;  
+import java.util.TreeSet;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var strList = new ArrayList<String>();  
+        var strSet = new TreeSet<String>();  
+  
+        while (true) {  
+            var s = Console.read("Input text:");  
+  
+            if ("quit".equals(s))  
+                break;  
+  
+            strList.add(s);  
+        }  
+  
+        Console.writeLine("String List:");  
+        strList.forEach(s -> Console.write("%s ", s));  
+        Console.writeLine();  
+  
+        strSet.addAll(strList);  
+        Console.writeLine("String Set:");  
+        strSet.forEach(s -> Console.write("%s ", s));  
+    }  
+}
+```
+
+
+`Collection` arayüzünden pek çok türetilmiştir. Bu arayüzlerin bazıları aslında collection sınıfları kategorize etmektedir. `Collection` arayüzünden türetilen ve collection sınıfları kategorize eden bazı önemli arayüzler ve özetle anlamları şunlardır:
+
+`List<E>`: Aralarında öncelik-sonralık ilişkisi olan collection sınıfların arayüzüdür. Bu arayüzü implemente eden collection sınıflara liste tarzı collection sınıflar da denilmektedir. Örneğin, `ArrayList` sınıfı bu arayüzü implemente etmiştir.
+
+`Set<E>`: Küme tarzı collection sınıfların arayüzüdür. Bu arayüzler Matematik'teki küme kavramını temsil ederler. Örneğin, eklenen elemanların her birinden birer tane olmasını ve elemanların sıralı (sorted) olarak tutulmasını sağlayan `TreeSet<E>` collection sınıfı bu arayüzü implemente etmiştir.
+
+`Queue<E>`: Kuyruk tarzı collection sınıfların arayüzüdür. Örneğin bağlı liste veri yapısını (linked list) temsil eden `LinkedList<E>` collection sınıfı bu arayüzü de implemente eder.
+
+`Deque<E>`: Baştan ve sondan büyüyebilen (double ended queue) collection sınıfların arayüzüdür. Örneğin baştan ve sondan dinamik olarak büyüyebilen dizi veri yapısını temsil eden `ArrayDeque<E>` collection sınıfı bu arayüzü implemente etmiştir.
+
+Yukarıdaki arayüzler dışında `Collection` arayüzünden türetilmiş başka arayüzler de bulunmaktadır. Burada yalnızca yukarıdaki arayüzler ve onları implemente eden ve çok kullanılan sınıflar ele alınacaktır.
+
+###### List, Set ve Queue Arayüzleri
 

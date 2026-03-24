@@ -68,7 +68,6 @@ public class CSDArrayListEqualsTest {
         assertEquals(list1, list1);
     }
 
-
     @Test
     void givenValues_whenListAndOtherTypedObject_thenNotEqual()
     {
@@ -77,6 +76,6 @@ public class CSDArrayListEqualsTest {
         list1.add("1");
         var s = "1";
 
-        assertNotEquals(list1, s);
+        assertNotEquals(s, list1);
     }
 }

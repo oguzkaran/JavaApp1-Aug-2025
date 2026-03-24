@@ -153,20 +153,9 @@ public class CSDArrayList<E> implements List<E> {
     @Override
     public int indexOf(Object o)
     {
-        if (o == null) {
-            for (int i = 0; i < m_index; ++i)
-                if (m_elements[i] == null)
-                    return i;
-        }
-        else {
-            for (var i = 0; i < m_index; ++i)
-                if (o.equals(m_elements[i]))
-                    return i;
-        }
-
-//        for (var i = 0; i < m_index; ++i)
-//            if (Objects.equals(o, m_elements[i]))
-//                return i;
+        for (var i = 0; i < m_index; ++i)
+            if (Objects.equals(o, m_elements[i]))
+                return i;
 
         return -1;
     }
