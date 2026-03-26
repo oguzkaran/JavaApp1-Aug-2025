@@ -8079,5 +8079,294 @@ class Application {
 
 Yukarıdaki arayüzler dışında `Collection` arayüzünden türetilmiş başka arayüzler de bulunmaktadır. Burada yalnızca yukarıdaki arayüzler ve onları implemente eden ve çok kullanılan sınıflar ele alınacaktır.
 
-###### List, Set ve Queue Arayüzleri
+###### List, Set, Queue ve Deque Arayüzleri
+
+`List<E>` arayüzünü implemente eden sınıflardan bazıları şunlardır:
+
+```
+ArrayList<E>
+Vector<E>
+Stack<E>
+LinkedList<E>
+```
+
+Bu arayüzde `Collection<E>` arayüzüne ek olarak listeye ilişkin metotlar vardır. Örneğin indeks parametreli `get` abstract metodu `Collection<E>` arayüzünde yoktur, bu arayüzde bulunur.
+
+Anımsanacağı gibi `ArrayList<E>` ve `Vector<E>` dinamik büyüyen dizi veri yapısını temsil eden `Collection` sınıflardır. Zorunlu olmadıkça `Vector<E>` sınıfı yerine `ArrayList<E>` sınıfı kullanılmalıdır. Bu durum `Vector<E>` sınıfının dokümanlarında da açıkça belirtilmiştir. Detaylar
+ şu aşamada önemsizdir.
+
+JavaSE'de bir grup adaptör collection sınıf bulunmaktadır. Bir collection sınıfı kullanarak yazılmış collection sınıflara genel olarak `adapter collection class` denilmektedir. `Stack` sınıfı `Vector` sınıfından türetilmiş ve LIFO (Last In First Out) sistemine göre çalışan bir collection sınıftır. Bu anlamda `Stack<E>` sınıfı `Vector<E>` sınıfı gibi de davranır. Şüphesiz stack kullanmanın amacı ile stack'in vector gibi kullanılması çoğu zaman anlamsızdır. Stack veri yapısına ilişkin genel işlemler şunlardır: `push`, `pop`.
+
+`push` stack'e ekleme yapmak anlamında (mantıksal olarak sona ekleme), `pop` ise sondaki veriyi silme anlamında kullanılır. JavaSE'deki `Stack<E>` sınıfının `pop` metodu son elemanı siler ve son elemana ilişkin referansa geri döner. `Stack<E>` sınıfının `push` metodu da eklenen elemana ilişkin referansı döndürür. `Stack` sınıfının `peek` metodu son push edilen elemana ilişkin referansa geri döner ancak elemanı silmez. `pop` ve `peek` metotları stack boş ise `EmptyStackException` fırlatır. `Stack` sınıfının `empty` isimli metodu stack'in boş olup olmadığını test etmek için kullanılabilir. 
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.Stack;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var strStack = new Stack<String>();  
+  
+        while (true) {  
+            var s = Console.read("Input text:");  
+  
+            if ("quit".equals(s))  
+                break;  
+  
+            strStack.push(s);  
+        }  
+  
+        while (!strStack.empty()) {  
+            var str = strStack.pop();  
+  
+            Console.write("%s ", str);  
+        }  
+  
+        Console.writeLine();  
+    }  
+}
+```
+
+Yukarıdaki örnek exception handling kullanılarak aşağıdaki gibi de yapılabilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.EmptyStackException;  
+import java.util.Stack;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var strStack = new Stack<String>();  
+  
+        while (true) {  
+            var s = Console.read("Input text:");  
+  
+            if ("quit".equals(s))  
+                break;  
+  
+            strStack.push(s);  
+        }  
+  
+        try {  
+            while (true) {  
+                var str = strStack.pop();  
+  
+                Console.write("%s ", str);  
+            }  
+        }  
+        catch (EmptyStackException ignore) {  
+            Console.writeLine();  
+        }  
+    }  
+}
+```
+ 
+ `Stack` sınıfına ayrıca `search` isimli bir metot da eklenmiştir. `search` metodu arama yapmak için kullanılır. Bulursa bulduğu elemanın sıra numarasına geri döner. Bu sıra numarası stack'in en tepesinden (yani son eklenen elemana göre) 1'den başlar. Eleman bulunamazsa metot -1 değerine geri döner. Stack sınıfının yalnızca default ctor'u vardır.
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.Random;  
+import java.util.Stack;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var intStack = new Stack<Integer>();  
+        var random = new Random();  
+  
+        while (true) {  
+            var val = random.nextInt(-10, 11);  
+  
+            if (val == 0)  
+                break;  
+  
+            intStack.push(val);  
+        }  
+  
+        var value = random.nextInt(-10, 11);  
+        Console.writeLine("Value:%d", value);  
+  
+        var order = intStack.search(value);  
+  
+        Console.writeLine("%d%s", value, order != -1 ? " found at %d".formatted(order) : " not found");  
+  
+        while (!intStack.empty())  
+            Console.write("%d ", intStack.pop());  
+  
+        Console.writeLine();  
+    }  
+}
+```
+
+**Sınıf Çalışması:** null değeri tutulamayan yani null değeri eklenmeye çalışıldığında `IllegalArgumentException` fırlatan `CSDArrayListNotNullable` collection sınıfını yazınız
+
+**Açıklamalar:** 
+ - Bu collection sınıfı `ArrayList` sınıfından türetilecektir.
+ - Çoklu veri eklemede bir tane bile null değer varsa yine ekleme yapılmayacak ve exception fırlatılacaktır
+ - Sınıfın `ArrayList` sınıfının içerisinde bulunan tüm ctor'ları da olacaktır.
+
+**Sınıf Çalışması:** Yalnızca `Object` sınıfından türetilen ve **dinamik** olarak büyüyebilen aşağıdaki `CSDStack` sınıfını yazınız.
+
+```java
+package org.csystem.collection;  
+  
+public class CSDStack<E> {  
+    public CSDStack()  
+    {  
+        throw new UnsupportedOperationException("TODO");  
+    }  
+  
+    public E peek()  
+    {  
+        throw new UnsupportedOperationException("TODO");  
+    }  
+  
+    public E pop()  
+    {  
+        throw new UnsupportedOperationException("TODO");  
+    }  
+  
+    public E push(E item)  
+    {  
+        throw new UnsupportedOperationException("TODO");  
+    }  
+  
+    public int search(E item)  
+    {  
+        throw new UnsupportedOperationException("TODO");  
+    }  
+}
+```
+
+**Açıklamalar:** 
+ - Sınıfın public bölümünü değiştirmeden istediğiniz eklemeyi yapabilirsiniz
+ - JavaSE'nin `Stack<E>` sınıfı kullanılmayacaktır.
+
+**Sınıf Çalışması:** Eleman sayısını ctor ile alan ve stack dolduğunda `RuntimeException` sınıfından türetilmiş `FullStackException` fırlatan aşağıdaki `CSDBoundedStack` sınıfını yazınız.
+
+```java
+package org.csystem.collection;  
+  
+public class CSDBoundedStack<E> {  
+    public CSDBoundedStack(int size)  
+    {  
+        throw new UnsupportedOperationException("TODO");  
+    }  
+  
+    public E peek()  
+    {  
+        throw new UnsupportedOperationException("TODO");  
+    }  
+  
+    public E pop()  
+    {  
+        throw new UnsupportedOperationException("TODO");  
+    }  
+  
+    public E push(E item)  
+    {  
+        throw new UnsupportedOperationException("TODO");  
+    }  
+  
+    public int search(E item)  
+    {  
+        throw new UnsupportedOperationException("TODO");  
+    }  
+}
+```
+
+```java
+package org.csystem.collection.exception;  
+  
+public class FullStackException extends RuntimeException {  
+    //TODO  
+}
+```
+
+**Açıklamalar:** Sınıfın public bölümünü değiştirmeden istediğiniz eklemeyi yapabilirsiniz.
+
+**Sınıf Çalışması:** Tutulan en küçük elemanı `O(1)` karmaşıklıkta veren ve push ve pop işlemlerinin de en fazla `amortized O(1)` karmaşıklıkta çalıştığı aşağıdaki `CSDMinStack` sınıfını yazınız.
+
+```java
+package org.csystem.collection;  
+  
+import java.util.Comparator;  
+  
+public class CSDMinStack<E> {  
+    public CSDMinStack()  
+    {  
+        throw new UnsupportedOperationException("TODO");  
+    }  
+  
+    public E min(Comparator<? super E> comparator)  
+    {  
+        throw new UnsupportedOperationException("TODO: Must be O(1) cost");  
+    }  
+  
+    public E peek()  
+    {  
+        throw new UnsupportedOperationException("TODO");  
+    }  
+  
+    public E pop()  
+    {  
+        throw new UnsupportedOperationException("TODO");  
+    }  
+  
+    public E push(E item)  
+    {  
+        throw new UnsupportedOperationException("TODO");  
+    }  
+  
+    public int search(E item)  
+    {  
+        throw new UnsupportedOperationException("TODO");  
+    }  
+}
+```
+
+**Açıklamalar:** Sınıfın public bölümünü değiştirmeden istediğiniz eklemeyi yapabilirsiniz.
+
+`List<E>` arayüzünü destekleyen önemli bir collection sınıf da `LinkedList<E>` sınıfıdır. Bu sınıf tipik olarak bir bağlı listeyi (linked list) temsil eder. Bağlı liste, aralarında öncelik sonralık ilişkisi olan ancak bellekte peş peşe gelmek zorunda olmayan liste tarzı bir veri yapısıdır. Bu veri yapısında elemanlar **node**'larda tutulur. Bir node içerisinde elemanla birlikte bir sonraki elemanın bulunduğu node'un adresi de tutulur. Bağlı listeler genel olarak **doubly** ve **singly** olarak iki gruba ayrılır. Doubly linked list'lerde bir node içerisinde kendisinden önce gelen elemanın bulunduğu node'un adresi de tutulur. Singly linked list'lerde yalnızca sonraki elemanın bulunduğu node'un adresi tutulur.
+ 
+JavaSE'de `LinkedList` sınıfı yalnızca liste tarzı bir collection sınıf değildir. Aynı zamanda başka arayüzleri de destekleyerek daha yetenekli hale getirilmiştir.
+ 
+ Bağlı Listelere Neden Gereksinim Duyulur?
+ 
+ - Bağlı listelerde elemanların bellekte peş peşe olarak bulunması gerekmez. Böylece peş peşe bellek ihtiyacının karşılanamayabileceği durumda bağlı liste tercih edilir. Peş peşelik bölünmeye (fragmentation) yol açar. Bölünme de bellek verimini düşürme eğilimindedir. Özellikle, heap'de tahsis edilen diziler (ki Java'da diziler hep heap'de tahsis edilir) söz konusu olduğunda bağlı listeler daha verimli olma eğilimindedir. Bu durum Java'da çok karşımıza çıkmasa da aşağı seviyeli bazı uygulamalar için bilinmesinde fayda vardır.
+ - Çok sayıda delete işleminin yapıldığı durumlarda bağlı listeler tercih edilebilir. Örneğin, bir dizide bir elemanı silme işlemi kaydırma ile yapılacağından, bağlı listede silme işlemine göre maliyetlidir.
+ - JavaSE'de `LinkedList` sınıfı `List<E>` dışında başka arayüzleri de desteklediği için daha yeteneklidir denebilir. Örneğin, `LinkedList<E>` `Deque<E>` arayüzünü de desteklediği için `double ended queue (deque)` olarak da kullanılabilmektedir. Deque veri yapısı ve `Deque<E>` arayüzü ileride ele alınacaktır.
+ 
+ Bağlı Listelerle Dizilerin Karşılaştırılması:
+
+- Belli bir indeksteki elemana erişim dizilerde O(1) karmaşıklıktadır ancak bağlı listelerde belirli bir indekteki elemana erişmek O(n) karmaşıklıktadır. Bu nedenle elemana erişimin çok fazla yapıldığı sistemlerde normal dizler yada dinamik büyüyen diziler tercih edilmelidir.
+- Node'u bilinen bir elemanın önüne ya da gerisine insert etme işlemi bağlı listelerde `O(1)` karmaşıklıktadır ancak dizilerde insert işlemi `O(n)` karmaşıklıktadır. Tabii, tekli bağlı listelerde bilinen bir node'un öncesine insert işlemi de `O(n)` karmaşıklıktadır. O halde insert işleminin yoğun yapıldığı durumlarda bağlı listeler tercih edilir.
+- Node'u bilinen bir elemanın silinmesi bağlı listelerde `O(1)` karmaşıklıktadır ancak dizilerde `O(n)` karmaşıklıktadır. Tabii tekli bağlı listelerde silinecek düğümün değil ondan önceki düğümün adresi bilinmelidir.
+
+	**Anahtar Notlar:** JavaSE'de `LinkedList<E>` sınıfının düğümlerine programcı erişemez. Dolayısıyla bu sınıf için düğümün adresinin bilinmesi doğrudan mümkün değildir. `List<E>` interface'i dolayısıyla insert işlemi de index yoluyla yapılır. Bu da `O(n)` karmaşıklıktadır. 
+	
+- Başa eleman eklemek dizilerde `O(n)` karmaşıklıktadır ancak bağlı listelerde `O(1)` karmaşıklıktadır. Benzer şekilde sona ekleme işlemi diziler için `O(n)`, bağlı listelerde `O(1)` karmaşıklıktadır.
+ - Dizilerin peş peşe alana gereksinimi bazı durumlarda dezavantajlı olabilmektedir. Bağlı listeler peş peşe alana gereksinim duymazlar.
+ - Bağlı listelerin bellekte toplam kapladığı alan dizilere göre fazladır. Ancak unutulmamalıdır ki bölünme bundan çok daha fazla belleğin kullanım dışı kalmasına yol açan bir etken olabilmektedir. Dinamik büyüyen dizi veri yapıları için `capacity` kavramı söz konusu olduğundan daha fazla yer kaplama söz konusu olabilmektedir.
 
