@@ -7028,7 +7028,7 @@ class X<T> {
 
 Buna göre aslında bu durum `read only` ya da `read safety` bir kullanımdır. 
 
-`X<A>` türünden bir referansın `X<B>` türünden bir referansa doğrudan (implicit) atanabilmesine `contravariance` denir. Bu durumda `contravariant` yapılabilmesi `? super <taban tür>` sentaksı ile açılım yapılarak gerçekleştirilir. Örneğin
+`X<A>` türünden bir referansın `X<B>` türünden bir referansa doğrudan (implicit) atanabilmesine `contravariance` denir. Bu durumda `contravariant` yapılabilmesi `? super <tür>` sentaksı ile açılım yapılarak gerçekleştirilir. Örneğin
 
 ```java
 package org.csystem.app;  
@@ -8353,9 +8353,11 @@ public class CSDMinStack<E> {
 JavaSE'de `LinkedList` sınıfı yalnızca liste tarzı bir collection sınıf değildir. Aynı zamanda başka arayüzleri de destekleyerek daha yetenekli hale getirilmiştir.
  
  Bağlı Listelere Neden Gereksinim Duyulur?
+
+- Bağlı listelerde elemanların bellekte peş peşe olarak bulunması gerekmez. Böylece peş peşe bellek ihtiyacının karşılanamayabileceği durumda bağlı liste tercih edilir. Peş peşelik bölünmeye (fragmentation) yol açar. Bölünme de bellek verimini düşürme eğilimindedir. Özellikle, heap'de tahsis edilen diziler (ki Java'da diziler hep heap'de tahsis edilir) söz konusu olduğunda bağlı listeler daha verimli olma eğilimindedir. Bu durum Java'da çok karşımıza çıkmasa da aşağı seviyeli bazı uygulamalar için bilinmesinde fayda vardır.
  
- - Bağlı listelerde elemanların bellekte peş peşe olarak bulunması gerekmez. Böylece peş peşe bellek ihtiyacının karşılanamayabileceği durumda bağlı liste tercih edilir. Peş peşelik bölünmeye (fragmentation) yol açar. Bölünme de bellek verimini düşürme eğilimindedir. Özellikle, heap'de tahsis edilen diziler (ki Java'da diziler hep heap'de tahsis edilir) söz konusu olduğunda bağlı listeler daha verimli olma eğilimindedir. Bu durum Java'da çok karşımıza çıkmasa da aşağı seviyeli bazı uygulamalar için bilinmesinde fayda vardır.
  - Çok sayıda delete işleminin yapıldığı durumlarda bağlı listeler tercih edilebilir. Örneğin, bir dizide bir elemanı silme işlemi kaydırma ile yapılacağından, bağlı listede silme işlemine göre maliyetlidir.
+ 
  - JavaSE'de `LinkedList` sınıfı `List<E>` dışında başka arayüzleri de desteklediği için daha yeteneklidir denebilir. Örneğin, `LinkedList<E>` `Deque<E>` arayüzünü de desteklediği için `double ended queue (deque)` olarak da kullanılabilmektedir. Deque veri yapısı ve `Deque<E>` arayüzü ileride ele alınacaktır.
  
  Bağlı Listelerle Dizilerin Karşılaştırılması:
@@ -8367,6 +8369,80 @@ JavaSE'de `LinkedList` sınıfı yalnızca liste tarzı bir collection sınıf
 	**Anahtar Notlar:** JavaSE'de `LinkedList<E>` sınıfının düğümlerine programcı erişemez. Dolayısıyla bu sınıf için düğümün adresinin bilinmesi doğrudan mümkün değildir. `List<E>` interface'i dolayısıyla insert işlemi de index yoluyla yapılır. Bu da `O(n)` karmaşıklıktadır. 
 	
 - Başa eleman eklemek dizilerde `O(n)` karmaşıklıktadır ancak bağlı listelerde `O(1)` karmaşıklıktadır. Benzer şekilde sona ekleme işlemi diziler için `O(n)`, bağlı listelerde `O(1)` karmaşıklıktadır.
+
  - Dizilerin peş peşe alana gereksinimi bazı durumlarda dezavantajlı olabilmektedir. Bağlı listeler peş peşe alana gereksinim duymazlar.
+ 
  - Bağlı listelerin bellekte toplam kapladığı alan dizilere göre fazladır. Ancak unutulmamalıdır ki bölünme bundan çok daha fazla belleğin kullanım dışı kalmasına yol açan bir etken olabilmektedir. Dinamik büyüyen dizi veri yapıları için `capacity` kavramı söz konusu olduğundan daha fazla yer kaplama söz konusu olabilmektedir.
 
+JavaSE'de tipik olarak First In First Out (FIFO) kuyruk yapısını temsil eden ve `Collection<E>` arayüzünden türetilmiş `Queue<E>` arayüzü vardır. `FIFO` kuyruk sistemi elemanın sona eklenip baştan alınması anlamında olduğundan bu arayüzü destekleyen veri yapıları maliyet açısından bu yapıya uygundur. Yani, veri yapısının ilk elemanın alınması dolayısıyla silinmesinin maliyetli olabileceği durumlarda implemente edilmez. Örneğin `ArrayList` ve `Vector` sınıfları bu arayüzü impelemente etmezler.
+
+`Queue<E>` _arayüzünün önemli bazı metotları şunlardır:_
+ 
+ `add, offer` -> Kuyruğa eleman eklemek için kullanılırlar. `add` metodu fixed size kuyruk sistemleri için `IllegalStateException` fırlatır, `offer` metodu ise bu durumda false değerine geri döner. 
+
+`element, peek` -> Kuyruğun başındaki elemanı silmeden döndürürler. Kuyruk boş ise `element` metodu `NoSuchElementException` fırlatır, `peek` metodu bu durumda `null` değerine geri döner.
+
+`remove, poll` -> Kuyruğun başındaki elemanı döndürürler ve aynı zamanda silerler. Kuyruk boş ise `remove` metodu `NoSuchElementException` fırlatır, `poll` metodu bu durumda `null` değerine geri döner.
+
+**Anahtar Notlar:** `Queue<T>` arayüzü tipik olarak `FIFO` kuyruk sistemleri için kullanılsa da başka şekilde çalışan kuyruk sistemleri de söz konusu olabilir. Bu anlamda örneğin add metodu için dokümanlarda `insert` fiili kullanılmıştır.
+
+İki taraftan da büyüyebilen kuyruk veri yapıları `Deque<T>` arayüzü ile temsil edilir (Double ended queue). `Deque<T>` arayüzü `Queue<T>` arayüzünden türetilmiştir. `Deque<T>` arayüzünün de kendine özgü deque'in başı (head) ile işlem yapan
+
+```
+addFirst
+offerFirst
+removeFirst
+pollFirst
+getFirst
+peekFirst
+```
+
+ ve sonu (tail) ile işlem yapan
+
+
+```
+addLast
+offerLast
+removeLast
+pollLast
+getLast
+peekLast
+``` 
+
+ metotları vardır. Bu metotlar ve aralarındaki ilişkiler `Queue<T>` arayüzünün metotları ve aralarındaki ilişkiler gibidir. `Deque` veri yapıları hem `FIFO` hem de `LIFO` olarak kullanılabilmektedir. Örneğin iki yarışmacı için her bir yarışı bitirdiklerindeki birinci yarışmanın sonuçlarını hep başa, ikinci yarışmacının sonuçlarını hep sona ekleyecek olalım. Bu durumda eğer `ArrayList` ya da `Vector` gibi bir veri yapısı kullanırsak, sona eklemek maliyetli olmasa da başa eklemek maliyetlidir. Bu durumda bu senaryo için bu veri yapıları uygun değildir. Tipik olarak deque veri yapısı kullanılabilir. Java'nın collection kütüphanesinde `Deque<T>` arayüzünü dolayısıyla `Queue<T>` arayüzünü impelemente etmiş olan sınıflar içerisinde `ArrayDeque<E>` ve `LinkedList<E>` sınıfları çok fazla kullanılmaktadır.
+
+ `ArrayDeque<E>` sınıfı, `ArrayList`'in deque olarak çalışabilen yani baştan ve sondan capacity değeri kullanarak büyüyebilen veri yapısı olarak düşünülebilir. Bu veri yapısındaki pek çok işlem **amortized constant time cost** olarak yapılır. `remove`, `removeFirstOccurrence`, `removeLastOccurrence`, `contains`, `iterator` ve `remove` gibi metotlar `O(n)` karmaşıklıkta çalışırlar. `ArrayDeque<E>` sınıfı her ne kadar `ArrayList<E>`'ye benzetilebilse de liste tarzı bir collection sınıf değildir. Dolayısıyla `List<E>` arayüzünü implemente etmemiştir.
+
+**Sınıf Çalışması:** Yalnızca `Object` sınıfından türetilen, `Queue<E>` arayüzünü implemente eden `CSDQueue` sınıfını dinamik büyüyen dizi implementasyonu olarak yazınız ve test ediniz.
+
+**Sınıf Çalışması:** Eleman sayısını ctor ile alan ve queue dolduğunda `RuntimeException` sınıfından türetilmiş `FullQueueException` fırlatan `CSDBoundedQueue` sınıfını yazınız ve test ediniz.
+
+
+
+XXXXXXXXXXXXXXXXXX
+
+
+ **Collection'lara ilişkin özet:**
+ 
+ **Arayüzler:**
+
+ - `Iterable<E>`: Genel dolaşıma ilişkin arayüz
+ - `Collection<E>`: Collection olma anlaşması. Tipik olarak collection'lar veri transferinde kullanılır.
+ - `List<E>`: Liste tarzı collection sınıfların arayüzü
+ - `Queue<E>`: Kuyruk veri yapılarının arayüzü
+ - `Deque<E>`: Baştan ve sondan büyütülebilen kuyruk veri yapılarının arayüzü
+ - `Set<E>`: Küme tarzı veri yapılarının arayüzü
+ - `Map<K, V>`: Sözlük tarzı veri yapılarının arayüzü
+
+ **Sınıflar:**
+ 
+ - `ArrayList<E>`: Dinamik büyüyen dizi veri yapısı
+ - `Vector<E>`: Dinamik büyüyen dizi veri yapısı. Gerekmedikçe `ArrayList<E>` tercih edilmelidir
+ - `LinkedList<E>`: Çift (doubly) bağlı lite veri yapısı
+ - `Stack<E>`: LIFO kuyruk (stack) veri yapısı. `Vector<E>` sınıfından türetildiği unutulmamalıdır
+ - `ArrayDeque<E>`: Baştan ve sondan "amortized constant time cost" olarak büyüyebilen dizi veri yapısı
+ - `PriorityQueue<E>`: Öncelikli olarak çalışan kuyruk sistemi
+ - `TreeSet<E>`: Elemanları sıralı (sorted) olarak tutan küme tarzı veri yapısı
+ - `HashSet<E>`: Hash tablosu kullanan küme tarzı veri yapısı
+ - `TreeMap<K, V>`: Anahtar değerleri tipik olarak `TreeSet<E>` olarak tutan sözlük tarzı veri yapısı
+ - `HashMap<K, V>`: Anahtar değerleri tipik olarak `HashSet<E>` olarak tutan sözlük tarzı veri yapısı
