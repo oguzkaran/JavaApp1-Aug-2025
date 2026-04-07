@@ -7632,6 +7632,106 @@ public class StringUtil {
 
 
 Sınıfın diğer metotları örnekler içerisinde kullanılarak ele alınacaktır.
+##### SuppressWarnings Annotation
+
+Bu annotation bazı warning durumlarını kaldırmak amaçlı kullanılır. SuppressWarnings ile her warning kaldırılamaz. Java Language Specification'a (JLS) göre SuppressWarnings ile aşağıdaki warning'ler kaldırılabilir:
+
+**unchecked:** Yapılan işlemin kontrol edilmesi gerektiği ancak programcının kontrol etmediğinde verilen warning mesajını kaldırmak için kullanılır. Programcı kontrol işleminin gerekmediğine emin olduğunda uyarıyı kaldırabilir.
+
+Aşağıdaki demo örnekteki tehlikeli durumu inceleyiniz. B sınıfında aynı tehlikenin olmadığına dikkat ediniz
+
+```java
+package org.csystem.app;  
+  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.Random;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        Object [] objects = {"ankara", 10, 2.3, new Random()};  
+  
+        A<String> a = new A<>(objects);  
+  
+        for (int i = 0; i < a.size(); ++i)  
+            log.info("a[{}] = {}", i, a.get(i).toUpperCase());  
+    }  
+}  
+  
+class A<T> {  
+    private final T [] m_t;  
+    private int m_index;  
+  
+    public A(Object [] objects)  
+    {  
+        m_t = (T []) objects;  
+    }  
+  
+    public int size()  
+    {  
+        return m_t.length;  
+    }  
+  
+    public boolean add(T t)  
+    {  
+        if (m_index == m_t.length)  
+            return false;  
+  
+        m_t[m_index++] = t;  
+  
+        return true;  
+    }  
+  
+    public T get(int index)  
+    {  
+        //...  
+        return m_t[index];  
+    }  
+}  
+  
+  
+class B<T> {  
+    private final T [] m_t;  
+    private int m_index;  
+  
+    @SuppressWarnings("unchecked")  
+    public B(int size)  
+    {  
+        m_t = (T []) new Object[size];  
+    }  
+  
+    public int size()  
+    {  
+        return m_t.length;  
+    }  
+  
+    public boolean add(T t)  
+    {  
+        if (m_index == m_t.length)  
+            return false;  
+  
+        m_t[m_index++] = t;  
+  
+        return true;  
+    }  
+  
+    public T get(int index)  
+    {  
+        //...  
+        return m_t[index];  
+    }  
+}
+```
+
+**deprecation:** Deprecated olan bir warning'i kaldırmak için kullanılabilir.
+
+**removal:** İleride silinecek olan bir sentaktik elemanın kullanımında verilen warning'in kaldırılması için kullanılır. Tipik olarak `Deprecated` annotation'ının `forRemoval` attribute'unun true olması durumunda verilen uyarının kaldırılması için kullanılır.
+
+**preview:** Dile ya da bir kütüphaneye eklenmiş olan bir özelliğin veya ilgili kütüphane elemanının (class, package, method vs.) henüz daha `preview` aşamasında olması durumunda verilen warning'in kaldırılması için kullanılır.
+
+Bu warning'ler `String []` türden value attribute'u ile verilebilir. JLS bu durumu esnek bırakmıştır. Yani buradaki warning'lerin kaldırılabilir olması zorunludur ancak ek olarak başka warning'ler de eklenmiş olabilir. Her ne şekilde olursa programcı bu warning'leri kaldırırken kesinlikle emin olmalıdır. Bu durum tamamen programcının sorumluluğudur. Yani bu annotation dikkatli kullanılmalıdır.
 
 ##### JavaSE Collections
 
@@ -8079,7 +8179,7 @@ class Application {
 
 Yukarıdaki arayüzler dışında `Collection` arayüzünden türetilmiş başka arayüzler de bulunmaktadır. Burada yalnızca yukarıdaki arayüzler ve onları implemente eden ve çok kullanılan sınıflar ele alınacaktır.
 
-###### List, Set, Queue ve Deque Arayüzleri
+###### List, Queue, Deque ve Set Arayüzleri
 
 `List<E>` arayüzünü implemente eden sınıflardan bazıları şunlardır:
 
@@ -8223,7 +8323,7 @@ class Application {
 
 **Açıklamalar:** 
  - Bu collection sınıfı `ArrayList` sınıfından türetilecektir.
- - Çoklu veri eklemede bir tane bile null değer varsa yine ekleme yapılmayacak ve exception fırlatılacaktır
+ - Çoklu veri eklemede bir tane bile null değer varsa yine ekleme yapılmayacak ve exception fırlatılacaktır.
  - Sınıfın `ArrayList` sınıfının içerisinde bulunan tüm ctor'ları da olacaktır.
 
 **Sınıf Çalışması:** Yalnızca `Object` sınıfından türetilen ve **dinamik** olarak büyüyebilen aşağıdaki `CSDStack` sınıfını yazınız.
@@ -8231,7 +8331,7 @@ class Application {
 ```java
 package org.csystem.collection;  
   
-public class CSDStack<E> {  
+public class CSDStack<E> {
     public CSDStack()  
     {  
         throw new UnsupportedOperationException("TODO");  
@@ -8349,6 +8449,7 @@ public class CSDMinStack<E> {
 **Açıklamalar:** Sınıfın public bölümünü değiştirmeden istediğiniz eklemeyi yapabilirsiniz.
 
 `List<E>` arayüzünü destekleyen önemli bir collection sınıf da `LinkedList<E>` sınıfıdır. Bu sınıf tipik olarak bir bağlı listeyi (linked list) temsil eder. Bağlı liste, aralarında öncelik sonralık ilişkisi olan ancak bellekte peş peşe gelmek zorunda olmayan liste tarzı bir veri yapısıdır. Bu veri yapısında elemanlar **node**'larda tutulur. Bir node içerisinde elemanla birlikte bir sonraki elemanın bulunduğu node'un adresi de tutulur. Bağlı listeler genel olarak **doubly** ve **singly** olarak iki gruba ayrılır. Doubly linked list'lerde bir node içerisinde kendisinden önce gelen elemanın bulunduğu node'un adresi de tutulur. Singly linked list'lerde yalnızca sonraki elemanın bulunduğu node'un adresi tutulur.
+
  
 JavaSE'de `LinkedList` sınıfı yalnızca liste tarzı bir collection sınıf değildir. Aynı zamanda başka arayüzleri de destekleyerek daha yetenekli hale getirilmiştir.
  
@@ -8386,6 +8487,12 @@ JavaSE'de tipik olarak First In First Out (FIFO) kuyruk yapısını temsil eden 
 
 **Anahtar Notlar:** `Queue<T>` arayüzü tipik olarak `FIFO` kuyruk sistemleri için kullanılsa da başka şekilde çalışan kuyruk sistemleri de söz konusu olabilir. Bu anlamda örneğin add metodu için dokümanlarda `insert` fiili kullanılmıştır.
 
+`PriorityQueue<T>` sınıfı öncelikli olan elemanları kuyruğun başına çeker. Bu sınıf `Queue<T>` arayüzünü implemente etmiştir. Önceliklendirme işlemini default olarak `Comparable<T>` arayüzünü kullanarak yapar. Eğer açılıma ilişkin tür `Comparable<T>` arayüzünü desteklemiyorsa ve PriorityQueue nesnesi default olarak `Comparable<T>` arayüzünü kullanıyorsa ClassCastException fırlatılır. `PriorityQueue<T>` nesnesi, `Comparator<T>` parametreli ctor'u ile yaratılmışsa karşılaştırma işlemini aldığı callback ile yapar. Bu veri yapısının kullanımına tipik bir senaryo olarak, `banka müşterilerinin sahip oldukları kredi kartı veya hesap seçeneceğine işlem önceliğine alınması` verilebilir. Bu veri yapısı işletim sistemlerinin `process management` kısmında çeşitli process'lerin önceliklendirilmesi için de kullanılmaktadır.
+
+```java
+
+```
+
 İki taraftan da büyüyebilen kuyruk veri yapıları `Deque<T>` arayüzü ile temsil edilir (Double ended queue). `Deque<T>` arayüzü `Queue<T>` arayüzünden türetilmiştir. `Deque<T>` arayüzünün de kendine özgü deque'in başı (head) ile işlem yapan
 
 ```
@@ -8397,7 +8504,7 @@ getFirst
 peekFirst
 ```
 
- ve sonu (tail) ile işlem yapan
+ve sonu (tail) ile işlem yapan
 
 
 ```
@@ -8409,17 +8516,23 @@ getLast
 peekLast
 ``` 
 
- metotları vardır. Bu metotlar ve aralarındaki ilişkiler `Queue<T>` arayüzünün metotları ve aralarındaki ilişkiler gibidir. `Deque` veri yapıları hem `FIFO` hem de `LIFO` olarak kullanılabilmektedir. Örneğin iki yarışmacı için her bir yarışı bitirdiklerindeki birinci yarışmanın sonuçlarını hep başa, ikinci yarışmacının sonuçlarını hep sona ekleyecek olalım. Bu durumda eğer `ArrayList` ya da `Vector` gibi bir veri yapısı kullanırsak, sona eklemek maliyetli olmasa da başa eklemek maliyetlidir. Bu durumda bu senaryo için bu veri yapıları uygun değildir. Tipik olarak deque veri yapısı kullanılabilir. Java'nın collection kütüphanesinde `Deque<T>` arayüzünü dolayısıyla `Queue<T>` arayüzünü impelemente etmiş olan sınıflar içerisinde `ArrayDeque<E>` ve `LinkedList<E>` sınıfları çok fazla kullanılmaktadır.
+metotları vardır. Bu metotlar ve aralarındaki ilişkiler `Queue<T>` arayüzünün metotları ve aralarındaki ilişkiler gibidir. `Deque` veri yapıları hem `FIFO` hem de `LIFO` olarak kullanılabilmektedir. Örneğin iki yarışmacı için her bir yarışı bitirdiklerindeki birinci yarışmanın sonuçlarını hep başa, ikinci yarışmacının sonuçlarını hep sona ekleyecek olalım. Bu durumda eğer `ArrayList` ya da `Vector` gibi bir veri yapısı kullanırsak, sona eklemek maliyetli olmasa da başa eklemek maliyetlidir. Bu durumda bu senaryo için bu veri yapıları uygun değildir. Tipik olarak deque veri yapısı kullanılabilir. Java'nın collection kütüphanesinde `Deque<T>` arayüzünü dolayısıyla `Queue<T>` arayüzünü impelemente etmiş olan sınıflar içerisinde `ArrayDeque<E>` ve `LinkedList<E>` sınıfları çok fazla kullanılmaktadır.
 
  `ArrayDeque<E>` sınıfı, `ArrayList`'in deque olarak çalışabilen yani baştan ve sondan capacity değeri kullanarak büyüyebilen veri yapısı olarak düşünülebilir. Bu veri yapısındaki pek çok işlem **amortized constant time cost** olarak yapılır. `remove`, `removeFirstOccurrence`, `removeLastOccurrence`, `contains`, `iterator` ve `remove` gibi metotlar `O(n)` karmaşıklıkta çalışırlar. `ArrayDeque<E>` sınıfı her ne kadar `ArrayList<E>`'ye benzetilebilse de liste tarzı bir collection sınıf değildir. Dolayısıyla `List<E>` arayüzünü implemente etmemiştir.
+
+```java
+
+```
+
+```java
+
+```
 
 **Sınıf Çalışması:** Yalnızca `Object` sınıfından türetilen, `Queue<E>` arayüzünü implemente eden `CSDQueue` sınıfını dinamik büyüyen dizi implementasyonu olarak yazınız ve test ediniz.
 
 **Sınıf Çalışması:** Eleman sayısını ctor ile alan ve queue dolduğunda `RuntimeException` sınıfından türetilmiş `FullQueueException` fırlatan `CSDBoundedQueue` sınıfını yazınız ve test ediniz.
 
 
-
-XXXXXXXXXXXXXXXXXX
 
 
  **Collection'lara ilişkin özet:**

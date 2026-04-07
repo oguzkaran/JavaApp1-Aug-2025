@@ -1,37 +1,82 @@
 package org.csystem.app;
 
-import com.karandev.io.util.console.Console;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Random;
-import java.util.Stack;
 
 @Slf4j
 class Application {
     public static void run(String[] args)
     {
-        var intStack = new Stack<Integer>();
-        var random = new Random();
+        Object [] objects = {"ankara", 10, 2.3, new Random()};
 
-        while (true) {
-            var val = random.nextInt(-10, 11);
+        A<String> a = new A<>(objects);
 
-            if (val == 0)
-                break;
+        for (int i = 0; i < a.size(); ++i)
+            log.info("a[{}] = {}", i, a.get(i).toUpperCase());
+    }
+}
 
-            intStack.push(val);
-        }
+class A<T> {
+    private final T [] m_t;
+    private int m_index;
 
-        var value = random.nextInt(-10, 11);
-        Console.writeLine("Value:%d", value);
+    public A(Object [] objects)
+    {
+        m_t = (T []) objects;
+    }
 
-        var order = intStack.search(value);
+    public int size()
+    {
+        return m_t.length;
+    }
 
-        Console.writeLine("%d%s", value, order != -1 ? " found at %d".formatted(order) : " not found");
+    public boolean add(T t)
+    {
+        if (m_index == m_t.length)
+            return false;
 
-        while (!intStack.empty())
-            Console.write("%d ", intStack.pop());
+        m_t[m_index++] = t;
 
-        Console.writeLine();
+        return true;
+    }
+
+    public T get(int index)
+    {
+        //...
+        return m_t[index];
+    }
+}
+
+
+class B<T> {
+    private final T [] m_t;
+    private int m_index;
+
+    @SuppressWarnings("unchecked")
+    public B(int size)
+    {
+        m_t = (T []) new Object[size];
+    }
+
+    public int size()
+    {
+        return m_t.length;
+    }
+
+    public boolean add(T t)
+    {
+        if (m_index == m_t.length)
+            return false;
+
+        m_t[m_index++] = t;
+
+        return true;
+    }
+
+    public T get(int index)
+    {
+        //...
+        return m_t[index];
     }
 }
