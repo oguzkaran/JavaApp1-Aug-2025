@@ -1,82 +1,32 @@
 package org.csystem.app;
 
+import com.karandev.io.util.console.Console;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Random;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 @Slf4j
 class Application {
     public static void run(String[] args)
     {
-        Object [] objects = {"ankara", 10, 2.3, new Random()};
-
-        A<String> a = new A<>(objects);
-
-        for (int i = 0; i < a.size(); ++i)
-            log.info("a[{}] = {}", i, a.get(i).toUpperCase());
+        Console.writeLine(Util.CountMinutes("9:00am-10:00am")); //60
+        Console.writeLine(Util.CountMinutes("1:00pm-11:00am")); // 1320
+        Console.writeLine(Util.CountMinutes("12:30pm-12:00am")); // 690
+        Console.writeLine(Util.CountMinutes("1:23am-1:08am")); // 1425
     }
 }
 
-class A<T> {
-    private final T [] m_t;
-    private int m_index;
-
-    public A(Object [] objects)
+class Util {
+    public static long CountMinutes(String str)
     {
-        m_t = (T []) objects;
-    }
+        var formatter = DateTimeFormatter.ofPattern("h:mma");
+        var info = str.split("-");
+        var startTime = LocalTime.parse(info[0].toUpperCase(), formatter);
+        var endTime = LocalTime.parse(info[1].toUpperCase(), formatter);
 
-    public int size()
-    {
-        return m_t.length;
-    }
-
-    public boolean add(T t)
-    {
-        if (m_index == m_t.length)
-            return false;
-
-        m_t[m_index++] = t;
-
-        return true;
-    }
-
-    public T get(int index)
-    {
-        //...
-        return m_t[index];
-    }
-}
-
-
-class B<T> {
-    private final T [] m_t;
-    private int m_index;
-
-    @SuppressWarnings("unchecked")
-    public B(int size)
-    {
-        m_t = (T []) new Object[size];
-    }
-
-    public int size()
-    {
-        return m_t.length;
-    }
-
-    public boolean add(T t)
-    {
-        if (m_index == m_t.length)
-            return false;
-
-        m_t[m_index++] = t;
-
-        return true;
-    }
-
-    public T get(int index)
-    {
-        //...
-        return m_t[index];
+        return startTime.isBefore(endTime) ? ChronoUnit.MINUTES.between(startTime, endTime)
+                : 24 * 60 - ChronoUnit.MINUTES.between(endTime,startTime);
     }
 }

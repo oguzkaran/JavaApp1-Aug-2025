@@ -8489,9 +8489,74 @@ JavaSE'de tipik olarak First In First Out (FIFO) kuyruk yapısını temsil eden 
 
 `PriorityQueue<T>` sınıfı öncelikli olan elemanları kuyruğun başına çeker. Bu sınıf `Queue<T>` arayüzünü implemente etmiştir. Önceliklendirme işlemini default olarak `Comparable<T>` arayüzünü kullanarak yapar. Eğer açılıma ilişkin tür `Comparable<T>` arayüzünü desteklemiyorsa ve PriorityQueue nesnesi default olarak `Comparable<T>` arayüzünü kullanıyorsa ClassCastException fırlatılır. `PriorityQueue<T>` nesnesi, `Comparator<T>` parametreli ctor'u ile yaratılmışsa karşılaştırma işlemini aldığı callback ile yapar. Bu veri yapısının kullanımına tipik bir senaryo olarak, `banka müşterilerinin sahip oldukları kredi kartı veya hesap seçeneceğine işlem önceliğine alınması` verilebilir. Bu veri yapısı işletim sistemlerinin `process management` kısmında çeşitli process'lerin önceliklendirilmesi için de kullanılmaktadır.
 
-```java
+Aşağıdaki demo örneği inceleyiniz
 
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.device.DeviceData;  
+import org.csystem.device.DeviceDataSource;  
+import org.csystem.scheduler.timeout.CountDownScheduler;  
+  
+import java.util.PriorityQueue;  
+import java.util.concurrent.TimeUnit;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var deviceDataSource = new DeviceDataSource();  
+        var priorityQueue = new PriorityQueue<DeviceData>((d1, d2) -> (int)d2.getData() - (int)d1.getData());  
+  
+        new CountDownScheduler(10, 1, TimeUnit.SECONDS) {  
+            @Override  
+            public void onTick(long remainingMilliseconds)  
+            {  
+                var data = deviceDataSource.fecthDeviceData();  
+  
+                Console.writeLine("%s", data);  
+                priorityQueue.offer(data);  
+            }  
+  
+            @Override  
+            public void onFinish()  
+            {  
+                Console.writeLine('\n');  
+                while (!priorityQueue.isEmpty())  
+                    Console.writeLine("%s", priorityQueue.poll());  
+  
+                Console.writeLine();  
+            }  
+        }.start();  
+    }  
+}
 ```
+
+```java
+package org.csystem.device;  
+  
+import lombok.Builder;  
+import lombok.Getter;  
+import lombok.Setter;  
+import lombok.ToString;  
+import lombok.experimental.Accessors;  
+  
+@Getter  
+@Setter  
+@Accessors(prefix = "m_")  
+@ToString  
+@Builder  
+public class DeviceData {  
+    private String m_name;  
+    private String m_host;  
+    private int m_port;  
+    private Object m_data;  
+}
+```
+
+
 
 İki taraftan da büyüyebilen kuyruk veri yapıları `Deque<T>` arayüzü ile temsil edilir (Double ended queue). `Deque<T>` arayüzü `Queue<T>` arayüzünden türetilmiştir. `Deque<T>` arayüzünün de kendine özgü deque'in başı (head) ile işlem yapan
 
@@ -8520,9 +8585,13 @@ metotları vardır. Bu metotlar ve aralarındaki ilişkiler `Queue<T>` arayüz
 
  `ArrayDeque<E>` sınıfı, `ArrayList`'in deque olarak çalışabilen yani baştan ve sondan capacity değeri kullanarak büyüyebilen veri yapısı olarak düşünülebilir. Bu veri yapısındaki pek çok işlem **amortized constant time cost** olarak yapılır. `remove`, `removeFirstOccurrence`, `removeLastOccurrence`, `contains`, `iterator` ve `remove` gibi metotlar `O(n)` karmaşıklıkta çalışırlar. `ArrayDeque<E>` sınıfı her ne kadar `ArrayList<E>`'ye benzetilebilse de liste tarzı bir collection sınıf değildir. Dolayısıyla `List<E>` arayüzünü implemente etmemiştir.
 
+Aşağıdaki demo örnekte LinkedList sınıfın Stack biçiminde kullanılmıştır.
+
 ```java
 
 ```
+
+
 
 ```java
 
@@ -8531,7 +8600,6 @@ metotları vardır. Bu metotlar ve aralarındaki ilişkiler `Queue<T>` arayüz
 **Sınıf Çalışması:** Yalnızca `Object` sınıfından türetilen, `Queue<E>` arayüzünü implemente eden `CSDQueue` sınıfını dinamik büyüyen dizi implementasyonu olarak yazınız ve test ediniz.
 
 **Sınıf Çalışması:** Eleman sayısını ctor ile alan ve queue dolduğunda `RuntimeException` sınıfından türetilmiş `FullQueueException` fırlatan `CSDBoundedQueue` sınıfını yazınız ve test ediniz.
-
 
 
 
