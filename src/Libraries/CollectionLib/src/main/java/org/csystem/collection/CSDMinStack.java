@@ -5,10 +5,15 @@ import java.util.Comparator;
 public class CSDMinStack<E> {
     public CSDMinStack()
     {
+        throw new UnsupportedOperationException("TODO: This assume that E is Comparable");
+    }
+
+    public CSDMinStack(Comparator<? super E> comparator)
+    {
         throw new UnsupportedOperationException("TODO");
     }
 
-    public E min(Comparator<? super E> comparator)
+    public E min()
     {
         throw new UnsupportedOperationException("TODO: Must be O(1) cost");
     }
