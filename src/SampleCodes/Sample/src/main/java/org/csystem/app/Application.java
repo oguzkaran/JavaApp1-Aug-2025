@@ -2,30 +2,36 @@ package org.csystem.app;
 
 import com.karandev.io.util.console.Console;
 import lombok.extern.slf4j.Slf4j;
+import org.csystem.device.DeviceData;
+import org.csystem.device.DeviceDataSource;
 
-import java.util.LinkedList;
+import java.util.ArrayDeque;
 
 @Slf4j
 class Application {
     public static void run(String[] args)
     {
-        var linkedList = new LinkedList<String>();
+        var threshold = Console.readInt("Input threshold:");
+        var arrayDeque = new ArrayDeque<DeviceData>();
+        var deviceDataSource = new DeviceDataSource();
 
         while (true) {
-            var s = Console.read("Input text:");
+            var name = Console.read("Input name:");
 
-            if ("quit".equals(s))
+            if ("quit".equals(name))
                 break;
 
-            linkedList.push(s);
+            var device = deviceDataSource.fetchIntDeviceData(name);
+
+            if ((int)device.getData() < threshold)
+                arrayDeque.addFirst(device);
+            else
+                arrayDeque.addLast(device);
+
+            Console.writeLine("Device:%s", device);
         }
 
-        while (!linkedList.isEmpty()) {
-            var str = linkedList.pop();
-
-            Console.write("%s ", str);
-        }
-
-        Console.writeLine();
+        Console.writeLine("All devices:");
+        arrayDeque.forEach(Console::writeLine);
     }
 }

@@ -24,10 +24,10 @@ public class DeviceDataSource {
         return m_randomGenerator.nextInt(-1000, 1000);
     }
 
-    public DeviceData fecthDeviceData()
+    public DeviceData fetchIntDeviceData(String name)
     {
         return DeviceData.builder()
-                .name(StringUtil.randomTextEN(m_randomGenerator, m_randomGenerator.nextInt(5, 15)))
+                .name(name)
                 .host(getHost())
                 .port(m_randomGenerator.nextInt(1024, 65536))
                 .data(getData())

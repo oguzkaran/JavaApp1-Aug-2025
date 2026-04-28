@@ -3216,7 +3216,7 @@ class A {
 }
 ```
 
-Peki, inner bir sınıf byte code'a yazılırken nasıl implemente edilecektir? Aslında inner bir sınıfa ait olduğu sınıf türünden bir veri elemanı eklenir. Inner sınıf türünden nesne yaratılırken o veri elemanı için ilgili adres geçilir. Bu da örneğin inner sınıfın her bir ctor'una ait olduğu sınıf türünden +1 tane parametre eklenerek yapılabilir. 
+Peki, inner bir sınıf byte code'a yazılırken nasıl implemente edilecektir? Aslında inner bir sınıfa, ait olduğu sınıf türünden bir veri elemanı eklenir. Inner sınıf türünden nesne yaratılırken o veri elemanı için ilgili adres geçilir. Bu da örneğin inner sınıfın her bir ctor'una ait olduğu sınıf türünden +1 tane parametre eklenerek yapılabilir. 
 
 Aşağıdaki demo örnekte bulunan B sınıfının byte code'unun yaklaşık karşılığı aşağıdaki gibidir:
 
@@ -7638,7 +7638,7 @@ Bu annotation bazı warning durumlarını kaldırmak amaçlı kullanılır. Supp
 
 **unchecked:** Yapılan işlemin kontrol edilmesi gerektiği ancak programcının kontrol etmediğinde verilen warning mesajını kaldırmak için kullanılır. Programcı kontrol işleminin gerekmediğine emin olduğunda uyarıyı kaldırabilir.
 
-Aşağıdaki demo örnekteki tehlikeli durumu inceleyiniz. B sınıfında aynı tehlikenin olmadığına dikkat ediniz
+Aşağıdaki demo örnekteki tehlikeli durumu inceleyiniz. B sınıfında aynı tehlikenin olmadığına dikkat ediniz. Her ne kadar A sınıfı için de uyarı kaldırılabilse de tavsiye edilmez.
 
 ```java
 package org.csystem.app;  
@@ -8456,10 +8456,8 @@ JavaSE'de `LinkedList` sınıfı yalnızca liste tarzı bir collection sınıf
  Bağlı Listelere Neden Gereksinim Duyulur?
 
 - Bağlı listelerde elemanların bellekte peş peşe olarak bulunması gerekmez. Böylece peş peşe bellek ihtiyacının karşılanamayabileceği durumda bağlı liste tercih edilir. Peş peşelik bölünmeye (fragmentation) yol açar. Bölünme de bellek verimini düşürme eğilimindedir. Özellikle, heap'de tahsis edilen diziler (ki Java'da diziler hep heap'de tahsis edilir) söz konusu olduğunda bağlı listeler daha verimli olma eğilimindedir. Bu durum Java'da çok karşımıza çıkmasa da aşağı seviyeli bazı uygulamalar için bilinmesinde fayda vardır.
- 
- - Çok sayıda delete işleminin yapıldığı durumlarda bağlı listeler tercih edilebilir. Örneğin, bir dizide bir elemanı silme işlemi kaydırma ile yapılacağından, bağlı listede silme işlemine göre maliyetlidir.
- 
- - JavaSE'de `LinkedList` sınıfı `List<E>` dışında başka arayüzleri de desteklediği için daha yeteneklidir denebilir. Örneğin, `LinkedList<E>` `Deque<E>` arayüzünü de desteklediği için `double ended queue (deque)` olarak da kullanılabilmektedir. Deque veri yapısı ve `Deque<E>` arayüzü ileride ele alınacaktır.
+- Çok sayıda delete işleminin yapıldığı durumlarda bağlı listeler tercih edilebilir. Örneğin, bir dizide bir elemanı silme işlemi kaydırma ile yapılacağından, bağlı listede silme işlemine göre maliyetlidir.
+- JavaSE'de `LinkedList` sınıfı `List<E>` dışında başka arayüzleri de desteklediği için daha yeteneklidir denebilir. Örneğin, `LinkedList<E>` `Deque<E>` arayüzünü de desteklediği için `double ended queue (deque)` olarak da kullanılabilmektedir. Deque veri yapısı ve `Deque<E>` arayüzü ileride ele alınacaktır.
  
  Bağlı Listelerle Dizilerin Karşılaştırılması:
 
@@ -8571,7 +8569,6 @@ peekFirst
 
 ve sonu (tail) ile işlem yapan
 
-
 ```
 addLast
 offerLast
@@ -8585,24 +8582,152 @@ metotları vardır. Bu metotlar ve aralarındaki ilişkiler `Queue<T>` arayüz
 
  `ArrayDeque<E>` sınıfı, `ArrayList`'in deque olarak çalışabilen yani baştan ve sondan capacity değeri kullanarak büyüyebilen veri yapısı olarak düşünülebilir. Bu veri yapısındaki pek çok işlem **amortized constant time cost** olarak yapılır. `remove`, `removeFirstOccurrence`, `removeLastOccurrence`, `contains`, `iterator` ve `remove` gibi metotlar `O(n)` karmaşıklıkta çalışırlar. `ArrayDeque<E>` sınıfı her ne kadar `ArrayList<E>`'ye benzetilebilse de liste tarzı bir collection sınıf değildir. Dolayısıyla `List<E>` arayüzünü implemente etmemiştir.
 
-Aşağıdaki demo örnekte LinkedList sınıfın Stack biçiminde kullanılmıştır.
+Aşağıdaki demo örnekte LinkedList sınıfı stack veri yapısı olarak kullanılmıştır.
 
 ```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.LinkedList;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var linkedList = new LinkedList<String>();  
+  
+        while (true) {  
+            var s = Console.read("Input text:");  
+  
+            if ("quit".equals(s))  
+                break;  
+  
+            linkedList.push(s);  
+        }  
+  
+        while (!linkedList.isEmpty()) {  
+            var str = linkedList.pop();  
+  
+            Console.write("%s ", str);  
+        }  
+  
+        Console.writeLine();  
+    }  
+}
+```
 
+Aşağıdaki demo örnekte ArrayDeque elde edilen verilere göre ayrıştırmak için kullanılmıştır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.device.DeviceData;  
+import org.csystem.device.DeviceDataSource;  
+  
+import java.util.ArrayDeque;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var threshold = Console.readInt("Input threshold:");  
+        var arrayDeque = new ArrayDeque<DeviceData>();  
+        var deviceDataSource = new DeviceDataSource();  
+  
+        while (true) {  
+            var name = Console.read("Input name:");  
+  
+            if ("quit".equals(name))  
+                break;  
+  
+            var device = deviceDataSource.fetchIntDeviceData(name);  
+  
+            if ((int)device.getData() < threshold)  
+                arrayDeque.addFirst(device);  
+            else  
+                arrayDeque.addLast(device);  
+  
+            Console.writeLine("Device:%s", device);  
+        }  
+  
+        Console.writeLine("All devices:");  
+        arrayDeque.forEach(Console::writeLine);  
+    }  
+}
+```
+
+```java
+package org.csystem.device;  
+  
+import lombok.Builder;  
+import lombok.Getter;  
+import lombok.Setter;  
+import lombok.ToString;  
+import lombok.experimental.Accessors;  
+  
+@Getter  
+@Setter  
+@Accessors(prefix = "m_")  
+@ToString  
+@Builder  
+public class DeviceData {  
+    private String m_name;  
+    private String m_host;  
+    private int m_port;  
+    private Object m_data;  
+}
 ```
 
 
-
 ```java
-
+package org.csystem.device;  
+  
+import org.csystem.util.string.StringUtil;  
+  
+import java.util.Random;  
+import java.util.random.RandomGenerator;  
+  
+public class DeviceDataSource {  
+    private final RandomGenerator m_randomGenerator = new Random();  
+  
+    private String getHost()  
+    {  
+        return "%d.%d.%d.%d".formatted(m_randomGenerator.nextInt(0, 256),  
+                m_randomGenerator.nextInt(0, 256), m_randomGenerator.nextInt(0, 256),  m_randomGenerator.nextInt(0, 256));  
+    }  
+  
+    private Object getOptionalData()  
+    {  
+        return m_randomGenerator.nextBoolean() ? StringUtil.randomText(m_randomGenerator, m_randomGenerator.nextInt(4, 6), "_?:=)_") : null;  
+    }  
+  
+    private Object getData()  
+    {  
+        return m_randomGenerator.nextInt(-1000, 1000);  
+    }  
+  
+    public DeviceData fetchIntDeviceData(String name)  
+    {  
+        return DeviceData.builder()  
+                .name(name)  
+                .host(getHost())  
+                .port(m_randomGenerator.nextInt(1024, 65536))  
+                .data(getData())  
+                .build();  
+    }  
+}
 ```
 
 **Sınıf Çalışması:** Yalnızca `Object` sınıfından türetilen, `Queue<E>` arayüzünü implemente eden `CSDQueue` sınıfını dinamik büyüyen dizi implementasyonu olarak yazınız ve test ediniz.
 
 **Sınıf Çalışması:** Eleman sayısını ctor ile alan ve queue dolduğunda `RuntimeException` sınıfından türetilmiş `FullQueueException` fırlatan `CSDBoundedQueue` sınıfını yazınız ve test ediniz.
 
-
-
+ 
+ 
  **Collection'lara ilişkin özet:**
  
  **Arayüzler:**
