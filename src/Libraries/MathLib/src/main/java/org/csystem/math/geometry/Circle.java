@@ -1,5 +1,7 @@
 package org.csystem.math.geometry;
 
+import java.util.Objects;
+
 import static java.lang.Math.PI;
 
 public class Circle {
@@ -42,6 +44,12 @@ public class Circle {
     public boolean equals(Object other)
     {
         return other instanceof Circle c &&Math.abs(m_r - c.m_r) < DELTA;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hashCode(m_r);
     }
 
     @Override

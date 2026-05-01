@@ -8725,10 +8725,60 @@ public class DeviceDataSource {
 **Sınıf Çalışması:** Yalnızca `Object` sınıfından türetilen, `Queue<E>` arayüzünü implemente eden `CSDQueue` sınıfını dinamik büyüyen dizi implementasyonu olarak yazınız ve test ediniz.
 
 **Sınıf Çalışması:** Eleman sayısını ctor ile alan ve queue dolduğunda `RuntimeException` sınıfından türetilmiş `FullQueueException` fırlatan `CSDBoundedQueue` sınıfını yazınız ve test ediniz.
+###### Hash Tabloları ile Arama (Hashing)
 
- 
- 
- **Collection'lara ilişkin özet:**
+Hash tabloları (hash table) ile arama `indeksli arama` ile `doğrusal arama`kavramlarının bir orta noktası gibidir. Bu yöntemde bir dizi açılır. Anahtar değer, bir fonksiyona sokularak dizi indeksine dönüştürülür ve eleman o indekse yerleştirilmek istenir. Örneğin kişileri TC kimlik numaralarına göre bir hash tablosuna yerleştirmek isteyelim. Bunun için 100 elemanlı bir dizi açmış olalım. TC kimlik numarası 11 basamaklı büyük bir numaradır. Biz bu numaradan `[0, 99]` arasında bir indeks elde etmek isteyelim. Bu indeksi elde eden fonksiyona `hash fonksiyonu` denilmektedir. Örneğin 100'e bölümünden elde edilen kalan basit hash fonksiyonu olarak kullanılabilir. Bu durumda 41106234567 TC numaralı kişi bu dizinin 67'inci indeksine yerleştirilmek istenecektir. Eleman aranırken de aynı biçimde anahtardan aynı hash fonksiyonuyla dizi indeksi elde edilir ve o indekse bakılmak istenir.
+
+Şüphesiz yukarıda açıklanan yöntemde her zaman bir çakışma (collision) olasılığı vardır. Örneğin 23445623267 TC kimlik numaralı kişi için de aynı indeks ele edilecektir. İşte hash tablosu yöntemi çakışma durumundaki stratejiye göre iki temel alt gruba ayrılmaktadır: **Açık adresleme yöntemi (Open addressing), Ayrı zincir oluşturma (Separate chaining).**
+
+Açık adresleme yöntemi de kendi aralarında pek çok alt yönteme ayrılmaktadır:
+- Linear probing
+- Quadratic probing
+- Double probing
+En çok kullanılan çakışma çözüm yöntemi (collision resolution methods) `ayrı zincir oluşturma` yöntemidir.
+###### Ayrı Zincir Oluşturma Yöntemi
+
+Bu yöntemde N elemanlı bir dizi açılır. Fakat dizide elemanlar tutulmaz. Bu bir bağlı liste dizisidir. Yani dizinin her elemanı bir bağlı listenin head göstericisini tutar. Eleman yerleştirileceği zaman hash fonksiyonuna sokulur. Buradan bir dizi indeksi elde edilir. Sonra eleman bu indeksteki bağlı listeye eklenir. Arama yapılırken de benzer biçimde önce anahtar hash fonksiyonuna sokulur. Oradan elde edilen indeksteki bağlı listede doğrusal arama yapılır.
+
+Bu yöntemde eleman eklemek sabit karmaşıklığa sahip bir işlemdir. Arama ise doğrusal karmaşıklıkta gözükmekle birlikte az sayıda elemana sahip dizi içerisinde yapılacağı için çok etkindir. Gerçekten de Knuth bağlı listelerdeki eleman sayısı ortalama 10'u geçmedikten sonra bu yöntemi süper bir yöntem olarak nitelendirmektedir. Eğer bağlı listedeki elemanların sayısı çok fazla olursa (yani tablo küçük kalırsa) yöntem doğusal aramaya O(N) yaklaşmaya başlar. O halde tablo uzunluğunu baştan iyi öngörmek gerekir. Örneğin ilgili sisteme ortalama 10000 eleman yerleştirilecekse bizim tabloyu 1000 civarında tutmamız uygun olur. Hash tabloları özellikle işletim sistemlerinin çekirdek (kernel) kodlamalarında çok sık karşımıza çıkmaktadır. Örneğin Linux'ta cache sistemlerinde arama yapılırken hep ayrı zincirli hash tabloları kullanılmıştır. Örneğin Linux'un buffer cache (disk cache) mekanizmasını düşünelim. Burada dosya fonksiyonları okunacak yerin disk blok adresini hesapladıktan sonra onun buffer cache içerisinde olup olmadığına bakmak ister. Blok adresleri birer tamsayıyla belirtilir. Örneğin read fonksiyonu okunacak dosya parçasınının diskin 181317'inci bloğunda olduğunu hesaplasın. Bu blok acaba cache'te midir? İşte Linux bu değeri anahtar yaparak bir hash tablosunda arama yapar. Eğer bulursa doğrudan hiç disk okuması yapmadan bilgiyi oradan alarak verir. Benzer biçimde dizin girişleri (dentry cache), inode elemanları (inode cache) hep bu biçimde cache sistemleri içerisinde saklanmaktadır.
+
+**Hash Fonksiyonu Nasıl Olmalıdır?**
+Bilindiği gibi hash fonksiyonu anahtarı dizi indeksine dönüştürmektedir. İyi bir hash fonksiyonunun şu özelliklere sahip olması beklenir:
+- Tabloya yaydırmayı iyi yapmalıdır. Yani örneğin anahtar değerleri yanlı olsa bile hash fonksiyonun tabloya yansız bir biçimde eşit miktarda dağıtım yapabilecek yetenekte olması arzu edilir.
+- Hash fonksiyonunun hızlı olması istenir. Çünkü eleman ekleme ve arama işlemlerinde devreye girmektedir.
+
+Sayıdan sayı elde eden, yazıdan sayı elde eden kaliteli hash fonksiyonları için Internet'te araştırma yapılabilir. Yazıdan hash code elde eden basit bir hash fonksiyonu şu şekilde yazılabilir:
+
+
+```java
+public static int hash(String str)
+{
+	int result = 8128;
+	int len = str.length();
+
+	for (int i = 0; i < len; ++i)
+		result = ((result << 5) + result) + str.charAt(i);
+
+	return Math.abs(result % len);
+}
+```
+
+
+###### Hash Tablolarında Açık Adresleme (Open Addressing)
+
+Yukarıda da belirtildiği gibi açık adresleme yöntemi pek çok alt yönteme ayrılmaktadır. En çok kullanılan açık adresleme yöntemi "doğrusal yoklama (linear probing)" denilen yöntemdir. Bu yöntemde anahtardan hash fonksiyonuyla bir tablo indeksi elde edilir. O indeksteki eleman (bucket) boşsa yerleştirme oraya yapılır. Doluysa sırasıyla elemanlar üzerinde ilerlenerek ilk boş yer bulunur. Eleman ilk boş yere eklenir. Arama yapılırken aynı biçimde yine dizi indeksi elde edilir ve elemanlar sırasıyla gözden geçirilir. Tabii ilk boş eleman görüldüğünde artık durulabilir. Bu yöntemde tablonun geniş açılması önemlidir. Eğer tablo küçük kalırsa bu durumda tabloda boş elemanlar azalır. Bu da hem eleman eklerken hem de ararken zaman kaybettirir.
+
+**Anahtar Notlar:** Hashing, burada bir özet olarak ele alınmıştır. Detaylar `Java ile Uygulama Geliştirme 2` kursunda ele alınacaktır.
+
+**Anahtar Notlar:** JavaSE'de genel olarak, isminde `Hash` geçen veri yapıları hashing yöntemini kullanırlar.
+
+Java'da bir sınıfa ilişkin bir **hash code** bilgisi bir convention olarak Object sınıfının hashCode metodu ile elde edilir. Object sınıfının hashCode metodu hash değerini nesnenin adresine göre verir. Bu durumda programcı ilgili sınıf için hashCode metodunu override ederek ilgili türden nesne için `hash code` değerinin ne olduğunu belirler. Java'da equals metodunun override edilmesi gereken sınıflar için hashCode metodu da override edilmelidir. Benzer şekilde hashCode metodunun override edilmesi gereken sınıflar için equals metodu da override edilmelidir Yani, equals ve hashCode metotları kesinlikle birlikte override edilmelidir. Bu metotların override edilmesi gereken sınıflara genel olarak `value class` ya da `data class` denilmektedir. Örneğin, String sınıfının her iki metodu da override edilmiştir ya da örneğin sarmalayan sınıfların da her iki metodu override edilmiştir. Genellikle bu tarz sınıflarda bu iki metot ile birlikte toString metodu da override edilir.
+
+Peki Java'da kaliteli hash code oluşturmak için ne yapılmalıdır? Bu işlem şüphesiz programcı tarafından çeşitli yöntemlerle yapılabilir. Ancak, `Objects` sınıfının `hashCode` ve `hash` metotları ile çoğu zaman (hatta neredeyse her zaman) uygun olacak şekilde kaliteli hash code'lar üretilebilir. Objects sınıfının hash metodun Object türünden varargs parametrelidir ve birden fazla değerden hash code elde etmek için kullanılabilir. hashCode metodu ise Object parametrelidir, bir tane değerden hash code elde etmek için kullanılabilir. hash metodunun dokümantasyonuna göre bir tane değerden hash code elde etmek için hash metodu yerine hashCode metodu kullanılması önerilmektedir.
+
+
+
+###### Collection'lara ilişkin özet:
  
  **Arayüzler:**
 

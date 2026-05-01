@@ -1,5 +1,7 @@
 package org.csystem.math.geometry;
 
+import java.util.Objects;
+
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
@@ -57,6 +59,12 @@ public class Point {
 	public boolean equals(Object other)
 	{
 		return other instanceof Point p && PointCommon.equals(m_x, m_y, p.m_x, p.m_y);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(m_x, m_y);
 	}
 
 	@Override
