@@ -141,8 +141,6 @@ public class CSDMenuFramework {
         try {
             refreshMenu();
             while (true) {
-
-
                 displayMenu();
                 var option = Console.readLine();
 
