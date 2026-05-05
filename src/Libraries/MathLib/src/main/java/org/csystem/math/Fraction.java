@@ -1,5 +1,7 @@
 package org.csystem.math;
 
+import java.util.Objects;
+
 public class Fraction implements Comparable<Fraction>{
     private int m_a;
     private int m_b;
@@ -171,6 +173,12 @@ public class Fraction implements Comparable<Fraction>{
     public boolean equals(Object other)
     {
         return other instanceof Fraction f && compareTo(f) == 0;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(m_a, m_b);
     }
 
     @Override

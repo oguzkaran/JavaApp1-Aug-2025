@@ -6,6 +6,7 @@ import java.util.Collection;
 public class CSDArrayListNotNullable<E> extends ArrayList<E> {
     public CSDArrayListNotNullable()
     {
+
     }
 
     public CSDArrayListNotNullable(int initialCapacity)
@@ -15,6 +16,23 @@ public class CSDArrayListNotNullable<E> extends ArrayList<E> {
 
     public CSDArrayListNotNullable(Collection<? extends E> c)
     {
-        throw new UnsupportedOperationException("TODO");
+        throw new UnsupportedOperationException("TODO:");
     }
+
+    @Override
+    public boolean add(E e)
+    {
+        //...
+
+        return super.add(e);
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends E> c)
+    {
+        //...
+        return super.addAll(c);
+    }
+
+    //...
 }

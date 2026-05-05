@@ -1,9 +1,6 @@
-/**
- * AnalyticalCircle class that represents a circle in Cartesian System
- * Last Update: 6th March 2025
- * @author Java-Jan-2024 Group
- */
 package org.csystem.math.geometry;
+
+import java.util.Objects;
 
 public class AnalyticalCircle extends Circle {
     private static final double DELTA = 0.0000001;
@@ -80,6 +77,12 @@ public class AnalyticalCircle extends Circle {
     public boolean equals(Object other)
     {
         return other instanceof AnalyticalCircle ac && super.equals(other) && m_center.equals(ac.m_center);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(m_center, getRadius());
     }
 
     @Override

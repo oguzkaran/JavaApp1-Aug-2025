@@ -1,37 +1,28 @@
 package org.csystem.app;
 
-import com.karandev.io.util.console.Console;
 import lombok.extern.slf4j.Slf4j;
-import org.csystem.device.DeviceData;
-import org.csystem.device.DeviceDataSource;
+import org.csystem.game.lottery.NumericLottery;
+import org.csystem.util.array.ArrayUtil;
 
-import java.util.ArrayDeque;
+import java.util.Random;
+import java.util.Scanner;
 
 @Slf4j
 class Application {
     public static void run(String[] args)
     {
-        var threshold = Console.readInt("Input threshold:");
-        var arrayDeque = new ArrayDeque<DeviceData>();
-        var deviceDataSource = new DeviceDataSource();
+        Random random = new Random();
+        Scanner kb = new Scanner(System.in);
+        NumericLottery numericLottery = new NumericLottery(random);
 
         while (true) {
-            var name = Console.read("Input name:");
+            System.out.print("Input count:");
+            int count = Integer.parseInt(kb.nextLine());
 
-            if ("quit".equals(name))
+            if (count <= 0)
                 break;
 
-            var device = deviceDataSource.fetchIntDeviceData(name);
-
-            if ((int)device.getData() < threshold)
-                arrayDeque.addFirst(device);
-            else
-                arrayDeque.addLast(device);
-
-            Console.writeLine("Device:%s", device);
+            ArrayUtil.print(numericLottery.getNumbers(count), 2);
         }
-
-        Console.writeLine("All devices:");
-        arrayDeque.forEach(Console::writeLine);
     }
 }

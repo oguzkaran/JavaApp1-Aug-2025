@@ -1,9 +1,6 @@
-/**
- * MutableComplex class that represents a complex number in math
- * Last Update: 31st October 2024
- * @author Java-Jan-2024 Group
- */
 package org.csystem.math;
+
+import java.util.Objects;
 
 import static java.lang.Math.sqrt;
 
@@ -36,76 +33,82 @@ public class MutableComplex {
 		m_real = real;
 		m_imag = imag;
 	}
-	
+
 	public static MutableComplex add(double val, MutableComplex z)
 	{
 		return add(val, 0, z.m_real, z.m_imag);
 	}
-	
+
 	public MutableComplex add(MutableComplex other)
 	{
 		return add(m_real, m_imag, other.m_real, other.m_imag);
 	}
-	
+
 	public MutableComplex add(double val)
 	{
 		return add(m_real, m_imag, val, 0);
-	}	
-	
+	}
+
 	public static MutableComplex subtract(double val, MutableComplex z)
 	{
 		return subtract(val, 0, z.m_real, z.m_imag);
 	}
-	
+
 	public MutableComplex subtract(MutableComplex other)
 	{
 		return subtract(m_real, m_imag, other.m_real, other.m_imag);
 	}
-	
+
 	public MutableComplex subtract(double val)
 	{
 		return subtract(m_real, m_imag, val, 0);
 	}
-	
+
 	public void inc(double val)
 	{
 		m_real += val;
 	}
-	
+
 	public void inc()
 	{
 		inc(1);
 	}
-	
+
 	public void dec(double val)
 	{
 		inc(-val);
 	}
-	
+
 	public void dec()
 	{
 		dec(1);
 	}
-	
+
 	public MutableComplex getConjugate()
-	{				
+	{
 		return new MutableComplex(m_real, -m_imag);
 	}
-	
+
 	public double getNorm()
 	{
 		return sqrt(m_real * m_real + m_imag * m_imag);
 	}
-	
+
 	public double getLength()
 	{
 		return getNorm();
-	}	
+	}
 
 	@Override
 	public boolean equals(Object other)
 	{
 		return other instanceof MutableComplex z && Math.abs(m_real - z.m_real) < DELTA && Math.abs(m_imag - z.m_imag) < DELTA;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(m_real, m_imag);
 	}
 
 	@Override

@@ -43,7 +43,7 @@ public class Circle {
     @Override
     public boolean equals(Object other)
     {
-        return other instanceof Circle c &&Math.abs(m_r - c.m_r) < DELTA;
+        return other instanceof Circle c && Math.abs(m_r - c.m_r) < DELTA;
     }
 
     @Override

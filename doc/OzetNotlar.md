@@ -8179,7 +8179,7 @@ class Application {
 
 Yukarıdaki arayüzler dışında `Collection` arayüzünden türetilmiş başka arayüzler de bulunmaktadır. Burada yalnızca yukarıdaki arayüzler ve onları implemente eden ve çok kullanılan sınıflar ele alınacaktır.
 
-###### List, Queue, Deque ve Set Arayüzleri
+###### List, Queue ve Deque Arayüzleri
 
 `List<E>` arayüzünü implemente eden sınıflardan bazıları şunlardır:
 
@@ -8762,8 +8762,6 @@ public static int hash(String str)
 	return Math.abs(result % len);
 }
 ```
-
-
 ###### Hash Tablolarında Açık Adresleme (Open Addressing)
 
 Yukarıda da belirtildiği gibi açık adresleme yöntemi pek çok alt yönteme ayrılmaktadır. En çok kullanılan açık adresleme yöntemi "doğrusal yoklama (linear probing)" denilen yöntemdir. Bu yöntemde anahtardan hash fonksiyonuyla bir tablo indeksi elde edilir. O indeksteki eleman (bucket) boşsa yerleştirme oraya yapılır. Doluysa sırasıyla elemanlar üzerinde ilerlenerek ilk boş yer bulunur. Eleman ilk boş yere eklenir. Arama yapılırken aynı biçimde yine dizi indeksi elde edilir ve elemanlar sırasıyla gözden geçirilir. Tabii ilk boş eleman görüldüğünde artık durulabilir. Bu yöntemde tablonun geniş açılması önemlidir. Eğer tablo küçük kalırsa bu durumda tabloda boş elemanlar azalır. Bu da hem eleman eklerken hem de ararken zaman kaybettirir.
@@ -8776,9 +8774,792 @@ Java'da bir sınıfa ilişkin bir **hash code** bilgisi bir convention olarak Ob
 
 Peki Java'da kaliteli hash code oluşturmak için ne yapılmalıdır? Bu işlem şüphesiz programcı tarafından çeşitli yöntemlerle yapılabilir. Ancak, `Objects` sınıfının `hashCode` ve `hash` metotları ile çoğu zaman (hatta neredeyse her zaman) uygun olacak şekilde kaliteli hash code'lar üretilebilir. Objects sınıfının hash metodun Object türünden varargs parametrelidir ve birden fazla değerden hash code elde etmek için kullanılabilir. hashCode metodu ise Object parametrelidir, bir tane değerden hash code elde etmek için kullanılabilir. hash metodunun dokümantasyonuna göre bir tane değerden hash code elde etmek için hash metodu yerine hashCode metodu kullanılması önerilmektedir.
 
+Aşağıdaki sınıfları ve hashCode metotlarını inceleyiniz
+
+```java
+package org.csystem.math;  
+  
+import lombok.AllArgsConstructor;  
+import lombok.Getter;  
+import lombok.experimental.Accessors;  
+  
+import java.util.Objects;  
+  
+import static java.lang.Math.sqrt;  
+  
+@AllArgsConstructor  
+@Accessors(prefix = "m_")  
+@Getter  
+public class Complex {  
+    private static final double DELTA = 0.00001;  
+    private final double m_real;  
+    private final double m_imag;  
+      
+    private static Complex add(double re1, double im1, double re2, double im2)  
+    {  
+       return new Complex(re1 + re2, im1 + im2);  
+    }  
+      
+    private static Complex subtract(double re1, double im1, double re2, double im2)  
+    {  
+       return add(re1, im1, -re2, -im2);       
+    }  
+      
+    public Complex()  
+    {  
+       m_real = m_imag = 0;  
+    }  
+      
+    public Complex(double real)  
+    {  
+       m_real = real;  
+       m_imag = 0;  
+    }  
+  
+    public static Complex add(double val, Complex z)  
+    {  
+       return add(val, 0, z.m_real, z.m_imag);  
+    }  
+      
+    public Complex add(Complex other)  
+    {  
+       return add(m_real, m_imag, other.m_real, other.m_imag);  
+    }  
+      
+    public Complex add(double val)  
+    {  
+       return add(m_real, m_imag, val, 0);  
+    }    
+      
+    public static Complex subtract(double val, Complex z)  
+    {  
+       return subtract(val, 0, z.m_real, z.m_imag);  
+    }  
+      
+    public Complex subtract(Complex other)  
+    {  
+       return subtract(m_real, m_imag, other.m_real, other.m_imag);  
+    }  
+      
+    public Complex subtract(double val)  
+    {  
+       return subtract(m_real, m_imag, val, 0);  
+    }  
+  
+    public Complex getConjugate()  
+    {             
+       return new Complex(m_real, -m_imag);  
+    }  
+      
+    public double getNorm()  
+    {  
+       return sqrt(m_real * m_real + m_imag * m_imag);  
+    }  
+      
+    public double getLength()  
+    {  
+       return getNorm();  
+    }  
+  
+    @Override  
+    public boolean equals(Object other)  
+    {  
+       return other instanceof Complex z && Math.abs(m_real - z.m_real) < DELTA && Math.abs(m_imag - z.m_imag) < DELTA;  
+    }  
+  
+    @Override  
+    public int hashCode()  
+    {  
+       return Objects.hash(m_real, m_imag);  
+    }  
+  
+    @Override  
+    public String toString()  
+    {  
+       return "(%.2f, %.2f)".formatted(m_real, m_imag);  
+    }  
+}
+```
 
 
-###### Collection'lara ilişkin özet:
+```java
+package org.csystem.math;  
+  
+import java.util.Objects;  
+  
+public class Fraction implements Comparable<Fraction>{  
+    private int m_a;  
+    private int m_b;  
+  
+    private static Fraction add(int a1, int b1, int a2, int b2)  
+    {  
+        return new Fraction(a1 * b2 + a2 * b1, b1 * b2);  
+    }  
+  
+    private static Fraction subtract(int a1, int b1, int a2, int b2)  
+    {  
+        return add(a1, b1, -a2, b2);  
+    }  
+  
+    private static Fraction multiply(int a1, int b1, int a2, int b2)  
+    {  
+        return new Fraction(a1 * a2, b1 * b2);  
+    }  
+  
+    private static Fraction divide(int a1, int b1, int a2, int b2)  
+    {  
+        return multiply(a1, b1, b2, a2);  
+    }  
+  
+    private static void check(int a, int b)  
+    {  
+        if (b == 0)  
+            throw new IllegalArgumentException(a == 0 ? "Indeterminate" : "Undefined");  
+    }  
+  
+    private void setSign()  
+    {  
+        if (m_b < 0) {  
+            m_a = -m_a;  
+            m_b = -m_b;  
+        }  
+    }  
+  
+    private void simplify()  
+    {  
+        int min = Math.min(Math.abs(m_a), m_b);  
+  
+        for (int i = min; i >= 2; --i)  
+            if (m_a % i == 0 && m_b % i == 0) {  
+                m_a /= i;  
+                m_b /= i;  
+                break;  
+            }  
+    }  
+  
+    private void setFields(int a, int b)  
+    {  
+        m_a = a;  
+        m_b = b;  
+    }  
+  
+    private void set(int a, int b)  
+    {  
+        if (a == 0) {  
+            setFields(0, 1);  
+            return;  
+        }  
+  
+        setFields(a, b);  
+        setSign();  
+        simplify();  
+    }  
+  
+    public Fraction()  
+    {  
+        this(0);  
+    }  
+  
+    public Fraction(int a)  
+    {  
+        m_a = a;  
+        m_b = 1;  
+    }  
+  
+    public Fraction(int a, int b)  
+    {  
+        check(a, b);  
+        set(a, b);  
+    }  
+  
+    public int getNumerator()  
+    {  
+        return m_a;  
+    }  
+  
+    public void setNumerator(int val)  
+    {  
+        set(val, m_b);  
+    }  
+  
+    public int getDenominator()  
+    {  
+        return m_b;  
+    }  
+  
+    public void setDenominator(int val)  
+    {  
+        check(m_a, val);  
+        set(m_a, val);  
+    }  
+  
+    public double getRealValue()  
+    {  
+        return (double) m_a / m_b;  
+    }  
+  
+    public Fraction add(Fraction other)  
+    {  
+        return add(m_a, m_b, other.m_a, other.m_b);  
+    }  
+  
+    public Fraction add(int val)  
+    {  
+        return add(m_a, m_b, val, 1);  
+    }  
+  
+    public Fraction subtract(Fraction other)  
+    {  
+        return subtract(m_a, m_b, other.m_a, other.m_b);  
+    }  
+  
+    public Fraction subtract(int val)  
+    {  
+        return subtract(m_a, m_b, val, 1);  
+    }  
+  
+    public Fraction multiply(Fraction other)  
+    {  
+        return multiply(m_a, m_b, other.m_a, other.m_b);  
+    }  
+  
+    public Fraction multiply(int val)  
+    {  
+        return multiply(m_a, m_b, val, 1);  
+    }  
+  
+    public Fraction divide(Fraction other)  
+    {  
+        return divide(m_a, m_b, other.m_a, other.m_b);  
+    }  
+  
+    public Fraction divide(int val)  
+    {  
+        return divide(m_a, m_b, val, 1);  
+    }  
+  
+    public void inc()  
+    {  
+        m_a += m_b;  
+    }  
+  
+    public void dec()  
+    {  
+        m_a -= m_b;  
+    }  
+  
+    @Override  
+    public int compareTo(Fraction other)  
+    {  
+        return m_a * other.m_b - other.m_a * m_b;  
+    }  
+  
+    @Override  
+    public boolean equals(Object other)  
+    {  
+        return other instanceof Fraction f && compareTo(f) == 0;  
+    }  
+  
+    @Override  
+    public int hashCode()  
+    {  
+        return Objects.hash(m_a, m_b);  
+    }  
+  
+    @Override  
+    public String toString()  
+    {  
+         return "%d%s".formatted(m_a, m_b != 1 ? " / %d = %.6f".formatted(m_b, getRealValue()) : "");  
+    }  
+}
+```
+
+```java
+package org.csystem.math;  
+  
+import java.util.Objects;  
+  
+import static java.lang.Math.sqrt;  
+  
+public class MutableComplex {  
+    private static final double DELTA = 0.00001;  
+    private double m_real;  
+    private double m_imag;  
+  
+    private static MutableComplex add(double re1, double im1, double re2, double im2)  
+    {  
+       return new MutableComplex(re1 + re2, im1 + im2);  
+    }  
+  
+    private static MutableComplex subtract(double re1, double im1, double re2, double im2)  
+    {  
+       return add(re1, im1, -re2, -im2);  
+    }  
+  
+    public MutableComplex()  
+    {  
+    }  
+  
+    public MutableComplex(double real)  
+    {  
+       m_real = real;  
+    }  
+  
+    public MutableComplex(double real, double imag)  
+    {  
+       m_real = real;  
+       m_imag = imag;  
+    }  
+      
+    public static MutableComplex add(double val, MutableComplex z)  
+    {  
+       return add(val, 0, z.m_real, z.m_imag);  
+    }  
+      
+    public MutableComplex add(MutableComplex other)  
+    {  
+       return add(m_real, m_imag, other.m_real, other.m_imag);  
+    }  
+      
+    public MutableComplex add(double val)  
+    {  
+       return add(m_real, m_imag, val, 0);  
+    }    
+      
+    public static MutableComplex subtract(double val, MutableComplex z)  
+    {  
+       return subtract(val, 0, z.m_real, z.m_imag);  
+    }  
+      
+    public MutableComplex subtract(MutableComplex other)  
+    {  
+       return subtract(m_real, m_imag, other.m_real, other.m_imag);  
+    }  
+      
+    public MutableComplex subtract(double val)  
+    {  
+       return subtract(m_real, m_imag, val, 0);  
+    }  
+      
+    public void inc(double val)  
+    {  
+       m_real += val;  
+    }  
+      
+    public void inc()  
+    {  
+       inc(1);  
+    }  
+      
+    public void dec(double val)  
+    {  
+       inc(-val);  
+    }  
+      
+    public void dec()  
+    {  
+       dec(1);  
+    }  
+      
+    public MutableComplex getConjugate()  
+    {             
+       return new MutableComplex(m_real, -m_imag);  
+    }  
+      
+    public double getNorm()  
+    {  
+       return sqrt(m_real * m_real + m_imag * m_imag);  
+    }  
+      
+    public double getLength()  
+    {  
+       return getNorm();  
+    }    
+  
+    @Override  
+    public boolean equals(Object other)  
+    {  
+       return other instanceof MutableComplex z && Math.abs(m_real - z.m_real) < DELTA && Math.abs(m_imag - z.m_imag) < DELTA;  
+    }  
+  
+    @Override  
+    public int hashCode()  
+    {  
+       return Objects.hash(m_real, m_imag);  
+    }  
+  
+    @Override  
+    public String toString()  
+    {  
+       return "(%.2f, %.2f)".formatted(m_real, m_imag);  
+    }  
+}
+```
+
+```java
+package org.csystem.math.geometry;  
+  
+import java.util.Objects;  
+  
+import static java.lang.Math.cos;  
+import static java.lang.Math.sin;  
+  
+public class Point {  
+    private final double m_x;  
+    private final double m_y;  
+  
+    private static Point create(double a, double b)  
+    {  
+       return new Point(a, b);  
+    }  
+  
+    private Point(double x, double y)  
+    {  
+       m_x = x;  
+       m_y = y;  
+    }  
+  
+    public static Point createCartesian(double x, double y)  
+    {  
+       return create(x, y);  
+    }  
+  
+    public static Point createPolar(double r, double theta)  
+    {  
+       return create(r * cos(theta), r * sin(theta));  
+    }  
+  
+    public double getX()  
+    {  
+       return m_x;  
+    }  
+  
+    public double getY()  
+    {  
+       return m_y;  
+    }  
+  
+    public double euclideanDistance()  
+    {  
+       return euclideanDistance(0, 0);  
+    }  
+      
+    public double euclideanDistance(Point other)  
+    {  
+       return euclideanDistance(other.m_x, other.m_y);  
+    }  
+      
+    public double euclideanDistance(double x, double y)  
+    {  
+       return PointCommon.euclideanDistance(m_x, m_y, x, y);  
+    }    
+  
+    @Override  
+    public boolean equals(Object other)  
+    {  
+       return other instanceof Point p && PointCommon.equals(m_x, m_y, p.m_x, p.m_y);  
+    }  
+  
+    @Override  
+    public int hashCode()  
+    {  
+       return Objects.hash(m_x, m_y);  
+    }  
+  
+    @Override  
+    public String toString()  
+    {  
+       return PointCommon.toString(m_x, m_y);  
+    }  
+}
+```
+
+```java
+package org.csystem.math.geometry;  
+  
+import java.util.Objects;  
+  
+import static java.lang.Math.cos;  
+import static java.lang.Math.sin;  
+  
+public class MutablePoint {  
+    private double m_x;  
+    private double m_y;  
+  
+    private static MutablePoint create(double a, double b)  
+    {  
+       return new MutablePoint(a, b);  
+    }  
+  
+    private MutablePoint(double x, double y)  
+    {  
+       m_x = x;  
+       m_y = y;  
+    }  
+  
+    public static MutablePoint createCartesian(double x, double y)  
+    {  
+       return create(x, y);  
+    }  
+  
+    public static MutablePoint createPolar(double r, double theta)  
+    {  
+       return create(r * cos(theta), r * sin(theta));  
+    }  
+  
+    public double getX()  
+    {  
+       return m_x;  
+    }  
+  
+    public void setX(double x)  
+    {  
+       m_x = x;  
+    }  
+  
+    public double getY()  
+    {  
+       return m_y;  
+    }  
+  
+    public void setY(double y)  
+    {  
+       m_y = y;  
+    }  
+  
+    public double euclideanDistance()  
+    {  
+       return euclideanDistance(0, 0);  
+    }  
+      
+    public double euclideanDistance(MutablePoint other)  
+    {  
+       return euclideanDistance(other.m_x, other.m_y);  
+    }  
+      
+    public double euclideanDistance(double x, double y)  
+    {  
+       return PointCommon.euclideanDistance(m_x, m_y, x, y);  
+    }    
+      
+    public void offset(double dxy)  
+    {  
+       offset(dxy, dxy);  
+    }  
+      
+    public void offset(double dx, double dy)  
+    {  
+       m_x += dx;  
+       m_y += dy;  
+    }  
+  
+    @Override  
+    public boolean equals(Object other)  
+    {  
+       return other instanceof MutablePoint p && PointCommon.equals(m_x, m_y, p.m_x, p.m_y);  
+    }  
+  
+    @Override  
+    public int hashCode()  
+    {  
+       return Objects.hash(m_x, m_y);  
+    }  
+  
+    @Override  
+    public String toString()  
+    {  
+       return PointCommon.toString(m_x, m_y);  
+    }  
+}
+```
+
+```java
+package org.csystem.math.geometry;  
+  
+import java.util.Objects;  
+  
+import static java.lang.Math.PI;  
+  
+public class Circle {  
+    protected static final double DELTA = 0.000001;  
+    private double m_r;  
+  
+    public Circle()  
+    {  
+    }  
+  
+    public Circle(double radius)  
+    {  
+        setRadius(radius);  
+    }  
+  
+    public void setRadius(double radius)  
+    {  
+        if (radius < 0)  
+            throw new IllegalArgumentException("Radius can not be negative:%f".formatted(radius));  
+  
+        m_r = radius;  
+    }  
+  
+    public double getRadius()  
+    {  
+        return m_r;  
+    }  
+  
+    public double getArea()  
+    {  
+        return PI * m_r * m_r;  
+    }  
+  
+    public double getCircumference()  
+    {  
+        return 2 * PI * m_r;  
+    }  
+  
+    @Override  
+    public boolean equals(Object other)  
+    {  
+        return other instanceof Circle c && Math.abs(m_r - c.m_r) < DELTA;  
+    }  
+  
+    @Override  
+    public int hashCode()  
+    {  
+        return Objects.hashCode(m_r);  
+    }  
+  
+    @Override  
+    public String toString()  
+    {  
+        return "Radius = %f, Area = %f, Circumference = %f".formatted(m_r, getArea(), getCircumference());  
+    }  
+}
+```
+
+```java
+package org.csystem.math.geometry;  
+  
+import java.util.Objects;  
+  
+public class AnalyticalCircle extends Circle {  
+    private static final double DELTA = 0.0000001;  
+    private final MutablePoint m_center;  
+  
+    public AnalyticalCircle()  
+    {  
+        this(0, 0);  
+    }  
+  
+    public AnalyticalCircle(double radius)  
+    {  
+        this(radius, 0, 0);  
+    }  
+  
+    public AnalyticalCircle(double x, double y)  
+    {  
+        this(0, x, y);  
+    }  
+  
+    public AnalyticalCircle(double radius, double x, double y)  
+    {  
+        super(radius);  
+        m_center = MutablePoint.createCartesian(x, y);  
+    }  
+  
+    public double getX()  
+    {  
+        return m_center.getX();  
+    }  
+  
+    public void setX(double x)  
+    {  
+        m_center.setX(x);  
+    }  
+  
+    public double getY()  
+    {  
+        return m_center.getY();  
+    }  
+  
+    public void setY(double y)  
+    {  
+        m_center.setY(y);  
+    }  
+  
+    public void setCenter(double x, double y)  
+    {  
+        setX(x);  
+        setY(y);  
+    }  
+  
+    public void offset(double dx, double dy)  
+    {  
+        m_center.offset(dx, dy);  
+    }  
+  
+    public void offset(double dxy)  
+    {  
+        offset(dxy, dxy);  
+    }  
+  
+    public boolean isTangent(AnalyticalCircle other)  
+    {  
+        return Math.abs(centersDistance(other) - getRadius() - other.getRadius()) < DELTA;  
+    }  
+  
+    public double centersDistance(AnalyticalCircle other)  
+    {  
+        return m_center.euclideanDistance(other.m_center);  
+    }  
+  
+    @Override  
+    public boolean equals(Object other)  
+    {  
+        return other instanceof AnalyticalCircle ac && super.equals(other) && m_center.equals(ac.m_center);  
+    }  
+  
+    @Override  
+    public int hashCode()  
+    {  
+        return Objects.hash(m_center, getRadius());  
+    }  
+  
+    @Override  
+    public String toString()  
+    {  
+        return "%s, Center:%s".formatted(super.toString(), m_center);  
+    }  
+}
+```
+###### Set Arayüzü
+
+`Set` arayüzü Matematik'teki küme kavramına ilişkin veri yapısını temsil eden collection sınıfların arayüzüdür.
+
+Anımsanacağı gibi Matematik'te küme kavramı iki tane temel özelliğe sahiptir:
+- Bir kümede eleman tekrarı olmaz. Yani bir elemandan birden fazla bulunamaz.
+- Bir kümenin elemanlarının  genel olarak, eklenmesi anlamında yani öncelik sonralık anlamında sırasının önemi yoktur.
+
+İşte `Set` arayüzü küme kavramının bu özelliklerini temsil eden collection sınıfların arayüzüdür. `Set` arayüzü `Collection` arayüzünden türetilmiştir. `Set` arayüzünü implemente eden ve en çok kullanılan iki tipik sınıf `TreeSet` ve `HashSet` collection sınıflarıdır.
+
+`TreeSet` collection sınıfı elemanları doğal sıralı olarak (natural sort order) tutar. `TreeSet` sınıfının default ctor'u ve Collection parametreli ctor'u eklenen elemanların `Comparable` arayüzünü desteklemesini bekler. Aksi durumda ekleme işleminde (yani örneğin add metotlarının çağrılması durumunda) ClassCastException fırlatılır. `TreeSet` arayüzün `Comparator` parametreleri ctor'u sıralama işlemi için çağıracağı callback'i alır. `TreeSet` collection sınıfı eklenen elemanın aynı olup olmadığını tipik olarak ilgili türün equals metodunu çağırarak belirler. 
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+
+```
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+
+```
+
+`TreeSet<T>` sınıfının `Comparable` arayüzü kullanılarak elemanları sıralayan ctor'ları ile nesne yaratıldığında null değer eklenmesi durumunda exception oluşur.
+
+`HashSet` collection sınıfı elemanları her hangi bir sırada tutar. Bu sınıf, eklenen elemanın var olup olmadığının testini equals ve hashCode metotlarına bakarak tespit eder. Eklenen ya da aranan bir eleman için equals metodu true dönen ve hashCode'u aynı olan bir eleman var kabul edilir. `HashSet<T>` collection sınıfı için iteratif olarak elde edilmesi durumunda hangi sırada geleceği belirli değildir. `HashSet<T>`, elemanların tutuluş sırasını çeşitli durumlarda değiştirebilmektedir. Zaten `HashSet<T>` collection kullanan programcı bunu bilerek bu sınıfı seçer. Yani tipik olara `HashSet<T>`, set olması ve hızlı işlem yapması durumları için tercih edilir. `HashSet<T>` sınıfına ilişkin **load factor** burada ele alınmayacaktır. `HashSet` null değer tutabilmektedir.
+
+###### Collection'lara ilişkin özet
  
  **Arayüzler:**
 
@@ -8797,8 +9578,12 @@ Peki Java'da kaliteli hash code oluşturmak için ne yapılmalıdır? Bu işlem 
  - `LinkedList<E>`: Çift (doubly) bağlı lite veri yapısı
  - `Stack<E>`: LIFO kuyruk (stack) veri yapısı. `Vector<E>` sınıfından türetildiği unutulmamalıdır
  - `ArrayDeque<E>`: Baştan ve sondan "amortized constant time cost" olarak büyüyebilen dizi veri yapısı
- - `PriorityQueue<E>`: Öncelikli olarak çalışan kuyruk sistemi
+ - `PriorityQueue<E>`: Önceliklendirmeye olarak çalışan kuyruk sistemi
  - `TreeSet<E>`: Elemanları sıralı (sorted) olarak tutan küme tarzı veri yapısı
  - `HashSet<E>`: Hash tablosu kullanan küme tarzı veri yapısı
  - `TreeMap<K, V>`: Anahtar değerleri tipik olarak `TreeSet<E>` olarak tutan sözlük tarzı veri yapısı
  - `HashMap<K, V>`: Anahtar değerleri tipik olarak `HashSet<E>` olarak tutan sözlük tarzı veri yapısı
+
+Buna göre bu bölümde ele alınan veri yapılarına ilişkin arayüzler ve sınıflardan oluşan genel UML sınıf şeması aşağıdaki gibidir:
+
+![Collections](./media/Collections.png)

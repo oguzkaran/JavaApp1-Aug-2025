@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
+import java.util.Objects;
+
 import static java.lang.Math.sqrt;
 
 @AllArgsConstructor
@@ -84,6 +86,12 @@ public class Complex {
 	public boolean equals(Object other)
 	{
 		return other instanceof Complex z && Math.abs(m_real - z.m_real) < DELTA && Math.abs(m_imag - z.m_imag) < DELTA;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(m_real, m_imag);
 	}
 
 	@Override

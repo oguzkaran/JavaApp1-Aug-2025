@@ -1,9 +1,6 @@
-/**
- * Mutable Point class that represents a point in geometry
- * Last Update: 6th March 2025
- * @author Java-Jan-2024 Group
- */
 package org.csystem.math.geometry;
+
+import java.util.Objects;
 
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
@@ -83,6 +80,12 @@ public class MutablePoint {
 	public boolean equals(Object other)
 	{
 		return other instanceof MutablePoint p && PointCommon.equals(m_x, m_y, p.m_x, p.m_y);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(m_x, m_y);
 	}
 
 	@Override
