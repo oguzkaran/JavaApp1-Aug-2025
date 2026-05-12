@@ -4,6 +4,7 @@ import org.csystem.math.Complex;
 
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.random.RandomGenerator;
 
 public final class ComplexUtil {
     private ComplexUtil()

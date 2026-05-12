@@ -1,28 +1,38 @@
 package org.csystem.app;
 
+import com.karandev.io.util.console.Console;
 import lombok.extern.slf4j.Slf4j;
-import org.csystem.game.lottery.NumericLottery;
-import org.csystem.util.array.ArrayUtil;
+import org.csystem.math.Fraction;
+import org.csystem.math.util.RandomFractionFactory;
 
+import java.util.Comparator;
 import java.util.Random;
-import java.util.Scanner;
+import java.util.TreeSet;
 
 @Slf4j
 class Application {
     public static void run(String[] args)
     {
-        Random random = new Random();
-        Scanner kb = new Scanner(System.in);
-        NumericLottery numericLottery = new NumericLottery(random);
+        var treeSet = new TreeSet<Fraction>(Comparator.nullsLast(Comparator.naturalOrder()));
+        var random = new Random();
+        var factory = new RandomFractionFactory(random);
 
         while (true) {
-            System.out.print("Input count:");
-            int count = Integer.parseInt(kb.nextLine());
+            var z = factory.createRandom(1, 10);
+            Console.write("%s ", z);
 
-            if (count <= 0)
+            if (z.getRealValue() > 2)
                 break;
 
-            ArrayUtil.print(numericLottery.getNumbers(count), 2);
+            var isNotNull = random.nextBoolean();
+
+            if (!isNotNull)
+                Console.write("Null ");
+
+            treeSet.add(isNotNull ? z : null);
         }
+
+        Console.writeLine();
+        treeSet.forEach(Console::writeLine);
     }
 }

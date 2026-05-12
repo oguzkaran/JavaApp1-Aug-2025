@@ -9546,18 +9546,522 @@ Anımsanacağı gibi Matematik'te küme kavramı iki tane temel özelliğe sahip
 Aşağıdaki demo örneği inceleyiniz
 
 ```java
+package org.csystem.game.lottery;  
+  
+import java.util.TreeSet;  
+import java.util.random.RandomGenerator;  
+  
+public class NumericLottery {  
+    private final RandomGenerator m_randomGenerator;  
+  
+    public NumericLottery(RandomGenerator randomGenerator)  
+    {  
+        m_randomGenerator = randomGenerator;  
+    }  
+  
+    public int [] getNumbers()  
+    {  
+        var numbers = new int[6];  
+  
+        var treeSet = new TreeSet<Integer>();  
+  
+        while (treeSet.size() != 6)  
+            treeSet.add(m_randomGenerator.nextInt(1, 50));  
+  
+        int i = 0;  
+  
+        for (var val : treeSet)  
+            numbers[i++] = val;  
+  
+        return numbers;  
+    }  
+  
+    public int [][] getNumbers(int n)  
+    {  
+        var columns = new int[n][];  
+  
+        for (var i = 0; i < n; ++i)  
+            columns[i] = getNumbers();  
+  
+        return columns;  
+    }  
+}
+```
 
+Aşağıdaki demo örneği inceleyiniz. Örnekte `Complex` sınıfı `Comparable` arayüzünü desteklemediği için yani `mutually comparable` olmadığı için `ClassCastException` oluşur
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.math.Complex;  
+import org.csystem.math.util.RandomComplexFactory;  
+  
+import java.util.Random;  
+import java.util.TreeSet;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var treeSet = new TreeSet<Complex>();  
+        var factory = new RandomComplexFactory(new Random());  
+  
+        while (true) {  
+            var z = factory.createRandom(-5, 5);  
+            Console.write("%s ", z);  
+  
+            if (z.getNorm() > 5)  
+                break;  
+  
+            treeSet.add(z);  
+        }  
+  
+        Console.writeLine();  
+        treeSet.forEach(Console::writeLine);  
+    }  
+}
+```
+
+
+Aşağıdaki demo örnekte karmaşık sayılar uzunluklarına göre artan biçimde sıralanmıştır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.math.Complex;  
+import org.csystem.math.util.RandomComplexFactory;  
+  
+import java.util.Random;  
+import java.util.TreeSet;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var treeSet = new TreeSet<Complex>((z1, z2) -> Double.compare(z1.getNorm(), z2.getNorm()));  
+        var factory = new RandomComplexFactory(new Random());  
+  
+        while (true) {  
+            var z = factory.createRandom(-5, 5);  
+            Console.write("%s ", z);  
+  
+            if (z.getNorm() > 5)  
+                break;  
+  
+            treeSet.add(z);  
+        }  
+  
+        Console.writeLine('\n');  
+        treeSet.forEach(Console::writeLine);  
+    }  
+}
+```
+
+Aşağıdaki demo örnekte karmaşık sayılar uzunluklarına göre azalan biçimde sıralanmıştır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.math.Complex;  
+import org.csystem.math.util.RandomComplexFactory;  
+  
+import java.util.Random;  
+import java.util.TreeSet;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var treeSet = new TreeSet<Complex>((z1, z2) -> Double.compare(z2.getNorm(), z1.getNorm()));  
+        var factory = new RandomComplexFactory(new Random());  
+  
+        while (true) {  
+            var z = factory.createRandom(-5, 5);  
+            Console.write("%s ", z);  
+  
+            if (z.getNorm() > 5)  
+                break;  
+  
+            treeSet.add(z);  
+        }  
+  
+        Console.writeLine('\n');  
+        treeSet.forEach(Console::writeLine);  
+    }  
+}
+```
+
+Aşağıdaki demo örnekte karmaşık sayılar uzunluklarına göre artan biçimde sıralanmıştır. Örnekte `Comparator` arayüzünün `comparingDouble` metodunun kullanıldığına dikkat ediniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.math.Complex;  
+import org.csystem.math.util.RandomComplexFactory;  
+  
+import java.util.Comparator;  
+import java.util.Random;  
+import java.util.TreeSet;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var treeSet = new TreeSet<>(Comparator.comparingDouble(Complex::getNorm));  
+        var factory = new RandomComplexFactory(new Random());  
+  
+        while (true) {  
+            var z = factory.createRandom(-5, 5);  
+            Console.write("%s ", z);  
+  
+            if (z.getNorm() > 5)  
+                break;  
+  
+            treeSet.add(z);  
+        }  
+  
+        Console.writeLine('\n');  
+        treeSet.forEach(Console::writeLine);  
+    }  
+}
+```
+
+
+Aşağıdaki demo örnekte kesirler artan biçimde sıralanmıştır. Örnekte Fraction sınıfı `Comparable` arayüzünü desteklediğinden `ClassCastException` oluşmadığına dikkat ediniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.math.Fraction;  
+import org.csystem.math.util.RandomFractionFactory;  
+  
+import java.util.Random;  
+import java.util.TreeSet;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var treeSet = new TreeSet<Fraction>();  
+        var factory = new RandomFractionFactory(new Random());  
+  
+        while (true) {  
+            var z = factory.createRandom(1, 10);  
+            Console.write("%s ", z);  
+  
+            if (z.getRealValue() > 2)  
+                break;  
+  
+            treeSet.add(z);  
+        }  
+  
+        Console.writeLine();  
+        treeSet.forEach(Console::writeLine);  
+    }  
+}
+```
+
+Aşağıdaki demo örnekte kesirler azalan biçimde sıralanmıştır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.math.Fraction;  
+import org.csystem.math.util.RandomFractionFactory;  
+  
+import java.util.Random;  
+import java.util.TreeSet;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var treeSet = new TreeSet<Fraction>((f1, f2) -> f2.compareTo(f1));  
+        var factory = new RandomFractionFactory(new Random());  
+  
+        while (true) {  
+            var z = factory.createRandom(1, 10);  
+            Console.write("%s ", z);  
+  
+            if (z.getRealValue() > 2)  
+                break;  
+  
+            treeSet.add(z);  
+        }  
+  
+        Console.writeLine();  
+        treeSet.forEach(Console::writeLine);  
+    }  
+}
+```
+
+Aşağıdaki demo örnekte kesirler azalan biçimde sıralanmıştır. Örnekte `Comparator` arayüzünü `reverseOrder` metodunun kullanıldığına dikkat ediniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.math.Fraction;  
+import org.csystem.math.util.RandomFractionFactory;  
+  
+import java.util.Comparator;  
+import java.util.Random;  
+import java.util.TreeSet;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var treeSet = new TreeSet<Fraction>(Comparator.reverseOrder());  
+        var factory = new RandomFractionFactory(new Random());  
+  
+        while (true) {  
+            var z = factory.createRandom(1, 10);  
+            Console.write("%s ", z);  
+  
+            if (z.getRealValue() > 2)  
+                break;  
+  
+            treeSet.add(z);  
+        }  
+  
+        Console.writeLine();  
+        treeSet.forEach(Console::writeLine);  
+    }  
+  
+    public static <T extends Comparable<T>> Comparator<T> myReverseOrder()  
+    {  
+        return (t1, t2) -> t2.compareTo(t1);  
+    }  
+}
+```
+
+`TreeSet` sınıfının `Comparable` arayüzü kullanılarak elemanları sıralayan ctor'ları ile nesne yaratıldığında null değer eklenmesi durumunda exception oluşur.
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.math.Fraction;  
+import org.csystem.math.util.RandomFractionFactory;  
+  
+import java.util.Random;  
+import java.util.TreeSet;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var treeSet = new TreeSet<Fraction>();  
+        var random = new Random();  
+        var factory = new RandomFractionFactory(random);  
+  
+        while (true) {  
+            var z = factory.createRandom(1, 10);  
+            Console.write("%s ", z);  
+  
+            if (z.getRealValue() > 2)  
+                break;  
+  
+            treeSet.add(random.nextBoolean() ? z : null);  
+        }  
+  
+        Console.writeLine();  
+        treeSet.forEach(Console::writeLine);  
+    }  
+}
+```
+
+Aşağıdaki demo örnekte null değeri başta olacak şekilde sıralama yapılmıştır. Örnekte `Comparator`arayüzünün `nullsFirst` metodunun kullanıldığına dikkat ediniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.math.Fraction;  
+import org.csystem.math.util.RandomFractionFactory;  
+  
+import java.util.Comparator;  
+import java.util.Random;  
+import java.util.TreeSet;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var treeSet = new TreeSet<>(Comparator.nullsFirst(Fraction::compareTo));  
+        var random = new Random();  
+        var factory = new RandomFractionFactory(random);  
+  
+        while (true) {  
+            var z = factory.createRandom(1, 10);  
+            Console.write("%s ", z);  
+  
+            if (z.getRealValue() > 2)  
+                break;  
+  
+            var isNotNull = random.nextBoolean();  
+  
+            if (!isNotNull)  
+                Console.write("Null ");  
+  
+            treeSet.add(isNotNull ? z : null);  
+        }  
+  
+        Console.writeLine();  
+        treeSet.forEach(Console::writeLine);  
+    }  
+}
+```
+
+
+Aşağıdaki demo örnekte null değeri başta olacak şekilde sıralama yapılmıştır. Örnekte `Comparator`arayüzünün `nullsLast` metodunun kullanıldığına dikkat ediniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.math.Fraction;  
+import org.csystem.math.util.RandomFractionFactory;  
+  
+import java.util.Comparator;  
+import java.util.Random;  
+import java.util.TreeSet;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var treeSet = new TreeSet<>(Comparator.nullsLast(Fraction::compareTo));  
+        var random = new Random();  
+        var factory = new RandomFractionFactory(random);  
+  
+        while (true) {  
+            var z = factory.createRandom(1, 10);  
+            Console.write("%s ", z);  
+  
+            if (z.getRealValue() > 2)  
+                break;  
+  
+            var isNotNull = random.nextBoolean();  
+  
+            if (!isNotNull)  
+                Console.write("Null ");  
+  
+            treeSet.add(isNotNull ? z : null);  
+        }  
+  
+        Console.writeLine();  
+        treeSet.forEach(Console::writeLine);  
+    }  
+}
+```
+
+Yukarıdaki demo örmeke `Comparator` arayüzünün `naturalOrder` metodu kullanılarak da aşağıdaki gibi yapılabilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.math.Fraction;  
+import org.csystem.math.util.RandomFractionFactory;  
+  
+import java.util.Comparator;  
+import java.util.Random;  
+import java.util.TreeSet;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var treeSet = new TreeSet<Fraction>(Comparator.nullsLast(Comparator.naturalOrder()));  
+        var random = new Random();  
+        var factory = new RandomFractionFactory(random);  
+  
+        while (true) {  
+            var z = factory.createRandom(1, 10);  
+            Console.write("%s ", z);  
+  
+            if (z.getRealValue() > 2)  
+                break;  
+  
+            var isNotNull = random.nextBoolean();  
+  
+            if (!isNotNull)  
+                Console.write("Null ");  
+  
+            treeSet.add(isNotNull ? z : null);  
+        }  
+  
+        Console.writeLine();  
+        treeSet.forEach(Console::writeLine);  
+    }  
+}
 ```
 
 Aşağıdaki demo örneği inceleyiniz
 
 ```java
-
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.math.Fraction;  
+import org.csystem.math.util.RandomFractionFactory;  
+  
+import java.util.Comparator;  
+import java.util.Random;  
+import java.util.TreeSet;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var treeSet = new TreeSet<Fraction>(Comparator.nullsLast(Comparator.reverseOrder()));  
+        var random = new Random();  
+        var factory = new RandomFractionFactory(random);  
+  
+        while (true) {  
+            var z = factory.createRandom(1, 10);  
+            Console.write("%s ", z);  
+  
+            if (z.getRealValue() > 2)  
+                break;  
+  
+            var isNotNull = random.nextBoolean();  
+  
+            if (!isNotNull)  
+                Console.write("Null ");  
+  
+            treeSet.add(isNotNull ? z : null);  
+        }  
+  
+        Console.writeLine();  
+        treeSet.forEach(Console::writeLine);  
+    }  
+}
 ```
 
-`TreeSet<T>` sınıfının `Comparable` arayüzü kullanılarak elemanları sıralayan ctor'ları ile nesne yaratıldığında null değer eklenmesi durumunda exception oluşur.
 
-`HashSet` collection sınıfı elemanları her hangi bir sırada tutar. Bu sınıf, eklenen elemanın var olup olmadığının testini equals ve hashCode metotlarına bakarak tespit eder. Eklenen ya da aranan bir eleman için equals metodu true dönen ve hashCode'u aynı olan bir eleman var kabul edilir. `HashSet<T>` collection sınıfı için iteratif olarak elde edilmesi durumunda hangi sırada geleceği belirli değildir. `HashSet<T>`, elemanların tutuluş sırasını çeşitli durumlarda değiştirebilmektedir. Zaten `HashSet<T>` collection kullanan programcı bunu bilerek bu sınıfı seçer. Yani tipik olara `HashSet<T>`, set olması ve hızlı işlem yapması durumları için tercih edilir. `HashSet<T>` sınıfına ilişkin **load factor** burada ele alınmayacaktır. `HashSet` null değer tutabilmektedir.
 
 ###### Collection'lara ilişkin özet
  
