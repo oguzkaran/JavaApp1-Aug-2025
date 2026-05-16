@@ -16,9 +16,9 @@ class Application {
             var menu = CSDAnnotatedMenuFramework.builder()
                     .dirPath(args[0])
                     .invalidOptionText("Invalid Option. Be careful!...")
-                    .refreshMenuOptionString("ref")
-                    //.menuPrefix("-- ")
-                    //.sorted(false)
+                    //.refreshMenuOptionString("ref")
+                    .menuPrefix("-- ")
+                    .sorted(false)
                     .build();
 
             menu.run();
