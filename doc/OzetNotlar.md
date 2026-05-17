@@ -8360,7 +8360,7 @@ public class CSDStack<E> {
 ```
 
 **Açıklamalar:** 
- - Sınıfın public bölümünü değiştirmeden istediğiniz eklemeyi yapabilirsiniz
+ - Sınıfın public bölümünü değiştirmeden istediğiniz eklemeyi yapabilirsiniz.
  - JavaSE'nin `Stack<E>` sınıfı kullanılmayacaktır.
 
 **Sınıf Çalışması:** Eleman sayısını ctor ile alan ve stack dolduğunda `RuntimeException` sınıfından türetilmiş `FullStackException` fırlatan aşağıdaki `CSDBoundedStack` sınıfını yazınız.
@@ -10061,7 +10061,136 @@ class Application {
 }
 ```
 
+`HashSet` collection sınıfı elemanları kendi algoritmasına göre bir sırada tutar. `HashSet`, elemanların tutuluş sırasını duruma göre değiştirebilmektedir.Bu sınıf, eklenen elemanın var olup olmadığının testini `equals` ve `hashCode` metotlarını çağırarak tespit eder. Eklenen ya da aranan bir eleman için equals metodu true dönen ve hashCode'u aynı olan bir eleman var kabul edilir. `HashSet` collection sınıfının iteratif olarak dolaşılması durumunda hangi sırada geleceği belirli değildir. Zaten `HashSet` collection sınıfını kullanan programcı bunu bilerek bu sınıfı seçer. Yani tipik olarak `HashSet`, `set` olması ve hızlı işlem yapılması gerek durumlar için tercih edilir. `HashSet` sınıfına ilişkin **load factor** kavramı burada ele alınmayacaktır. `HashSet` null değer tutabilmektedir.
 
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.math.Fraction;  
+import org.csystem.math.util.RandomFractionFactory;  
+  
+import java.util.HashSet;  
+import java.util.Random;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var treeSet = new HashSet<Fraction>();  
+        var factory = new RandomFractionFactory(new Random());  
+  
+        while (true) {  
+            var z = factory.createRandom(1, 10);  
+            Console.write("%s ", z);  
+  
+            if (z.getRealValue() > 2)  
+                break;  
+  
+            treeSet.add(z);  
+        }  
+  
+        Console.writeLine();  
+        treeSet.forEach(Console::writeLine);  
+    }  
+}
+```
+
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.math.Complex;  
+import org.csystem.math.util.RandomComplexFactory;  
+  
+import java.util.HashSet;  
+import java.util.Random;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var treeSet = new HashSet<Complex>();  
+        var factory = new RandomComplexFactory(new Random());  
+  
+        while (true) {  
+            var z = factory.createRandom(-5, 5);  
+            Console.write("%s ", z);  
+  
+            if (z.getNorm() > 5)  
+                break;  
+  
+            treeSet.add(z);  
+        }  
+  
+        Console.writeLine();  
+        treeSet.forEach(Console::writeLine);  
+    }  
+}
+```
+
+**Sınıf Çalışması:** Parametresi ile aldığı bir yazının tüm karakterlerinin farklı olup olmadığını test eden `areAllUnique` isimli metodu `UtilLib` içerisindeki `StringUtil` sınıfına ekleyiniz.
+
+**Test Kodları**
+
+```java
+package org.csystem.util.string;  
+  
+import org.junit.jupiter.api.Assertions;  
+import org.junit.jupiter.api.Test;  
+  
+public class StringUtilAreAllUniqueTest {  
+    @Test  
+    void givenValue_whenString_thenReturnTrue()  
+    {  
+        String str = "ali";  
+  
+        Assertions.assertTrue(StringUtil.areAllUnique(str));  
+    }  
+  
+    @Test  
+    void givenValue_whenString_thenReturnFalse()  
+    {  
+        String str = "halil";  
+  
+        Assertions.assertFalse(StringUtil.areAllUnique(str));  
+    }  
+}
+```
+
+**Çözüm:**
+```java
+package org.csystem.util.string;  
+  
+import java.util.*;  
+import java.util.random.RandomGenerator;  
+  
+public final class StringUtil {
+	//...
+	public static boolean areAllUnique(String s)  
+	{  
+	    var hashSet = new HashSet<Character>();  
+	  
+	    for (int i = 0; i < s.length(); ++i)  
+	       if (!hashSet.add(s.charAt(i)))  
+	          return false;  
+	  
+	    return true;  
+	}
+	//...
+}
+```
+
+**Sınıf Çalışması:** Parametresi ile aldığı generic türden bir dizinin tüm elemanlarının farklı olup olmadığını test eden `areAllUnique` isimli metodu `UtilLib` içerisindeki `ArrayUtil` sınıfı içerisinde yazınız. Metodun temel türden diziler için overload'larını da ekleyiniz.
+
+**Sınıf Çalışması:** Parametresi ile aldığı generic türden bir `Collection`'ın tüm elemanlarının farklı olup olmadığını test eden `areAllUnique` isimli metodu `UtilLib` içerisindeki ArrayUtil sınıfı içerisinde yazınız.
 
 ###### Collection'lara ilişkin özet
  

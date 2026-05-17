@@ -1,24 +1,30 @@
 package org.csystem.collection;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CSDStack<E> {
+    private final List<E> m_list = new ArrayList<>();
+
     public CSDStack()
     {
-        throw new UnsupportedOperationException("TODO");
     }
 
     public E peek()
     {
-        throw new UnsupportedOperationException("TODO");
+        return this.m_list.get(this.m_list.size() - 1);
     }
 
     public E pop()
     {
-        throw new UnsupportedOperationException("TODO");
+        return m_list.remove(m_list.size() - 1);
     }
 
     public E push(E item)
     {
-        throw new UnsupportedOperationException("TODO");
+        m_list.add(item);
+
+        return item;
     }
 
     public int search(E item)
