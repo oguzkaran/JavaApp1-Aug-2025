@@ -1469,7 +1469,7 @@ class Application {
 }
 ```
 
-Calendar sınıfının `before` ve after metotları sırasıyşa çağıran referansa ilişkin tarihin, parametresi ile aldığı tarihten önce ya da sonra olup olmadığını test eder. Duruma göre boolean türüne geri döner. Calendar sınıfının `compareTo` metodu iki tarih karşılaştırması yapılabilir. Bu metot
+Calendar sınıfının `before` ve after metotları sırasıyla çağıran referansa ilişkin tarihin, parametresi ile aldığı tarihten önce ya da sonra olup olmadığını test eder. Duruma göre boolean türüne geri döner. Calendar sınıfının `compareTo` metodu iki tarih karşılaştırması yapılabilir. Bu metot
 
 ```java
 r = a.compareTo(b)
@@ -10136,7 +10136,7 @@ class Application {
 }
 ```
 
-**Sınıf Çalışması:** Parametresi ile aldığı bir yazının tüm karakterlerinin farklı olup olmadığını test eden `areAllUnique` isimli metodu `UtilLib` içerisindeki `StringUtil` sınıfına ekleyiniz.
+**Sınıf Çalışması:** Parametresi ile aldığı bir yazının tüm karakterlerinin farklı olup olmadığını test eden `areAllDistinct` isimli metodu `UtilLib` içerisindeki `StringUtil` sınıfına ekleyiniz.
 
 **Test Kodları**
 
@@ -10146,13 +10146,13 @@ package org.csystem.util.string;
 import org.junit.jupiter.api.Assertions;  
 import org.junit.jupiter.api.Test;  
   
-public class StringUtilAreAllUniqueTest {  
+public class StringUtilAreAllDistinctTest {  
     @Test  
     void givenValue_whenString_thenReturnTrue()  
     {  
         String str = "ali";  
   
-        Assertions.assertTrue(StringUtil.areAllUnique(str));  
+        Assertions.assertTrue(StringUtil.areAllDistinct(str));  
     }  
   
     @Test  
@@ -10160,7 +10160,7 @@ public class StringUtilAreAllUniqueTest {
     {  
         String str = "halil";  
   
-        Assertions.assertFalse(StringUtil.areAllUnique(str));  
+        Assertions.assertFalse(StringUtil.areAllDistinct(str));  
     }  
 }
 ```
@@ -10174,7 +10174,7 @@ import java.util.random.RandomGenerator;
   
 public final class StringUtil {
 	//...
-	public static boolean areAllUnique(String s)  
+	public static boolean areAllDistinct(String s)  
 	{  
 	    var hashSet = new HashSet<Character>();  
 	  
@@ -10188,9 +10188,278 @@ public final class StringUtil {
 }
 ```
 
-**Sınıf Çalışması:** Parametresi ile aldığı generic türden bir dizinin tüm elemanlarının farklı olup olmadığını test eden `areAllUnique` isimli metodu `UtilLib` içerisindeki `ArrayUtil` sınıfı içerisinde yazınız. Metodun temel türden diziler için overload'larını da ekleyiniz.
+**Sınıf Çalışması:** Parametresi ile aldığı generic türden bir dizinin tüm elemanlarının farklı olup olmadığını test eden `areAllDistinct` isimli metodu `UtilLib` içerisindeki `ArrayUtil` sınıfı içerisinde yazınız. Metodun temel türden diziler için overload'larını da ekleyiniz.
 
-**Sınıf Çalışması:** Parametresi ile aldığı generic türden bir `Collection`'ın tüm elemanlarının farklı olup olmadığını test eden `areAllUnique` isimli metodu `UtilLib` içerisindeki ArrayUtil sınıfı içerisinde yazınız.
+**Implemented by Ömer Başpınar**
+
+
+
+**Sınıf Çalışması:** Parametresi ile aldığı generic türden bir `Collection`'ın tüm elemanlarının farklı olup olmadığını test eden `areAllDistinct` isimli metodu `UtilLib` içerisindeki ArrayUtil sınıfı içerisinde yazınız.
+
+**Test Kodları:**
+```java
+package org.csystem.util.collection;  
+  
+import org.junit.jupiter.api.Assertions;  
+import org.junit.jupiter.api.Test;  
+  
+import java.util.ArrayList;  
+  
+public class CollectionUtilAreAllDistinctTest {  
+    @Test  
+    void givenValue_whenCollection_thenReturnTrue()  
+    {  
+        var list = new ArrayList<String>();  
+  
+        list.add("ankara");  
+        list.add("istanbul");  
+        list.add("izmir");  
+  
+        Assertions.assertTrue(CollectionUtil.areAllDistinct(list));  
+    }  
+  
+    @Test  
+    void givenValue_whenCollection_thenReturnFalse()  
+    {  
+        var list = new ArrayList<String>();  
+  
+        list.add("ankara");  
+        list.add("istanbul");  
+        list.add("izmir");  
+        list.add("istanbul");  
+  
+        Assertions.assertFalse(CollectionUtil.areAllDistinct(list));  
+    }  
+}
+```
+
+
+**Çözüm:**
+```java
+package org.csystem.util.collection;  
+  
+import java.util.Collection;  
+import java.util.HashSet;  
+  
+public final class CollectionUtil {  
+    //...  
+  
+    public static <E> boolean areAllDistinct(Collection<? extends E> collection)  
+    {  
+        return new HashSet<>(collection).size() == collection.size();  
+    }  
+    //...
+}
+```
+
+###### Map Arayüzü
+
+JavaSE'de `Map<K, V>` arayüzünü destekleyen bir grup collection sınıf vardır. `Map`  arayüzü herhangi bir arayüzden türetilmemiştir. Bu arayüzü destekleyen veri yapılarına (collections) literatürde `dictionary` de denilmektedir. Bu tarz collection sınıflarda bir anahtar ve karşılık geldiği değer vardır. Anahtar değeri **tekil (unique)** olarak tutulur. Bir anahtar için yeni bir değer verildiğinde, aynısından ikinci bir anahtar eklenemez. Eski anahtara karşılık gelen değer değiştirilir. Bu collection sınıflarda tipik olarak anahtar değeri `set collection` sınıfları olarak tutulur. Anahtarın var olup olmadığı kontrolü için `equals` metodu kullanılır. Eğer collection sınıf anahtar değere ilişkin set için hash veri yapısı da kullanıyorsa `equals` ile beraber `hashCode` metodu da kullanılır.
+
+`Map` arayüzünün **put**  metodu ile anahtara karşılık gelen değer eklenebilir. put metodu anahtar daha önceden eklenmişse değerini günceller ve eski değere geri döner. Eğer anahtar daha önce eklenmemişse ekleme işleminden sonra null değerine geri döner. Bu durumda put metodunun döndürdüğü değerin null olması, eğer collection değer olarak null da tutuyorsa anahtarın olmadığı anlamına gelmiyor olabilir. `Map` arayüzünün **containsKey** metodu ile bir anahtarın daha önceden var olup olmadığı test edilebilir. Bu durumda bir anahtarın var olup olmadığına bakılması için en iyi ve en okunabilir yöntem containsKey metodunu kullanmaktır.
+
+`Map` arayüzünün **keySet** isimli metodu anahtarlara ilişkin `Set` collection referansına geri döner. `Map` arayüzünün **values** isimli metodu ile tüm değerlere ilişkin `Collection` referansı elde edilebilir. `Map` arayüzünün **get** metodu ile, parametresi ile aldığı anahtara karşılık gelen değer elde edilir. Bu metot da eğer anahtara ilişkin değer yoksa veya anahtara ilişkin değer null ise null değerine geri döner. Yine tipik olarak anahtarın varlığı containsKey isimli metot ile test edilebilir.
+
+`Map` arayüzünü implemente eden collection sınıflar içerisinde en çok kullanılanları `HashMap<K, V>` ve `TreeMap<K, V>` sınıflarıdır. `HashMap` ve `TreeMap` sınıflarında, anahtarlara ilişkin `Set`collection'lar için sırasıyla `HashSet` ve `TreeSet` sınıflarını kullanırlar.
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.Builder;  
+import lombok.Getter;  
+import lombok.Setter;  
+import lombok.experimental.Accessors;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.time.LocalDateTime;  
+import java.util.ArrayList;  
+import java.util.TreeMap;  
+  
+@Slf4j  
+class Application {  
+    private static void carInfoListCallback(String plate, ArrayList<CarInfo> carInfoList)  
+    {  
+        Console.write("%s -> ", plate);  
+        carInfoList.forEach(c -> Console.write("%s ", c.getDate()));  
+        Console.writeLine();  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        TreeMap<String, ArrayList<CarInfo>> carMap = new TreeMap<>();  
+  
+        while (true) {  
+            String plate = Console.read("Input plate:");  
+  
+            if (plate.equals("exit"))  
+                break;  
+  
+            if (carMap.containsKey(plate)) {  
+                carMap.get(plate).add(CarInfo.builder().plate(plate).date(LocalDateTime.now()).build());  
+            }  
+            else {  
+                ArrayList<CarInfo> list = new ArrayList<>();  
+  
+                list.add(CarInfo.builder().plate(plate).date(LocalDateTime.now()).build());  
+                carMap.put(plate, list);  
+            }  
+        }  
+  
+        carMap.keySet().forEach(p -> carInfoListCallback(p, carMap.get(p)));  
+    }  
+}  
+  
+@Getter  
+@Setter  
+@Accessors(prefix = "m_")  
+@Builder  
+class CarInfo {  
+    private String m_plate;  
+    private LocalDateTime m_date;  
+    //...  
+}
+```
+
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.Builder;  
+import lombok.Getter;  
+import lombok.Setter;  
+import lombok.experimental.Accessors;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.time.LocalDateTime;  
+import java.util.ArrayList;  
+import java.util.HashMap;  
+  
+@Slf4j  
+class Application {  
+    private static void carInfoListCallback(String plate, ArrayList<CarInfo> carInfoList)  
+    {  
+        Console.write("%s -> ", plate);  
+        carInfoList.forEach(c -> Console.write("%s ", c.getDate()));  
+        Console.writeLine();  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        HashMap<String, ArrayList<CarInfo>> carMap = new HashMap<>();  
+  
+        while (true) {  
+            String plate = Console.read("Input plate:");  
+  
+            if (plate.equals("exit"))  
+                break;  
+  
+            if (carMap.containsKey(plate)) {  
+                carMap.get(plate).add(CarInfo.builder().plate(plate).date(LocalDateTime.now()).build());  
+            }  
+            else {  
+                ArrayList<CarInfo> list = new ArrayList<>();  
+  
+                list.add(CarInfo.builder().plate(plate).date(LocalDateTime.now()).build());  
+                carMap.put(plate, list);  
+            }  
+        }  
+  
+        carMap.keySet().forEach(p -> carInfoListCallback(p, carMap.get(p)));  
+    }  
+}  
+  
+@Getter  
+@Setter  
+@Accessors(prefix = "m_")  
+@Builder  
+class CarInfo {  
+    private String m_plate;  
+    private LocalDateTime m_date;  
+    //...  
+}
+```
+
+**Sınıf Çalışması:** Aşağıdaki açıklamalara göre `IStringMap<V>` arayüzünü destekleyen `StringMap<V>` sınıfını yazınız.
+
+**Açıklamalar:**
+- `StringMap<V>` sınıfının public bölümünü değiştirmeden istediğiniz eklemeyi yapabilirsiniz.
+- `IStringMap<V>` arayüzünde bir değişiklik yapılmayacaktır. Bu arayüz anahtarı string olan  map collection sınıfları için implemente edilebilecektir.
+- `IStringMap<V>` arayüzünün abstract metotları şu şekildedir:
+	- **count:** String map içerisindeki anahtar eleman sayısına geri dönecektir.
+	- **addElement:** Metot, parametresi ile aldığı anahtar ve değeri ekleyecektir. Eğer anahtar daha önce varsa true, yoksa false değerine geri dönecektir. Anahtar değerinin null olması veya blank string olması durumunda `IllegalArgumentException` fırlatacaktır.
+	- **removeElement:** Metot, parametresi ile aldığı anahtar varsa ve silebilirse true, aksi durumda false değerine geri dönecektir. Anahtar değerinin null veya blank string olması durumunda `IllegalArgumentException` fırlatacaktır.
+	- **getValue(String key):** Metot, parametresi ile aldığı anahtara karşılık gelen değeri Optional olarak geri dönecektir. Anahtar değerinin null olması veya blank string olması durumunda `IllegalArgumentException` fırlatacaktır.
+	- **getValue(String key, V defaultValue):** Metot, parametresi ile aldığı anahtara karşılık gelen değere geri dönecektir. Anahtar yoksa ikinci parametresi ile aldığı değere geri dönecektir. Anahtar değerinin null olması veya blank string olması durumunda `IllegalArgumentException` fırlatacaktır.
+
+`IStringMap` arayüzü ve `StringMap` sınıfının public bölümü şu şekildedir:
+
+```java
+package org.csystem.collection;
+
+import java.util.Optional;
+
+public interface IStringMap<V> {
+    int count();
+    boolean addElement(String key, V value);
+    boolean removeElement(String key);
+    Optional<V> getValue(String key);
+    V getValue(String key, V defaultValue);
+}
+```
+
+```java
+package org.csystem.collection;
+
+import java.util.Optional;
+
+public class StringMap<V> implements IStringMap<V> {
+    @Override
+    public int count()
+    {
+        throw new UnsupportedOperationException("Not implemented yet!...");
+    }
+
+    @Override
+    public boolean addElement(String key, V value)
+    {
+        throw new UnsupportedOperationException("Not implemented yet!...");
+    }
+
+    @Override
+    public boolean removeElement(String key)
+    {
+        throw new UnsupportedOperationException("Not implemented yet!...");
+    }
+
+    @Override
+    public Optional<V> getValue(String key)
+    {
+        throw new UnsupportedOperationException("Not implemented yet!...");
+    }
+
+    @Override
+    public T getValue(String key, V defaultValue)
+    {
+        throw new UnsupportedOperationException("Not implemented yet!...");
+    }
+}
+```
+
+**Sınıf Çalışması:** Parametresi ile aldığı iki tane yazının anagram olup olmadığını test eden `areAnagram` isimli metodu `StringUtil` sınıfı içerisinde yazınız. 
+**Anagram:** Bir yazının harflerinin yerleri değiştirilerek diğer yazı elde edilebiliyorsa bu iki yazıya anagram denir.
+
+Örneğin:
+
+```java
+"para" ve "arap"
+"brat" ve "bart"
+```
 
 ###### Collection'lara ilişkin özet
  
@@ -10214,8 +10483,8 @@ public final class StringUtil {
  - `PriorityQueue<E>`: Önceliklendirmeye olarak çalışan kuyruk sistemi
  - `TreeSet<E>`: Elemanları sıralı (sorted) olarak tutan küme tarzı veri yapısı
  - `HashSet<E>`: Hash tablosu kullanan küme tarzı veri yapısı
- - `TreeMap<K, V>`: Anahtar değerleri tipik olarak `TreeSet<E>` olarak tutan sözlük tarzı veri yapısı
- - `HashMap<K, V>`: Anahtar değerleri tipik olarak `HashSet<E>` olarak tutan sözlük tarzı veri yapısı
+ - `TreeMap<K, V>`: Anahtar değerleri tipik olarak `TreeSet<E>` ile tutan sözlük tarzı veri yapısı
+ - `HashMap<K, V>`: Anahtar değerleri tipik olarak `HashSet<E>` ile tutan sözlük tarzı veri yapısı
 
 Buna göre bu bölümde ele alınan veri yapılarına ilişkin arayüzler ve sınıflardan oluşan genel UML sınıf şeması aşağıdaki gibidir:
 

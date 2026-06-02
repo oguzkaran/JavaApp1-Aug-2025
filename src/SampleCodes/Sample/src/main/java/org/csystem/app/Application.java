@@ -1,31 +1,56 @@
 package org.csystem.app;
 
 import com.karandev.io.util.console.Console;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
-import org.csystem.math.Complex;
-import org.csystem.math.util.RandomComplexFactory;
 
-import java.util.HashSet;
-import java.util.Random;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 @Slf4j
 class Application {
+    private static void carInfoListCallback(String plate, ArrayList<CarInfo> carInfoList)
+    {
+        Console.write("%s -> ", plate);
+        carInfoList.forEach(c -> Console.write("%s ", c.getDate()));
+        Console.writeLine();
+    }
+
     public static void run(String[] args)
     {
-        var treeSet = new HashSet<Complex>();
-        var factory = new RandomComplexFactory(new Random());
+        HashMap<String, ArrayList<CarInfo>> carMap = new HashMap<>();
 
         while (true) {
-            var z = factory.createRandom(-5, 5);
-            Console.write("%s ", z);
+            String plate = Console.read("Input plate:");
 
-            if (z.getNorm() > 5)
+            if (plate.equals("exit"))
                 break;
 
-            treeSet.add(z);
+            if (carMap.containsKey(plate)) {
+                carMap.get(plate).add(CarInfo.builder().plate(plate).date(LocalDateTime.now()).build());
+            }
+            else {
+                ArrayList<CarInfo> list = new ArrayList<>();
+
+                list.add(CarInfo.builder().plate(plate).date(LocalDateTime.now()).build());
+                carMap.put(plate, list);
+            }
         }
 
-        Console.writeLine();
-        treeSet.forEach(Console::writeLine);
+        carMap.keySet().forEach(p -> carInfoListCallback(p, carMap.get(p)));
     }
+}
+
+@Getter
+@Setter
+@Accessors(prefix = "m_")
+@Builder
+class CarInfo {
+    private String m_plate;
+    private LocalDateTime m_date;
+    //...
 }
