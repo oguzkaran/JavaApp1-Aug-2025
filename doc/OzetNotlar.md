@@ -10783,3 +10783,138 @@ Buna göre bu bölümde ele alınan veri yapılarına ilişkin arayüzler ve sı
 ![Collections](./media/Collections.png)
 
 
+
+**Sınıf Çalışması:** Parametresi ile aldığı generic türden iki `Iterable`'ın kesişimi (aynı olanlar), farkı (farklı olan elemanları) ve birleşimini (ortak elemanlardan bir tane olacak şekilde), tüm elemanların birleşimini `Collection` olarak döndüren sırasıyla `intersection`, `except`, `union` ve `unionAll` metotlarını `UtilLib` içerisindeki `CollectionUtil` sınıfı içerisinde yazınız
+
+##### Dokümantasyon Oluşturma
+
+Java'da dokümantasyon oluşturmak için JDK ile birlikte resmi olarak gelen **javadoc** programı kullanılır. Bu program, kod içerisindeki belirli kurallara göre yazılmış yorum satırlarını okuyarak HTML formatında açıklayıcı ve kolay kullanılabilen dokümanlar üretir. Özellikle büyük projelerde, ekip çalışmasında ve açık kaynak projelerde oldukça önemlidir.
+
+Dokümantasyon oluşturmanın bazı önemli avantajları şunlardır:
+- Kodun okunabilirliğini/algılanabilirliğini artırır.
+* API’ler için profesyonel dokümantasyon oluşturulabilir.
+* Geliştiriciler arasında iletişimi kolaylaştırır.
+* Kodun nasıl kullanılacağını açıklar.
+
+javadoc yorum satırları `/** ... */` şeklinde yazılır ve çeşitli annotationlar kullanılarak dokümantasyon yapılır.
+
+
+Çok kullanılan javadoc annotation'ları şunlardır:
+
+| Annotation | Anlamı                   |
+| ---------- | ------------------------ |
+| `@author`  | Kodun yazarı             |
+| `@version` | Versiyon bilgisi         |
+| `@param`   | Metot parametreleri      |
+| `@return`  | Geri dönüş değeri        |
+| `@throws`  | Fırlatılan hatalar       |
+| `@see`     | İlgili diğer sınıf/metot |
+| `@since`   | Hangi versiyonda eklendi |
+
+Terminal üzerinden javadoc oluşturma
+Terminal üzerinden:
+
+```bash
+javadoc -d doc <tür adı>/*.java
+```
+
+Açıklama:
+
+* `-d doc` → Çıktı klasörü
+* `*.java` → Tüm Java dosyaları
+
+Oluşan HTML dosyalarını tarayıcıda açılabilir. Bununla birlikte IntelliJ ve Eclipse gibi popüler IDE'lerin kullanıcı arayüzleri üzerinden de javadoc çalıştırılabilir.
+
+###### HTML Kullanımı
+
+JavaDoc, HTML destekler. Bu sayede daha zengin dokümantasyon yazılabilir.
+
+### Örnek:
+
+```java
+/**
+ * <p>This method saves the user to database</p>
+ *
+ * <ul>
+ *   <li>Oğuz Karan</li>
+ *   <li>oguzkaran@csystem.org</li>
+ * </ul>
+ *
+ * @param user user to save
+ * @return <b>true</b> if successfully saved
+ */
+public boolean save(User user) 
+{
+    //...
+}
+```
+
+Doküman oluştururken bazı HTML etiketleri (tag) kullanılabilir:
+* `<p>`, `<b>`, `<i>`
+* `<ul>`, `<li>`
+* `<code>`, `<pre>`
+
+
+Kod içerisinde bağlantı oluşturmak yani referans vermek için şu etiketler kullanılabilir: **@link, @linkplain**. `link` kod fontunda, `linkplain` ise normal metin olarak gösterir.
+
+Örneğin
+
+```java
+/**
+ * This method uses {@link UserService} class.
+ * For more information you can look that method: {@linkplain UserService#getUserById(int)}
+ */
+```
+
+@inheritDoc ile override edilen bir metot için taban sınıfın dokümantasyonu kullanılır.Override edilen metodlarda üst sınıfın JavaDoc’unu kullanır.
+
+### Örnek:
+
+```java
+@Override
+/**
+ * {@inheritDoc}
+ */
+public void process()
+{
+	//...
+}
+```
+###### Custom Tag (Özel Etiket) Tanımlama
+
+Kendi JavaDoc etiketlerini oluşturabilirsin.
+
+### Örnek kullanım:
+
+```java
+/**
+ * Kullanıcı oluşturur.
+ *
+ * @apiNote Bu metod sadece adminler içindir.
+ * @implSpec Thread-safe değildir.
+ */
+```
+
+Yaygın özel etiketler:
+
+* `@apiNote` → API kullanıcıları için not
+* `@implSpec` → implementasyon detayları
+* `@implNote` → geliştirici notları
+
+###### Kod Örneği Eklemek
+
+```java
+/**
+ * Kullanım örneği:
+ *
+ * <pre>
+ * {@code
+ * User user = new User("Ali");
+ * userService.save(user);
+ * }
+ * </pre>
+ */
+```
+
+`@code` → inline
+`<pre>` → blok kod
