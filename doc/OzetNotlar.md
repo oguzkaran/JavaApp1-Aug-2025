@@ -10784,7 +10784,7 @@ Buna göre bu bölümde ele alınan veri yapılarına ilişkin arayüzler ve sı
 
 
 
-**Sınıf Çalışması:** Parametresi ile aldığı generic türden iki `Iterable`'ın kesişimi (aynı olanlar), farkı (farklı olan elemanları) ve birleşimini (ortak elemanlardan bir tane olacak şekilde), tüm elemanların birleşimini `Collection` olarak döndüren sırasıyla `intersection`, `except`, `union` ve `unionAll` metotlarını `UtilLib` içerisindeki `CollectionUtil` sınıfı içerisinde yazınız
+**Sınıf Çalışması:** Parametresi ile aldığı generic türden iki `Iterable`'ın kesişimi (aynı olanlar), farkı (farklı olan elemanları) ve birleşimini (ortak elemanlardan bir tane olacak şekilde), tüm elemanların birleşimini `Collection` olarak döndüren sırasıyla `intersection`, `except`, `union` ve `unionAll` metotlarını `UtilLib` içerisindeki `CollectionUtil` sınıfı içerisinde yazınız.
 ##### Dokümantasyon Oluşturma
 
 Java'da dokümantasyon oluşturmak için JDK ile birlikte resmi olarak gelen **javadoc** programı kullanılır. Bu program, kod içerisindeki belirli kurallara göre yazılmış yorum satırlarını okuyarak HTML formatında açıklayıcı ve kolay kullanılabilen dokümanlar üretir. Özellikle büyük projelerde, ekip çalışmasında ve açık kaynak projelerde oldukça önemlidir.
@@ -10906,3 +10906,57 @@ Kod örneği eklemek için **@code** kullanılabilir. Örneğin:
 
 `@code` → inline
 `<pre>` → blok kod
+
+##### Stream API
+
+Stream API Java 8 ile eklenmiştir. Buradaki stream kavramı, I/O stream'lerden genel olarak farklıdır. Stream'ler bir veri kaynağı (data source) üzerinde hızlı ve kolay biçimde işlemler yapılmasını sağlar. Stream'lerin temel özellikleri şunlardır
+ - Stream'ler veri tutmazlar.
+ - Stream'ler kaynak veri üzerinde değişiklik yapmazlar.
+ - Stream'ler fonksiyonel programlama tekniğine uygun olarak tasarlanmışlardır. Bu anlamda çeşitli metotları fonksiyonel arayüzler ile callback alacak biçimde tasarlanmışlardır.
+ - Stream'ler bir diziyi, bir collection sınıfı veya I/O Channel'ı kaynak veri olarak kullanabilir. Yani bunlardan "stream" elde edilebilir.
+ - Stream API içerisinde çeşitli işlemleri `paralel olarak (parallel computing)` yapabilen **parallel streams** bulunur.
+ - Stream işlemleri zincir (fluent) biçiminde yapılabilir.
+ 
+ Stream işlemleri (stream operations/operators) iki gruba ayrılır: **terminal operations/operators, intermediate operations/operators**
+ 
+ - `Terminal Operations`: Çağrıldıklarında tüm zincir çalıştırılır.
+ - `Intermediate Operations`: Terminal işlemi olmadan yapılamayan işlemlerdir (lazy evaluation). Bu işlemlere ilişkin metotlar "stream" referanslarına geri dönerler. Bu metotlar eğer callback alıyorlarsa bu callback'ler bu metotlar çağrıldığında arka planda çağrılmaz. Terminal işlemine ilişkin bir metot çağrıldığında önceden ara işlemlerde belirlenen callback'ler ile işlem yapılır. Yani callback'ler bu aşamada çağrılır.
+
+ Stream kullanılırken yazılan zincire içsel olarak **stream pipeline** denir. Bir stream pipleline sıfır ya da daha fazla ara işlem ve en fazla bir tane terminal işlemi içerebilir. Şüphesiz terminal işlemi içermeyen bir "stream pipeline" yazılabilse de bir etkisi olmaz.
+ 
+ Bir stream, bir pipeline ile kullanılır. Yani bir stream elde edildiğinde açılır (open) ve terminal işlemi sonrasında kapatılır (close).
+ 
+ Stream referansları collection sınıflar için `Collection<E>` arayüzünün stream metodu ile elde edilebilir.
+ 
+Stream interface'leri `AutoCloseable` arayüzünden türetilmiştir. Terminal işlemleri genel olarak bir stream için close işlemini yapar. Yani pipeline içerisinde terminal işlemi yapılmış bir stream referansı ile tekrar pipeline oluşturulamaz.
+ 
+Stream API için temel arayüzler şunlardır:
+
+```
+Stream<T>
+IntStream
+DoubleStream
+LongStream
+```
+
+ Bir stream referansı genel olarak aşağıdakilerden biri ile elde edilebilir:
+ 
+ - `Collection<E>` arayüzünün `stream` metodu ile `Stream<E>` elde edilebilir
+ - Bir diziden stream `Arrays` sınıfının `stream` metotlarından elde edilebilir
+ - Stream, IntStream, DoubleStream ve LongStream arayüzlerinin static bazı metotları (factory methods) ile elde edilebilir. Bunlardan bazıları şunlardır: `of`, `generate`, `iterate` vb.
+ - Intermediate işlemlere ilişkin metotlardan elde edilebilir
+ 
+ O zaman stream arayüzlerinin metotları için şunlar genel olarak söylenebilir:
+ 
+ - Static olan ve bir stream arayüz referansına geri dönen metotlar pipeline başlatmak içindir.
+ - Non-static olan ve bir stream arayüz referansına geri dönen metotlar intermediate işlemlere ilişkindir
+ - Non-static olan ve bir stream arayüz referansına geri dönmeyen metotlar terminal işlemlere ilişkindir
+ - Ve diğerleri
+
+XXXXXXXXXXXXXXXXXXXXXXXXX
+
+ `Collection<E>` arayüzünün default olarak bildirilmiş stream metodu ile bir collection sınıftan stream elde edilebilir. generic türden, double türden, int türden ve long türden bir diziden stream elde etmek için stream arayüzlerinin `vararg` _parametreli of static metotları kullanılabilir. Ayrıca_ `Arrays` sınıfının `stream` _metotları kullanılarak da ilgili türden dizilerden stream referansları elde edilebilir.
+
+ Stream arayüzlerinin `filter` metotları aldıkları predicate fonksiyonel arayüzlerine göre koşulu uyanları içeren stream referansına geri dönerler. Döndürülen, stream referansları filter'in çağrıldığı referans ile aynı türdendir.
+
+Stream arayüzlerinin `forEach` metotları aldıkları **consumer callback**'e ilişkin işlemleri tüm elemanlar için yapar. Bu metot bir **terminal** metodudur ve geri dönüş değeri yoktur. Bu metot ile birlikte stream pipeline'a ilişkin tüm intermediate işlemler yapılarak elde edilen elemanlar consumer arayüzlerine ilişkin `accept` metotlarına argüman olarak geçirilir.
