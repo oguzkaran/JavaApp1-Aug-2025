@@ -10944,7 +10944,8 @@ LongStream
  - `Collection<E>` arayüzünün `stream` metodu ile `Stream<E>` elde edilebilir
  - Bir diziden stream `Arrays` sınıfının `stream` metotlarından elde edilebilir
  - Stream, IntStream, DoubleStream ve LongStream arayüzlerinin static bazı metotları (factory methods) ile elde edilebilir. Bunlardan bazıları şunlardır: `of`, `generate`, `iterate` vb.
- - Intermediate işlemlere ilişkin metotlardan elde edilebilir
+ - Intermediate işlemlere ilişkin metotlardan elde edilebilir.
+ - Bazı utility sınıflar ile elde edilebilir.
  
  O zaman stream arayüzlerinin metotları için şunlar genel olarak söylenebilir:
  
@@ -10953,10 +10954,8 @@ LongStream
  - Non-static olan ve bir stream arayüz referansına geri dönmeyen metotlar terminal işlemlere ilişkindir
  - Ve diğerleri
 
-XXXXXXXXXXXXXXXXXXXXXXXXX
+ `Collection<E>` arayüzünün default olarak bildirilmiş stream metodu ile bir collection sınıftan stream elde edilebilir. generic türden, double türden, int türden ve long türden bir diziden stream elde etmek için stream arayüzlerinin `vararg` parametreli of static (factory) metotları kullanılabilir. Ayrıca `Arrays` sınıfının `stream` metotları kullanılarak da ilgili türden dizilerden stream referansları elde edilebilir.
 
- `Collection<E>` arayüzünün default olarak bildirilmiş stream metodu ile bir collection sınıftan stream elde edilebilir. generic türden, double türden, int türden ve long türden bir diziden stream elde etmek için stream arayüzlerinin `vararg` _parametreli of static metotları kullanılabilir. Ayrıca_ `Arrays` sınıfının `stream` _metotları kullanılarak da ilgili türden dizilerden stream referansları elde edilebilir.
-
- Stream arayüzlerinin `filter` metotları aldıkları predicate fonksiyonel arayüzlerine göre koşulu uyanları içeren stream referansına geri dönerler. Döndürülen, stream referansları filter'in çağrıldığı referans ile aynı türdendir.
+ Stream arayüzlerinin `filter` metotları aldıkları **predicate** fonksiyonel arayüzlerine göre koşula uyanları içeren stream referansına geri dönerler. Döndürülen stream referansları filter'in çağrıldığı referans ile aynı türdendir.
 
 Stream arayüzlerinin `forEach` metotları aldıkları **consumer callback**'e ilişkin işlemleri tüm elemanlar için yapar. Bu metot bir **terminal** metodudur ve geri dönüş değeri yoktur. Bu metot ile birlikte stream pipeline'a ilişkin tüm intermediate işlemler yapılarak elde edilen elemanlar consumer arayüzlerine ilişkin `accept` metotlarına argüman olarak geçirilir.
