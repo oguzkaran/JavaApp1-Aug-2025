@@ -107,6 +107,13 @@
             <version>3.18.0</version>
         </dependency>
 
+
+        <dependency>
+            <groupId>org.csystem</groupId>
+            <artifactId>org-csystem-util-datasource</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
