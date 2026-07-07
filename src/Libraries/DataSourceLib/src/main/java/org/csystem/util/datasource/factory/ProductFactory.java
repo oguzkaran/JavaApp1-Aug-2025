@@ -14,7 +14,7 @@ public final class ProductFactory {
 
     private static String join(String [] strings, int startIndex, int endIndex, String delimiter) //İleride tek hamlede yapacağız
     {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         for (int i = startIndex; i < endIndex; ++i)
             sb.append(strings[i]).append(delimiter);
 

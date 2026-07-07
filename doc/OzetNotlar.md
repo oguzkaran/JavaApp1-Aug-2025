@@ -10959,3 +10959,182 @@ LongStream
  Stream arayüzlerinin `filter` metotları aldıkları **predicate** fonksiyonel arayüzlerine göre koşula uyanları içeren stream referansına geri dönerler. Döndürülen stream referansları filter'in çağrıldığı referans ile aynı türdendir.
 
 Stream arayüzlerinin `forEach` metotları aldıkları **consumer callback**'e ilişkin işlemleri tüm elemanlar için yapar. Bu metot bir **terminal** metodudur ve geri dönüş değeri yoktur. Bu metot ile birlikte stream pipeline'a ilişkin tüm intermediate işlemler yapılarak elde edilen elemanlar consumer arayüzlerine ilişkin `accept` metotlarına argüman olarak geçirilir.
+
+Aşağıdaki demo örnekte komut satırından alınan stok miktarından daha fazla stoğu olan ürünler listelenmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory, int stock)  
+    {  
+        productFactory.PRODUCTS.stream()  
+                .filter(p -> p.getStock() > stock)  
+                .forEach(Console::writeLine);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(pf -> dataExistCallback(pf, Integer.parseInt(args[1])), () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Stock value must be an integer number!...");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki demo örnekte komut satırından alınan `minStock` ve `maxStock` değerlerine göre `[minStock, maxStock]` aralığında stoğa sahip ürünler listelenmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+import org.csystem.util.datasource.product.ProductInfo;  
+  
+import java.io.IOException;  
+import java.util.List;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory, int minStock, int maxStock)  
+    {  
+        productFactory.PRODUCTS.stream()  
+                .filter(p -> minStock <= p.getStock() && p.getStock() <= maxStock)  
+                .forEach(Console::writeLine);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 3, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(pf -> dataExistCallback(pf, Integer.parseInt(args[1]), Integer.parseInt(args[2])), () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Stock value must be an integer number!...");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Yukarıdaki örnek aşağıdaki gibi de yapılabilir
+
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+import org.csystem.util.datasource.product.ProductInfo;  
+  
+import java.io.IOException;  
+import java.util.List;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory, int minStock, int maxStock)  
+    {  
+        productFactory.PRODUCTS.stream()  
+                .filter(p -> minStock <= p.getStock())  
+                .filter(p -> p.getStock() <= maxStock)  
+                .forEach(Console::writeLine);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 3, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(pf -> dataExistCallback(pf, Integer.parseInt(args[1]), Integer.parseInt(args[2])), () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Stock value must be an integer number!...");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+
+Aşağıdaki demo örnekte komut satırından alınan `minCost` ve `maxCost` değerlerine göre `[minCost, maxCost]` aralığında maliyete sahip ürünler listelenmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+import org.csystem.util.datasource.product.ProductInfo;  
+  
+import java.io.IOException;  
+import java.math.BigDecimal;  
+import java.util.List;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory, BigDecimal minCost, BigDecimal maxCost)  
+    {  
+        productFactory.PRODUCTS.stream()  
+                .filter(p -> minCost.compareTo(p.getCost()) < 0)  
+                .filter(p -> p.getCost().compareTo(maxCost) < 0)  
+                .forEach(Console::writeLine);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 3, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(pf -> dataExistCallback(pf, new BigDecimal(args[1]), new BigDecimal(args[2])), () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Stock value must be an integer number!...");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
