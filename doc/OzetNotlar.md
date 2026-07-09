@@ -11191,7 +11191,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.csystem.util.datasource.factory.StaffFactory;  
   
 import java.io.IOException;  
-import java.time.format.DateTimeFormatter;  
+import java.util.Arrays;  
   
 import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
   
@@ -11201,10 +11201,15 @@ class Application {
     {  
         try {  
             checkLengthEquals(args.length, 3, "Wrong number of arguments");  
-            var formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");  
             var factory = StaffFactory.loadFromTextFile(args[0]);  
+            var staffs = factory.getStaffAsArray();  
+            var minYear = Integer.parseInt(args[1]);  
+            var maxYear = Integer.parseInt(args[2]);  
   
-            //TODO: Write your codes here. Do not modify the others  
+            Arrays.stream(staffs)  
+                    .filter(s -> minYear <= s.getBirthDate().getYear())  
+                    .filter(s -> s.getBirthDate().getYear() <= maxYear)  
+                    .forEach(Console::writeLine);  
         }  
         catch (NumberFormatException ignore) {  
             Console.Error.writeLine("Year values must be numeric");  
@@ -11219,3 +11224,85 @@ class Application {
 }
 ```
 
+
+Aşağıdaki demo örnekte komut satırından alınan `SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY` biçimindeki yazılardan biri şeklinde alınan haftanın günü bilgisine göre ilgili günde izni olan çalışanlar listelenmektedir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.StaffFactory;  
+  
+import java.io.IOException;  
+import java.time.DayOfWeek;  
+import java.util.Arrays;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var factory = StaffFactory.loadFromTextFile(args[0]);  
+            var staffs = factory.getStaffAsArray();  
+            var restWeekDay = DayOfWeek.valueOf(args[1]);  
+  
+            Arrays.stream(staffs)  
+                    .filter(s -> s.getRestDay() == restWeekDay)  
+                    .forEach(Console::writeLine);  
+        }  
+        catch (IllegalArgumentException ignore) {  
+            Console.Error.writeLine("Invalid weekday format");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki demo örnekte komut satırından alınan `SUN, MON, TUE, WED, THU, FRI, SAT` biçimindeki yazılardan biri şeklinde alınan haftanın günü bilgisine göre ilgili günde izni olan çalışanlar listelenmektedir. Örnekte alınan değerlerin geçerliliği kontrol edilmektedir. Değerler yalnızca belirtildiği gibi alınabilmektedir
+
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.StaffFactory;  
+  
+import java.io.IOException;  
+import java.util.Arrays;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var factory = StaffFactory.loadFromTextFile(args[0]);  
+            var staffs = factory.getStaffAsArray();  
+  
+			//TODO: Check argument if valid or not
+			
+            Arrays.stream(staffs)  
+                    .filter(s -> s.getRestDay().toString().startsWith(args[1]))  
+                    .forEach(Console::writeLine);  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
