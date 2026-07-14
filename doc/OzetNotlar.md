@@ -11010,10 +11010,8 @@ package org.csystem.app;
 import com.karandev.io.util.console.Console;  
 import lombok.extern.slf4j.Slf4j;  
 import org.csystem.util.datasource.factory.ProductFactory;  
-import org.csystem.util.datasource.product.ProductInfo;  
   
 import java.io.IOException;  
-import java.util.List;  
   
 import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
   
@@ -11048,17 +11046,14 @@ class Application {
 
 Yukarıdaki örnek aşağıdaki gibi de yapılabilir
 
-
 ```java
 package org.csystem.app;  
   
 import com.karandev.io.util.console.Console;  
 import lombok.extern.slf4j.Slf4j;  
 import org.csystem.util.datasource.factory.ProductFactory;  
-import org.csystem.util.datasource.product.ProductInfo;  
   
 import java.io.IOException;  
-import java.util.List;  
   
 import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
   
@@ -11269,12 +11264,11 @@ class Application {
 
 Aşağıdaki demo örnekte komut satırından alınan `SUN, MON, TUE, WED, THU, FRI, SAT` biçimindeki yazılardan biri şeklinde alınan haftanın günü bilgisine göre ilgili günde izni olan çalışanlar listelenmektedir. Örnekte alınan değerlerin geçerliliği kontrol edilmektedir. Değerler yalnızca belirtildiği gibi alınabilmektedir
 
-
 ```java
 package org.csystem.app;  
   
 import com.karandev.io.util.console.Console;  
-import lombok.extern.slf4j.Slf4j;  
+import lombok.extenrn.slf4j.Slf4j;  
 import org.csystem.util.datasource.factory.StaffFactory;  
   
 import java.io.IOException;  
@@ -11296,6 +11290,157 @@ class Application {
             Arrays.stream(staffs)  
                     .filter(s -> s.getRestDay().toString().startsWith(args[1]))  
                     .forEach(Console::writeLine);  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Stream arayüzlerinin **mapXXX** metotları ilgili stream'e ilişkin verilerden başka bir stream elde etmek için kullanılır (mapping). Bu metotlar tipik olarak `Function` grubu fonksiyonel arayüz referansları ile callback alırlar.
+
+Aşağıdaki demo örnekte komut satırından alınan `minDate` ve `maxDate` değerlerine göre `(minDate, maxDate)` aralığında doğan çalışanların isimleri listelenmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.StaffFactory;  
+import org.csystem.util.datasource.staff.StaffInfo;  
+  
+import java.io.IOException;  
+import java.time.LocalDate;  
+import java.time.format.DateTimeFormatter;  
+import java.time.format.DateTimeParseException;  
+import java.util.Arrays;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 3, "Wrong number of arguments");  
+            var formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");  
+            var factory = StaffFactory.loadFromTextFile(args[0]);  
+            var staffs = factory.getStaffAsArray();  
+            var minDate = LocalDate.parse(args[1], formatter);  
+            var maxDate = LocalDate.parse(args[2], formatter);  
+  
+            Arrays.stream(staffs)  
+                    .filter(s -> s.getBirthDate().isAfter(minDate))  
+                    .filter(s -> s.getBirthDate().isBefore(maxDate))  
+                    .map(StaffInfo::getName)  
+                    .forEach(Console::writeLine);  
+        }  
+        catch (DateTimeParseException ignore) {  
+            Console.Error.writeLine("Invalid date format");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki demo örnekte komut satırından alınan `minDate` ve `maxDate` değerlerine göre `(minDate, maxDate)` aralığında doğan çalışanların yaşları listelenmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.StaffFactory;  
+import org.csystem.util.datasource.staff.StaffInfo;  
+  
+import java.io.IOException;  
+import java.time.LocalDate;  
+import java.time.format.DateTimeFormatter;  
+import java.time.format.DateTimeParseException;  
+import java.util.Arrays;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 3, "Wrong number of arguments");  
+            var formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");  
+            var factory = StaffFactory.loadFromTextFile(args[0]);  
+            var staffs = factory.getStaffAsArray();  
+            var minDate = LocalDate.parse(args[1], formatter);  
+            var maxDate = LocalDate.parse(args[2], formatter);  
+  
+            Arrays.stream(staffs)  
+                    .filter(s -> s.getBirthDate().isAfter(minDate))  
+                    .filter(s -> s.getBirthDate().isBefore(maxDate))  
+                    .mapToDouble(StaffInfo::getAge)  
+                    .forEach(Console::writeLine);  
+        }  
+        catch (DateTimeParseException ignore) {  
+            Console.Error.writeLine("Invalid date format");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Bir ya da brden fazla varlığın (entity), başka bir varlık olarak temsil edilmesi durumunda yeni varlığa **Data Transfer Object (DTO)** denir. DTO, önemli bir pattern'dir. Burada açıklanan varlıklar NYPT'de sınıflar olarak düşünülebilir. Örneğin, bir öğrencinin bilgileri ve aldığı dersler ayrı nesnelerle tutuluyorsa ve bunları içeren tek bir nesne isteniyorsa tipik olarak bu pattern kullanılır. 
+
+Aşağıdaki demo örnekte komut satırından alınan `minDate` ve `maxDate` değerlerine göre `(minDate, maxDate)` aralığında doğan çalışanların isimleri ve yaşları DTO kullanılarak listelenmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.StaffFactory;  
+import org.csystem.util.datasource.staff.StaffNameAgeDTO;  
+  
+import java.io.IOException;  
+import java.time.LocalDate;  
+import java.time.format.DateTimeFormatter;  
+import java.time.format.DateTimeParseException;  
+import java.util.Arrays;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 3, "Wrong number of arguments");  
+            var formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");  
+            var factory = StaffFactory.loadFromTextFile(args[0]);  
+            var staffs = factory.getStaffAsArray();  
+            var minDate = LocalDate.parse(args[1], formatter);  
+            var maxDate = LocalDate.parse(args[2], formatter);  
+  
+            Arrays.stream(staffs)  
+                    .filter(s -> s.getBirthDate().isAfter(minDate))  
+                    .filter(s -> s.getBirthDate().isBefore(maxDate))  
+                    .map(s -> new StaffNameAgeDTO(s.getName(), s.getAge()))  
+                    .forEach(Console::writeLine);  
+        }  
+        catch (DateTimeParseException ignore) {  
+            Console.Error.writeLine("Invalid date format");  
         }  
         catch (IOException e) {  
             Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
