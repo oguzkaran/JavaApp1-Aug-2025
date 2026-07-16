@@ -1,16 +1,18 @@
 package org.csystem.util.datasource.staff;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import java.time.DayOfWeek;
-import java.util.Objects;
 
-@Builder
-@Data
-public final class StaffNameRestDayDTO {
-    public final String name;
+@EqualsAndHashCode(callSuper = true)
+public final class StaffNameRestDayDTO extends StaffBaseDTO {
     public final DayOfWeek restDay;
+
+    public StaffNameRestDayDTO(String name, DayOfWeek restDay)
+    {
+        super(name);
+        this.restDay = restDay;
+    }
 
     @Override
     public String toString()

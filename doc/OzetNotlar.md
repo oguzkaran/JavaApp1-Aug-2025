@@ -11262,22 +11262,37 @@ class Application {
 }
 ```
 
-Aşağıdaki demo örnekte komut satırından alınan `SUN, MON, TUE, WED, THU, FRI, SAT` biçimindeki yazılardan biri şeklinde alınan haftanın günü bilgisine göre ilgili günde izni olan çalışanlar listelenmektedir. Örnekte alınan değerlerin geçerliliği kontrol edilmektedir. Değerler yalnızca belirtildiği gibi alınabilmektedir
+Aşağıdaki demo örnekte komut satırından alınan `SUN, MON, TUE, WED, THU, FRI, SAT` biçimindeki yazılardan biri şeklinde alınan haftanın günü bilgisine göre ilgili günde izni olan çalışanlar listelenmektedir. Örnekte alınan değerlerin geçerliliği kontrol edilmektedir. Değerler yalnızca belirtildiği gibi alınabilmektedir.
+
+**Not:** Kontrol işlemi Stream API ile de yapılabilir. İlgili metotlar ileride ele alınacaktır
 
 ```java
 package org.csystem.app;  
   
 import com.karandev.io.util.console.Console;  
-import lombok.extenrn.slf4j.Slf4j;  
+import lombok.extern.slf4j.Slf4j;  
 import org.csystem.util.datasource.factory.StaffFactory;  
   
 import java.io.IOException;  
+import java.time.DayOfWeek;  
 import java.util.Arrays;  
   
 import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
   
 @Slf4j  
 class Application {  
+    private static boolean isValid(String restDay)  
+    {  
+        if (restDay.length() != 3)  
+            return false;  
+  
+        for (var dow : DayOfWeek.values())  
+            if (dow.toString().contains(restDay))  
+                return true;  
+  
+        return false;
+    }  
+  
     public static void run(String[] args)  
     {  
         try {  
@@ -11285,11 +11300,13 @@ class Application {
             var factory = StaffFactory.loadFromTextFile(args[0]);  
             var staffs = factory.getStaffAsArray();  
   
-			//TODO: Check argument if valid or not
-			
-            Arrays.stream(staffs)  
-                    .filter(s -> s.getRestDay().toString().startsWith(args[1]))  
-                    .forEach(Console::writeLine);  
+            if (isValid(args[1])) {  
+                Arrays.stream(staffs)  
+                        .filter(s -> s.getRestDay().toString().startsWith(args[1]))  
+                        .forEach(Console::writeLine);  
+            }  
+            else  
+                Console.writeLine("Wrong rest day");  
         }  
         catch (IOException e) {  
             Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
@@ -11401,7 +11418,7 @@ class Application {
 }
 ```
 
-Bir ya da brden fazla varlığın (entity), başka bir varlık olarak temsil edilmesi durumunda yeni varlığa **Data Transfer Object (DTO)** denir. DTO, önemli bir pattern'dir. Burada açıklanan varlıklar NYPT'de sınıflar olarak düşünülebilir. Örneğin, bir öğrencinin bilgileri ve aldığı dersler ayrı nesnelerle tutuluyorsa ve bunları içeren tek bir nesne isteniyorsa tipik olarak bu pattern kullanılır. 
+Uygulamanın farklı katmanları veya farklı sistemleri arasında veri taşımak amacıyla kullanılan, iş kuralları (business logic ya da davranışları da denebilir) içermeyen bir nesneye **Data Transfer Object (DTO)** denir. DTO, önemli bir pattern'dir. Burada açıklanan varlıklar NYPT'de sınıflar olarak düşünülebilir. Örneğin, bir öğrencinin bilgileri ve aldığı dersler ayrı nesnelerle tutuluyorsa ve bunları içeren tek bir nesne isteniyorsa tipik olarak bu pattern kullanılır. 
 
 Aşağıdaki demo örnekte komut satırından alınan `minDate` ve `maxDate` değerlerine göre `(minDate, maxDate)` aralığında doğan çalışanların isimleri ve yaşları DTO kullanılarak listelenmiştir
 
@@ -11451,3 +11468,59 @@ class Application {
     }  
 }
 ```
+
+
+Aşağıdaki demo örnekte komut satırından alınan `minDate` ve `maxDate` değerlerine göre `(minDate, maxDate)` aralığında doğan çalışanların isimleri ve izin günleri DTO kullanılarak listelenmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.StaffFactory;  
+import org.csystem.util.datasource.staff.StaffNameRestDayDTO;  
+  
+import java.io.IOException;  
+import java.time.LocalDate;  
+import java.time.format.DateTimeFormatter;  
+import java.time.format.DateTimeParseException;  
+import java.util.Arrays;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 3, "Wrong number of arguments");  
+            var formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");  
+            var factory = StaffFactory.loadFromTextFile(args[0]);  
+            var staffs = factory.getStaffAsArray();  
+            var minDate = LocalDate.parse(args[1], formatter);  
+            var maxDate = LocalDate.parse(args[2], formatter);  
+  
+            Arrays.stream(staffs)  
+                    .filter(s -> s.getBirthDate().isAfter(minDate))  
+                    .filter(s -> s.getBirthDate().isBefore(maxDate))  
+                    .map(s -> new StaffNameRestDayDTO(s.getName(), s.getRestDay()))  
+                    .forEach(Console::writeLine);  
+        }  
+        catch (DateTimeParseException ignore) {  
+            Console.Error.writeLine("Invalid date format");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+
+
+
+
+

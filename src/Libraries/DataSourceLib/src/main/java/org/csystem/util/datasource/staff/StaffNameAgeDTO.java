@@ -1,13 +1,17 @@
 package org.csystem.util.datasource.staff;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
-@Builder
-@Data
-public final class StaffNameAgeDTO {
-    public final String name;
+@EqualsAndHashCode(callSuper = true)
+
+public final class StaffNameAgeDTO extends StaffBaseDTO {
     public final double age;
+
+    public StaffNameAgeDTO(String name, double age)
+    {
+        super(name);
+        this.age = age;
+    }
 
     @Override
     public String toString()
