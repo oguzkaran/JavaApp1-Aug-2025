@@ -11519,8 +11519,192 @@ class Application {
 }
 ```
 
+**Soru:** Komut satırından alınan kaynak dizin (source) ve hedef (target) dizin yol bilgisilerine (path) göre kaynak dizin içerisinde yalnızca dosyaları hedef dizine kopyalayan uygulamayı açıklamalara göre yazınız
+
+**Açıklamalar:**
+- Kaynak yol bilgisi yoksa veya dizin değilse ayrı uygun mesajlar verilecektir.
+- Hedef yol bilgisi varsa uygun mesaj verilecek ve kopyalama işlemi yapılmayacaktır.
+- Kaynak dizin içerisindeki dizin dışında dosyalar hedef dizine kopyalanacaktır.
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.io.File;  
+import java.io.IOException;  
+import java.nio.file.Files;  
+import java.nio.file.Path;  
+import java.util.Arrays;  
+import java.util.Objects;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void copyFile(Path filePath, Path destPath)  
+    {  
+        try {  
+            Files.copy(filePath, destPath);  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred while copying file:", e.getMessage());  
+        }  
+    }  
+  
+    private static void copy(Path srcPath, Path destPath)  
+    {  
+        try {  
+            Files.createDirectories(destPath);  
+            var files = Objects.requireNonNull(new File(srcPath.toAbsolutePath().toString()).listFiles(), "IO error occurred while copying files to path:%s".formatted(srcPath));  
+  
+            Arrays.stream(files)  
+                    .filter(f -> !f.isDirectory())  
+                    .forEach(f -> copyFile(f.toPath(), destPath.resolve(Path.of(f.getName()))));  
+        }  
+        catch (NullPointerException e) {  
+            Console.Error.writeLine("Error occurred:%s", e.getMessage());  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred while creating directory:", e.getMessage());  
+        }  
+    }  
+  
+    private static void doIfSourceIsDirectory(Path srcPath, Path destPath)  
+    {  
+        if (Files.notExists(destPath))  
+            copy(srcPath, destPath);  
+        else  
+            Console.Error.writeLine("%s already exists. Copy operation can not be started", destPath);  
+    }  
+  
+    private static void doCopy(Path srcPath, Path destPath)  
+    {  
+        if (Files.exists(srcPath)) {  
+            if (Files.isDirectory(srcPath))  
+                doIfSourceIsDirectory(srcPath, destPath);  
+            else  
+                Console.Error.writeLine("%s is not a directory", srcPath);  
+        }  
+        else  
+            Console.Error.writeLine("%s not found", srcPath);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+  
+        try {  
+            var srcPath = Path.of(args[0]);  
+            var destPath = Path.of(args[1]);  
+  
+            doCopy(srcPath, destPath);  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred: %s", e.getMessage());  
+        }  
+    }  
+}
+```
 
 
 
+Yukarıdaki örnek listFiles metodunun `FileNameFilter` parametreli overload'u ile aşağıdaki gibi yapılabilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.io.File;  
+import java.io.IOException;  
+import java.nio.file.Files;  
+import java.nio.file.Path;  
+import java.util.Arrays;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+import static java.util.Objects.requireNonNull;  
+  
+@Slf4j  
+class Application {  
+    private static void copyFile(Path filePath, Path destPath)  
+    {  
+        try {  
+            Files.copy(filePath, destPath);  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred while copying file:", e.getMessage());  
+        }  
+    }  
+  
+    private static void copy(Path srcPath, Path destPath)  
+    {  
+        try {  
+            Files.createDirectories(destPath);  
+            var files = new File(srcPath.toAbsolutePath().toString()).listFiles((d, n) -> !new File(d, n).isDirectory());  
+  
+            requireNonNull(files, "IO error occurred while copying files to path:%s".formatted(srcPath));  
+  
+            Arrays.stream(files)  
+                    .forEach(f -> copyFile(f.toPath(), destPath.resolve(Path.of(f.getName()))));  
+        }  
+        catch (NullPointerException e) {  
+            Console.Error.writeLine("Error occurred:%s", e.getMessage());  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred while creating directory:", e.getMessage());  
+        }  
+    }  
+  
+    private static void doIfSourceIsDirectory(Path srcPath, Path destPath)  
+    {  
+        if (Files.notExists(destPath))  
+            copy(srcPath, destPath);  
+        else  
+            Console.Error.writeLine("%s already exists. Copy operation can not be started", destPath);  
+    }  
+  
+    private static void doCopy(Path srcPath, Path destPath)  
+    {  
+        if (Files.exists(srcPath)) {  
+            if (Files.isDirectory(srcPath))  
+                doIfSourceIsDirectory(srcPath, destPath);  
+            else  
+                Console.Error.writeLine("%s is not a directory", srcPath);  
+        }  
+        else  
+            Console.Error.writeLine("%s not found", srcPath);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+  
+        try {  
+            var srcPath = Path.of(args[0]);  
+            var destPath = Path.of(args[1]);  
+  
+            doCopy(srcPath, destPath);  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred: %s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+**Anahtar Notlar:** Bir dizinin tamamının dolaşılabilmesi için içinde bulunan dizinlerin de recursive bir biçimde dolaşılması gerekir. Dizin dolaşılması işlemi pratikte çok kullanıldığından Files sınıfında **walk** ve **walkFileTree** metotları bulundurulmuştur. Bu metotlar dizin ağacını recursive bir biçimde dolaşırlar.
+
+XXXXXXXXXXXXXXXXXXXXXXXX
+
+Stream arayüzlerinin **reduce** metotları stream'e ilişkin verilerin kümülatif olarak bir işleme sokulmasını sağlar ve bu işlemin sonucunu döndürür. Bu metodun "binary operator" parametreli overload'u aldığı callback ile tüm verileri işleme sokar. Bu anlamda ilk değer olarak stream'in ilk elemanını alır. Stream boş olabileceğinden bu overload, optional referansına geri döner. İki parametreli overload'u ilk değeri alır. Bu durumda bu metot doğrudan ilgili işlemin sonucuna geri döner.
 
 
+Stream arayüzlerinin **count** metodu ile ilgili stream'e ilişkin toplam veri/bilgi sayısına geri döner. Bu metodun geri dönüş değeri long türdendir.
+
+
+IntStream ve LongStream arayüzlerinin range metotları, parametresi ile aldığı a ve b değerleri için `[a, b)` aralığındaki sayılara ilişkin stream referansına geri döner. `rangeClosed` metotları ise parametresi ile aldığı a ve b değerleri için `[a, b]` aralığındaki sayılara ilişkin stream referansına geri döner. Bu metotlar ile tipik olarak birer birer artan tipik döngü oluşturulabilir.
+
+Bazı stream'ler sonsuz işlem yaparlar. Bu tarz stream'lere infinite stream de denilmektedir. Sonsuz stream'leri sonlandırmak için bazı ara işlemlere yönelik metotlar vardır. Ya bazı sonsuz stream'ler üreten metotların koşul parametreleri ile ilgili stream sonlandırılabilir. Stream arayüzülerinin generate metotları parametresi ile aldığı supplier callback ile verilen değerlere ilişkin sonsuz stream üretir. `limit` metodu parametresi ile aldığı sayı kadar elemanını bulunduğu stream referansına geri döner. Tipik olarak sonsuz stream'lerde belirli sayıda işlem yapmak için kullanılabilir.
