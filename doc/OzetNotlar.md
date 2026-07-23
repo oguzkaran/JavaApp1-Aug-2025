@@ -11695,9 +11695,95 @@ class Application {
 }
 ```
 
-**Anahtar Notlar:** Bir dizinin tamamının dolaşılabilmesi için içinde bulunan dizinlerin de recursive bir biçimde dolaşılması gerekir. Dizin dolaşılması işlemi pratikte çok kullanıldığından Files sınıfında **walk** ve **walkFileTree** metotları bulundurulmuştur. Bu metotlar dizin ağacını recursive bir biçimde dolaşırlar.
+Yukarıdaki örnek Files sınıfının **newDirectoryStream** metotları ile de yapılabilir. Bu metotlar **DirectoryStream** arayüz referansına geri dönerler. Bu arayüz isminde geçen `Stream` Java 8 ile dahil edilen Stream API ile karıştırılmamlıdır. Zaten, bu metot ve bu arayüz Files sınıfı ile birlikte yani Java 1.7 ile dahil edilmiştir. Bu arayüz `Iterable` arayüzünden türetilmiştir.
 
-XXXXXXXXXXXXXXXXXXXXXXXX
+Yukarıdaki örnek `DirectoryStream` metodu kullanılarak aşağıdaki gibi yapılabilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.io.IOException;  
+import java.nio.file.Files;  
+import java.nio.file.NotDirectoryException;  
+import java.nio.file.Path;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void copyFile(Path filePath, Path destPath)  
+    {  
+        try {  
+            Files.copy(filePath, destPath);  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred while copying file:", e.getMessage());  
+        }  
+    }  
+  
+    private static void createDestDirectory(Path destPath)  
+    {  
+        try {  
+            Files.createDirectories(destPath);  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred while creating directory:", e.getMessage());  
+        }  
+    }  
+  
+    private static void copy(Path srcPath, Path destPath)  
+    {  
+        try (var dirStream = Files.newDirectoryStream(srcPath, p -> !Files.isDirectory(p))) {  
+            createDestDirectory(destPath);  
+            dirStream.forEach(p -> copyFile(p, destPath.resolve(p.getFileName())));  
+        }  
+        catch (NotDirectoryException ignore) {  
+            Console.Error.writeLine("%s is not a directory", srcPath);  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred while copying files to path:%s", srcPath);  
+        }  
+    }  
+  
+    private static void doIfSourceIsDirectory(Path srcPath, Path destPath)  
+    {  
+        if (Files.notExists(destPath))  
+            copy(srcPath, destPath);  
+        else  
+            Console.Error.writeLine("%s already exists. Copy operation can not be started", destPath);  
+    }  
+  
+    private static void doCopy(Path srcPath, Path destPath)  
+    {  
+        if (Files.exists(srcPath))  
+            doIfSourceIsDirectory(srcPath, destPath);  
+        else  
+            Console.Error.writeLine("%s not found", srcPath);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+  
+        try {  
+            var srcPath = Path.of(args[0]);  
+            var destPath = Path.of(args[1]);  
+  
+            doCopy(srcPath, destPath);  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred: %s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+XXXXXXXXXXXXXXXXXXXXXX
+
+**Anahtar Notlar:** Bir dizinin tamamının dolaşılabilmesi için içinde bulunan dizinlerin de recursive bir biçimde dolaşılması gerekir. Dizin dolaşılması işlemi pratikte çok kullanıldığından Files sınıfında **walk** ve **walkFileTree** metotları bulundurulmuştur. Bu metotlar dizin ağacını recursive bir biçimde dolaşırlar.
 
 Stream arayüzlerinin **reduce** metotları stream'e ilişkin verilerin kümülatif olarak bir işleme sokulmasını sağlar ve bu işlemin sonucunu döndürür. Bu metodun "binary operator" parametreli overload'u aldığı callback ile tüm verileri işleme sokar. Bu anlamda ilk değer olarak stream'in ilk elemanını alır. Stream boş olabileceğinden bu overload, optional referansına geri döner. İki parametreli overload'u ilk değeri alır. Bu durumda bu metot doğrudan ilgili işlemin sonucuna geri döner.
 
