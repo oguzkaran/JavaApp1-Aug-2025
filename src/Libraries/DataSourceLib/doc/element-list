@@ -1,0 +1,8 @@
+org.csystem.util.datasource
+org.csystem.util.datasource.factory
+org.csystem.util.datasource.generator.random
+org.csystem.util.datasource.people
+org.csystem.util.datasource.product
+org.csystem.util.datasource.product.dto
+org.csystem.util.datasource.staff
+org.csystem.util.datasource.student

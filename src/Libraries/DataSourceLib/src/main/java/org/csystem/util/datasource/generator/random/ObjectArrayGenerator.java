@@ -7,10 +7,16 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.random.RandomGenerator;
 
+/**
+ * Generates arrays or lists of randomly typed objects.
+ *
+ * <p>Randomly produces instances of the following types:
+ * {@code String}, {@code Integer}, {@code Boolean}, {@code Double},
+ * {@code Character}, {@code int[]}, and {@code String[]}.</p>
+ */
 public class ObjectArrayGenerator {
     private final RandomGenerator m_randomGenerator = new Random();
 
-    //String, Integer, Boolean, Double, Character, int [], String []
     private Object createObject()
     {
         return switch (m_randomGenerator.nextInt(7)) {
@@ -24,7 +30,13 @@ public class ObjectArrayGenerator {
         };
     }
 
-    public Object [] createObjects(int count)
+    /**
+     * Creates an array of {@code count} randomly typed objects.
+     *
+     * @param count the number of objects to generate
+     * @return an array of randomly typed objects
+     */
+    public Object[] createObjects(int count)
     {
         Object [] objects = new Object[count];
 
@@ -34,6 +46,12 @@ public class ObjectArrayGenerator {
         return objects;
     }
 
+    /**
+     * Continuously generates random objects until an {@code Integer} with value {@code 0} is produced.
+     * The terminating zero is not included in the returned list.
+     *
+     * @return an {@link ArrayList} of randomly typed objects
+     */
     public ArrayList<Object> createUntilZero()
     {
         ArrayList<Object> objects = new ArrayList<>();
