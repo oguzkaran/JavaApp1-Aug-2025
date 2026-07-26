@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "./src/Libraries/DataSourceLib/doc/**doc/**"
+      - "src/Libraries/DataSourceLib/doc/**doc/**"
       - ".github/workflows/deploy-doc.yml"
 
   workflow_dispatch:
@@ -31,13 +31,13 @@ jobs:
       - name: Fetch repository files
         uses: actions/checkout@v4
 
-      - name: GitHub Pages'i yapılandır
+      - name: Configure Github pages
         uses: actions/configure-pages@v5
 
       - name: Load documentation directory
         uses: actions/upload-pages-artifact@v4
         with:
-          path: doc
+          path: src/Libraries/DataSourceLib/doc/
 
       - name: Deploy in Github pages
         id: deployment
