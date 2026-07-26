@@ -1,0 +1,44 @@
+name: Deploy Website to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "src/Libraries/DataSourceLib/doc/**"
+      - ".github/workflows/deploy-doc.yml"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fetch repository files
+        uses: actions/checkout@v4
+
+      - name: GitHub Pages'i yapılandır
+        uses: actions/configure-pages@v5
+
+      - name: Load documentation directory
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: doc
+
+      - name: Deploy in Github pages
+        id: deployment
+        uses: actions/deploy-pages@v4
