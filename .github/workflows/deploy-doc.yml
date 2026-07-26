@@ -1,11 +1,11 @@
-name: Deploy Website to GitHub Pages
+name: Deploy Documents to Github pagesHub Pages
 
 on:
   push:
     branches:
       - main
     paths:
-      - "src/Libraries/DataSourceLib/doc/**"
+      - "./src/Libraries/DataSourceLib/doc/**doc/**"
       - ".github/workflows/deploy-doc.yml"
 
   workflow_dispatch:
