@@ -11519,12 +11519,12 @@ class Application {
 }
 ```
 
-**Soru:** Komut satırından alınan kaynak dizin (source) ve hedef (target) dizin yol bilgisilerine (path) göre kaynak dizin içerisinde yalnızca dosyaları hedef dizine kopyalayan uygulamayı açıklamalara göre yazınız
+**Soru:** Komut satırından alınan kaynak dizin (source) ve hedef (target) dizin yol bilgilerine (path) göre kaynak dizin içerisinde yalnızca dosyaları hedef dizine kopyalayan uygulamayı açıklamalara göre yazınız
 
 **Açıklamalar:**
 - Kaynak yol bilgisi yoksa veya dizin değilse ayrı uygun mesajlar verilecektir.
 - Hedef yol bilgisi varsa uygun mesaj verilecek ve kopyalama işlemi yapılmayacaktır.
-- Kaynak dizin içerisindeki dizin dışında dosyalar hedef dizine kopyalanacaktır.
+- Kaynak dizin içerisindeki dizin dışında kalan dosyalar hedef dizine kopyalanacaktır.
 
 ```java
 package org.csystem.app;  
@@ -11549,7 +11549,7 @@ class Application {
             Files.copy(filePath, destPath);  
         }  
         catch (IOException e) {  
-            Console.Error.writeLine("IO Error occurred while copying file:", e.getMessage());  
+            Console.Error.writeLine("IO Error occurred while copying file:%s", e.getMessage());  
         }  
     }  
   
@@ -11567,7 +11567,7 @@ class Application {
             Console.Error.writeLine("Error occurred:%s", e.getMessage());  
         }  
         catch (IOException e) {  
-            Console.Error.writeLine("IO Error occurred while creating directory:", e.getMessage());  
+            Console.Error.writeLine("IO Error occurred while creating directory:%s", e.getMessage());  
         }  
     }  
   
@@ -11607,7 +11607,6 @@ class Application {
     }  
 }
 ```
-
 
 
 Yukarıdaki örnek listFiles metodunun `FileNameFilter` parametreli overload'u ile aşağıdaki gibi yapılabilir
@@ -11635,7 +11634,7 @@ class Application {
             Files.copy(filePath, destPath);  
         }  
         catch (IOException e) {  
-            Console.Error.writeLine("IO Error occurred while copying file:", e.getMessage());  
+            Console.Error.writeLine("IO Error occurred while copying file:%s", e.getMessage());  
         }  
     }  
   
@@ -11654,7 +11653,7 @@ class Application {
             Console.Error.writeLine("Error occurred:%s", e.getMessage());  
         }  
         catch (IOException e) {  
-            Console.Error.writeLine("IO Error occurred while creating directory:", e.getMessage());  
+            Console.Error.writeLine("IO Error occurred while creating directory:%s", e.getMessage());  
         }  
     }  
   
@@ -11695,7 +11694,7 @@ class Application {
 }
 ```
 
-Yukarıdaki örnek Files sınıfının **newDirectoryStream** metotları ile de yapılabilir. Bu metotlar **DirectoryStream** arayüz referansına geri dönerler. Bu arayüz isminde geçen `Stream` Java 8 ile dahil edilen Stream API ile karıştırılmamlıdır. Zaten, bu metot ve bu arayüz Files sınıfı ile birlikte yani Java 1.7 ile dahil edilmiştir. Bu arayüz `Iterable` arayüzünden türetilmiştir.
+Yukarıdaki örnek Files sınıfının **newDirectoryStream** metotları ile de yapılabilir. Bu metotlar **DirectoryStream** arayüz referansına geri dönerler. Bu arayüz isminde geçen `Stream` Java 8 ile dahil edilen Stream API ile karıştırılmamalıdır. Zaten, bu metot ve bu arayüz `Files` sınıfı ile birlikte yani Java 1.7 ile dahil edilmiştir. Bu arayüz `Iterable` arayüzünden türetilmiştir.
 
 Yukarıdaki örnek `DirectoryStream` metodu kullanılarak aşağıdaki gibi yapılabilir
 
@@ -11720,7 +11719,7 @@ class Application {
             Files.copy(filePath, destPath);  
         }  
         catch (IOException e) {  
-            Console.Error.writeLine("IO Error occurred while copying file:", e.getMessage());  
+            Console.Error.writeLine("IO Error occurred while copying file:%s", e.getMessage());  
         }  
     }  
   
@@ -11730,7 +11729,7 @@ class Application {
             Files.createDirectories(destPath);  
         }  
         catch (IOException e) {  
-            Console.Error.writeLine("IO Error occurred while creating directory:", e.getMessage());  
+            Console.Error.writeLine("IO Error occurred while creating directory:%s", e.getMessage());  
         }  
     }  
   
@@ -11781,16 +11780,195 @@ class Application {
 }
 ```
 
-XXXXXXXXXXXXXXXXXXXXXX
+**Anahtar Notlar:** Bir dizinin tamamının dolaşılabilmesi için içinde bulunan dizinlerin de recursive bir biçimde dolaşılması gerekir. Dizin dolaşılması işlemi pratikte çok kullanıldığından Files sınıfında **walk** ve **walkFileTree** metotları bulundurulmuştur. Bu metotlar dizin ağacını recursive bir biçimde dolaşırlar. `walk` metodu Java 8 ile eklenmiştir. `walkFileTree` metodu ise Files sınıfı ile birlikte Java 1.7'de eklenmiştir. Özel bir durum yoksa yeni nesil programlama açısından `walk` metodunun kullanılması önerilir.
 
-**Anahtar Notlar:** Bir dizinin tamamının dolaşılabilmesi için içinde bulunan dizinlerin de recursive bir biçimde dolaşılması gerekir. Dizin dolaşılması işlemi pratikte çok kullanıldığından Files sınıfında **walk** ve **walkFileTree** metotları bulundurulmuştur. Bu metotlar dizin ağacını recursive bir biçimde dolaşırlar.
+**Soru:** Komut satırından alınan kaynak dizin (source) ve hedef (target) dizin yol bilgilerine (path) göre kaynak dizini hedef dizin içerisine kopyalayan programı aşağıdaki açıklamalara göre yazınız.
 
-Stream arayüzlerinin **reduce** metotları stream'e ilişkin verilerin kümülatif olarak bir işleme sokulmasını sağlar ve bu işlemin sonucunu döndürür. Bu metodun "binary operator" parametreli overload'u aldığı callback ile tüm verileri işleme sokar. Bu anlamda ilk değer olarak stream'in ilk elemanını alır. Stream boş olabileceğinden bu overload, optional referansına geri döner. İki parametreli overload'u ilk değeri alır. Bu durumda bu metot doğrudan ilgili işlemin sonucuna geri döner.
+**Açıklamalar:**
+- Kaynak yol bilgisi yoksa veya dizin değilse ayrı uygun mesajlar verilecektir.
+- Hedef yol bilgisi varsa uygun mesaj verilecek ve kopyalama işlemi yapılmayacaktır.
 
 
-Stream arayüzlerinin **count** metodu ile ilgili stream'e ilişkin toplam veri/bilgi sayısına geri döner. Bu metodun geri dönüş değeri long türdendir.
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.io.IOException;  
+import java.nio.file.Files;  
+import java.nio.file.NotDirectoryException;  
+import java.nio.file.Path;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void copyFile(Path filePath, Path destPath)  
+    {  
+        try {  
+            Files.copy(filePath, destPath);  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred while copying file:%s", e.getMessage());  
+        }  
+    }  
+  
+    private static void copy(Path srcPath, Path destPath)  
+    {  
+        try {  
+            Files.walk(srcPath).forEach(p -> copyFile(p, destPath.resolve(srcPath.relativize(p))));  
+        }  
+        catch (NotDirectoryException ignore) {  
+            Console.Error.writeLine("%s is not a directory", srcPath);  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred while copying files to path:%s", srcPath);  
+        }  
+    }  
+  
+    private static void doIfSourceIsDirectory(Path srcPath, Path destPath)  
+    {  
+        if (Files.notExists(destPath))  
+            copy(srcPath, destPath);  
+        else  
+            Console.Error.writeLine("%s already exists. Copy operation can not be started", destPath);  
+    }  
+  
+    private static void doCopy(Path srcPath, Path destPath)  
+    {  
+        if (Files.exists(srcPath))  
+            doIfSourceIsDirectory(srcPath, destPath);  
+        else  
+            Console.Error.writeLine("%s not found", srcPath);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+  
+        try {  
+            var srcPath = Path.of(args[0]);  
+            var destPath = Path.of(args[1]);  
+  
+            doCopy(srcPath, destPath);  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred: %s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Yukarıdaki örnek `Files` sınıfının `walkFileTree` metodu ile aşağıdaki gibi yapılabilir. Aslında bu örnek özelinde `walk` metodu daha iyi bir çözümdür. Durumu göstermek için `walkFileTree` kullanılarak yazılmıştır.
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.io.IOException;  
+import java.nio.file.*;  
+import java.nio.file.attribute.BasicFileAttributes;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static FileVisitor<Path> createFileVisitor(Path srcPath, Path destPath)  
+    {  
+        return new FileVisitor<>() {  
+            @Override  
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException  
+            {  
+                Files.createDirectories(destPath.resolve(srcPath.relativize(dir)));  
+  
+                return FileVisitResult.CONTINUE;  
+            }  
+  
+            @Override  
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException  
+            {  
+                Files.copy(file, destPath.resolve(srcPath.relativize(file)));  
+  
+                return FileVisitResult.CONTINUE;  
+            }  
+  
+            @Override  
+            public FileVisitResult visitFileFailed(Path file, IOException e)  
+            {  
+                Console.Error.writeLine("Error while visiting file:%s", e.getMessage());  
+  
+                return FileVisitResult.TERMINATE;  
+            }  
+  
+            @Override  
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException  
+            {  
+                return FileVisitResult.CONTINUE;  
+            }  
+        };  
+    }  
+  
+    private static void copy(Path srcPath, Path destPath)  
+    {  
+        try {  
+            Files.walkFileTree(srcPath, createFileVisitor(srcPath, destPath));  
+        }  
+        catch (NotDirectoryException ignore) {  
+            Console.Error.writeLine("%s is not a directory", srcPath);  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred while copying files to path:%s", srcPath);  
+        }  
+    }  
+  
+    private static void doIfSourceIsDirectory(Path srcPath, Path destPath)  
+    {  
+        if (Files.notExists(destPath))  
+            copy(srcPath, destPath);  
+        else  
+            Console.Error.writeLine("%s already exists. Copy operation can not be started", destPath);  
+    }  
+  
+    private static void doCopy(Path srcPath, Path destPath)  
+    {  
+        if (Files.exists(srcPath))  
+            doIfSourceIsDirectory(srcPath, destPath);  
+        else  
+            Console.Error.writeLine("%s not found", srcPath);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+  
+        try {  
+            var srcPath = Path.of(args[0]);  
+            var destPath = Path.of(args[1]);  
+  
+            doCopy(srcPath, destPath);  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred: %s", e.getMessage());  
+        }  
+    }  
+}
+```
 
 
-IntStream ve LongStream arayüzlerinin range metotları, parametresi ile aldığı a ve b değerleri için `[a, b)` aralığındaki sayılara ilişkin stream referansına geri döner. `rangeClosed` metotları ise parametresi ile aldığı a ve b değerleri için `[a, b]` aralığındaki sayılara ilişkin stream referansına geri döner. Bu metotlar ile tipik olarak birer birer artan tipik döngü oluşturulabilir.
+**Soru:** Komut satırından alınan bir dizine ilişkin yol bilgisine göre dizinin (directory) uzunluğunu 
+(size) bulan programı yazınız.
+**Açıklamalar:** 
+- Dizin dolaşımı için `Files` sınıfının `walkFileTree` metodu kullanılacaktır.
+- Alınan yol bilgisi yoksa veya bir dizin belirtmiyorsa uygun mesajlar verilecektir.
 
-Bazı stream'ler sonsuz işlem yaparlar. Bu tarz stream'lere infinite stream de denilmektedir. Sonsuz stream'leri sonlandırmak için bazı ara işlemlere yönelik metotlar vardır. Ya bazı sonsuz stream'ler üreten metotların koşul parametreleri ile ilgili stream sonlandırılabilir. Stream arayüzülerinin generate metotları parametresi ile aldığı supplier callback ile verilen değerlere ilişkin sonsuz stream üretir. `limit` metodu parametresi ile aldığı sayı kadar elemanını bulunduğu stream referansına geri döner. Tipik olarak sonsuz stream'lerde belirli sayıda işlem yapmak için kullanılabilir.
+
+**Soru:** Komut satırından alınan yol bilgisine göre dizin ise dizini dosya ise dosyayı silen programı yazınız
+**Açıklamalar:** 
+- Dizin dolaşımı için `Files` sınıfının `walkFileTree` metodu kullanılacaktır.
+- Alınan yol bilgisi yoksa uygun mesaj verilecektir.
+- Alınan yol bilgisi bir dizin belirtiyorsa silinip silinmemesine yönelik mesaj verilecek ve yanıta göre işlem yapılacaktır.
+
+
