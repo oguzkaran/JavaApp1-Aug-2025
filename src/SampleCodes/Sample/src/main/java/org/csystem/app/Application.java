@@ -18,25 +18,14 @@ class Application {
             Files.copy(filePath, destPath);
         }
         catch (IOException e) {
-            Console.Error.writeLine("IO Error occurred while copying file:", e.getMessage());
-        }
-    }
-
-    private static void createDestDirectory(Path destPath)
-    {
-        try {
-            Files.createDirectories(destPath);
-        }
-        catch (IOException e) {
-            Console.Error.writeLine("IO Error occurred while creating directory:", e.getMessage());
+            Console.Error.writeLine("IO Error occurred while copying file:%s", e.getMessage());
         }
     }
 
     private static void copy(Path srcPath, Path destPath)
     {
-        try (var dirStream = Files.newDirectoryStream(srcPath, p -> !Files.isDirectory(p))) {
-            createDestDirectory(destPath);
-            dirStream.forEach(p -> copyFile(p, destPath.resolve(p.getFileName())));
+        try {
+            Files.walk(srcPath).forEach(p -> copyFile(p, destPath.resolve(srcPath.relativize(p))));
         }
         catch (NotDirectoryException ignore) {
             Console.Error.writeLine("%s is not a directory", srcPath);
