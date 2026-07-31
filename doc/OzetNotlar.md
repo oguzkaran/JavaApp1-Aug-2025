@@ -11290,17 +11290,18 @@ class Application {
             if (dow.toString().contains(restDay))  
                 return true;  
   
-        return false;
+        return false;  
     }  
   
     public static void run(String[] args)  
     {  
         try {  
             checkLengthEquals(args.length, 2, "Wrong number of arguments");  
-            var factory = StaffFactory.loadFromTextFile(args[0]);  
-            var staffs = factory.getStaffAsArray();  
   
             if (isValid(args[1])) {  
+                var factory = StaffFactory.loadFromTextFile(args[0]);  
+                var staffs = factory.getStaffAsArray();  
+  
                 Arrays.stream(staffs)  
                         .filter(s -> s.getRestDay().toString().startsWith(args[1]))  
                         .forEach(Console::writeLine);  
@@ -11970,5 +11971,221 @@ class Application {
 - Dizin dolaşımı için `Files` sınıfının `walkFileTree` metodu kullanılacaktır.
 - Alınan yol bilgisi yoksa uygun mesaj verilecektir.
 - Alınan yol bilgisi bir dizin belirtiyorsa silinip silinmemesine yönelik mesaj verilecek ve yanıta göre işlem yapılacaktır.
+
+
+Stream arayüzlerinin **anyMatch**, **noneMatch** ve **allMatch** isimli metotları aldıkları predicate callback'e ilişkin koşula göre `boolean` türüne geri dönerler. `anyMatch` metodu aldığı predicate'a ilişkin koşula uyan en az bir tane eleman varsa true aksi durumda false değerine geri döner. `noneMatch` metodu, hiç bir eleman aldığı predicate'a ilişkin koşula uymuyorsa true, aksi durumda false değerine geri döner. `allMatch` metodu, tüm elemanlar aldığı predicate'a ilişkin koşula uyuyorsa true, aksi durumda false değerine geri döner. Aslında bu 3 metot birbirleri yerine kullanılabilir ancak **okunabilirlik/algılanabilirlik** açısından en uygunu duruma göre seçilmelidir.
+
+Aşağıdaki örnekte stokta bulunmayan (stock <= 0) ürünün var olması ya da olmamasına göre uygun mesaj verilmiştir. 
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        if (productFactory.PRODUCTS.stream().anyMatch(p -> p.getStock() <= 0))  
+            Console.writeLine("There exists at least one product not in stock");  
+        else  
+            Console.writeLine("All products are in stock");  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback, () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örnekte stokta bulunmayan (stock <= 0) ürünün var olması ya da olmamasına göre uygun mesaj verilmiştir. 
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        if (productFactory.PRODUCTS.stream().allMatch(p -> p.getStock() > 0))  
+            Console.writeLine("All products are in stock");  
+        else  
+            Console.writeLine("There exists at least one product not in stock");  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback, () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örnekte stokta bulunmayan (stock <= 0) ürünün var olması ya da olmamasına göre uygun mesaj verilmiştir. 
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        if (productFactory.PRODUCTS.stream().noneMatch(p -> p.getStock() <= 0))  
+            Console.writeLine("All products are in stock");  
+        else  
+            Console.writeLine("There exists at least one product not in stock");  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback, () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+
+Aşağıdaki demo örnekte komut satırından alınan `SUN, MON, TUE, WED, THU, FRI, SAT` biçimindeki yazılardan biri şeklinde alınan haftanın günü bilgisine göre ilgili günde izni olan çalışanlar listelenmektedir. Örnekte alınan değerlerin geçerliliği kontrol edilmektedir. Değerler yalnızca belirtildiği gibi alınabilmektedir.
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.StaffFactory;  
+  
+import java.io.IOException;  
+import java.time.DayOfWeek;  
+import java.util.Arrays;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var dayOfWeekStream = Arrays.stream(DayOfWeek.values());  
+  
+            if (args[1].length() == 3 && dayOfWeekStream.anyMatch(d -> d.toString().contains(args[1]))) {  
+                var factory = StaffFactory.loadFromTextFile(args[0]);  
+                var staffs = factory.getStaffAsArray();  
+  
+                Arrays.stream(staffs)  
+                        .filter(s -> s.getRestDay().toString().startsWith(args[1]))  
+                        .forEach(Console::writeLine);  
+            }  
+            else  
+                Console.writeLine("Wrong rest day");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+
+Stream arayüzlerinin **peek** metodu aldığı `Consumer` callback ile ilgili işlemleri yapan bir intermediate operation'dır. Bu metot `forEach`metodunun intermediate operation biçimi olarak düşünülebilir.
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.StaffFactory;  
+  
+import java.io.IOException;  
+import java.time.DayOfWeek;  
+import java.util.Arrays;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var dayOfWeekStream = Arrays.stream(DayOfWeek.values());  
+  
+            if (args[1].length() == 3 && dayOfWeekStream.peek(Console::writeLine).anyMatch(d -> d.toString().contains(args[1]))) {  
+                var factory = StaffFactory.loadFromTextFile(args[0]);  
+                var staffs = factory.getStaffAsArray();  
+  
+                Arrays.stream(staffs)  
+                        .filter(s -> s.getRestDay().toString().startsWith(args[1]))  
+                        .forEach(Console::writeLine);  
+            }  
+            else  
+                Console.writeLine("Wrong rest day");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
 
 

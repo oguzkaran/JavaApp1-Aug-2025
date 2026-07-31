@@ -2,67 +2,38 @@ package org.csystem.app;
 
 import com.karandev.io.util.console.Console;
 import lombok.extern.slf4j.Slf4j;
+import org.csystem.util.datasource.factory.StaffFactory;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.NotDirectoryException;
-import java.nio.file.Path;
+import java.time.DayOfWeek;
+import java.util.Arrays;
 
 import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;
 
 @Slf4j
 class Application {
-    private static void copyFile(Path filePath, Path destPath)
-    {
-        try {
-            Files.copy(filePath, destPath);
-        }
-        catch (IOException e) {
-            Console.Error.writeLine("IO Error occurred while copying file:%s", e.getMessage());
-        }
-    }
-
-    private static void copy(Path srcPath, Path destPath)
-    {
-        try {
-            Files.walk(srcPath).forEach(p -> copyFile(p, destPath.resolve(srcPath.relativize(p))));
-        }
-        catch (NotDirectoryException ignore) {
-            Console.Error.writeLine("%s is not a directory", srcPath);
-        }
-        catch (IOException e) {
-            Console.Error.writeLine("IO error occurred while copying files to path:%s", srcPath);
-        }
-    }
-
-    private static void doIfSourceIsDirectory(Path srcPath, Path destPath)
-    {
-        if (Files.notExists(destPath))
-            copy(srcPath, destPath);
-        else
-            Console.Error.writeLine("%s already exists. Copy operation can not be started", destPath);
-    }
-
-    private static void doCopy(Path srcPath, Path destPath)
-    {
-        if (Files.exists(srcPath))
-            doIfSourceIsDirectory(srcPath, destPath);
-        else
-            Console.Error.writeLine("%s not found", srcPath);
-    }
-
     public static void run(String[] args)
     {
-        checkLengthEquals(args.length, 2, "Wrong number of arguments");
-
         try {
-            var srcPath = Path.of(args[0]);
-            var destPath = Path.of(args[1]);
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");
+            var dayOfWeekStream = Arrays.stream(DayOfWeek.values());
 
-            doCopy(srcPath, destPath);
+            if (args[1].length() == 3 && dayOfWeekStream.peek(Console::writeLine).anyMatch(d -> d.toString().contains(args[1]))) {
+                var factory = StaffFactory.loadFromTextFile(args[0]);
+                var staffs = factory.getStaffAsArray();
+
+                Arrays.stream(staffs)
+                        .filter(s -> s.getRestDay().toString().startsWith(args[1]))
+                        .forEach(Console::writeLine);
+            }
+            else
+                Console.writeLine("Wrong rest day");
+        }
+        catch (IOException e) {
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());
         }
         catch (Exception e) {
-            Console.Error.writeLine("Error occurred: %s", e.getMessage());
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());
         }
     }
 }
