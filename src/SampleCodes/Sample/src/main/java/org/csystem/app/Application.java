@@ -2,11 +2,10 @@ package org.csystem.app;
 
 import com.karandev.io.util.console.Console;
 import lombok.extern.slf4j.Slf4j;
-import org.csystem.util.datasource.factory.StaffFactory;
+import org.csystem.util.numeric.NumberUtil;
 
-import java.io.IOException;
-import java.time.DayOfWeek;
-import java.util.Arrays;
+import java.util.Random;
+import java.util.stream.IntStream;
 
 import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;
 
@@ -15,22 +14,14 @@ class Application {
     public static void run(String[] args)
     {
         try {
-            checkLengthEquals(args.length, 2, "Wrong number of arguments");
-            var dayOfWeekStream = Arrays.stream(DayOfWeek.values());
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");
+            var count = Integer.parseInt(args[0]);
+            var random = new Random();
 
-            if (args[1].length() == 3 && dayOfWeekStream.peek(Console::writeLine).anyMatch(d -> d.toString().contains(args[1]))) {
-                var factory = StaffFactory.loadFromTextFile(args[0]);
-                var staffs = factory.getStaffAsArray();
-
-                Arrays.stream(staffs)
-                        .filter(s -> s.getRestDay().toString().startsWith(args[1]))
-                        .forEach(Console::writeLine);
-            }
-            else
-                Console.writeLine("Wrong rest day");
+            IntStream.generate(random::nextInt).filter(NumberUtil::isPrime).limit(count).forEach(Console::writeLine);
         }
-        catch (IOException e) {
-            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());
+        catch (NumberFormatException e) {
+            Console.Error.writeLine("Invalid count value");
         }
         catch (Exception e) {
             Console.Error.writeLine("Error occurred :%s", e.getMessage());

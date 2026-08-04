@@ -12188,4 +12188,222 @@ class Application {
 ```
 
 
+**Anahtar Notlar:** Stream'e ilişkin bazı işlemler için dokümantasyonda **short-circuiting** terimi kullanılmaktadır. Bu işlem aslında ilgili operatör için işlemin tamamlanması durumunda tüm veriye bakılması gerekmediği anlamındadır. `anyMatch, allMatch ve nonMatch` metotları bu şekildedir. Bu metotlar aldıkları koşula göre  verinin tamamını dolaşmadan sonlanabilirler. Örneğin, `anyMatch` metodu aldığı koşulu sağlayan bir eleman için hemen geri döner. Benzer şeklide allMatch metodu da aldığı koşulu sağlamayan bir eleman için hemen geri döner. Böylesi metotların durumu dokümantasyonda da belirtilmektedir.
+
+Stream arayüzlerinin **count** metodu ile ilgili stream'e ilişkin toplam veri/bilgi sayısına geri döner. Bu metodun geri dönüş değeri long türdendir.
+
+Aşağıdaki demo örnekte komut satırından alınan `SUN, MON, TUE, WED, THU, FRI, SAT` biçimindeki yazılardan biri şeklinde alınan haftanın günü bilgisine göre ilgili günde izni olan çalışanlar sayı elde edilmektedir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.StaffFactory;  
+  
+import java.io.IOException;  
+import java.time.DayOfWeek;  
+import java.util.Arrays;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var dayOfWeekStream = Arrays.stream(DayOfWeek.values());  
+  
+            if (args[1].length() == 3 && dayOfWeekStream.anyMatch(d -> d.toString().contains(args[1]))) {  
+                var factory = StaffFactory.loadFromTextFile(args[0]);  
+                var staffs = factory.getStaffAsArray();  
+  
+                var count = Arrays.stream(staffs)  
+                        .filter(s -> s.getRestDay().toString().startsWith(args[1]))  
+                        .count();  
+  
+                Console.writeLine("Absent people count:%s", count);  
+            }  
+            else  
+                Console.writeLine("Wrong rest day");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+`count` metodu ilgili değeri, stream'e ilişkin kaynağın durumuna göre efektif bir şekilde alma eğilimindedir. Örneğin, stream'in kaynağında bu bilgi tutuluyorsa (List, dizi vb) ilgili pipeline'da bu bilgiyi doğrudan elde edebilir. Bu durum implementasyona bağlıdır. Dokümanlarda da bu durum belirtilmiştir. Bu işleme göre aşağıdaki örnekte `peek` metoduna ilişkin callback hiç çağrılmayabilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.Arrays;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var list = Arrays.asList("A", "B", "C", "D");  
+        var count = list.stream().peek(System.out::println).count();  
+  
+        Console.writeLine("Count:%s", count);  
+    }  
+}
+```
+
+Örnek `count` metodunun Java SE resmi dokümanlarından alınmıştır.
+
+Stream arayüzülerinin **takeWhile** metodu ile, aldığı predicate callback'e ilişkin koşul gerçeklendiği sürece stream elde edilir. `takeWhile` metodu tipik while döngü deyime benzetilebilir. Hatta yerine kullanılabilir.
+
+Aşağıdaki örnekte int türden bir dizi içerisindeki ilk asal sayıya kadar olan sayıların kaç tane olduğu bilgisi elde edilmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.NumberFactory;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.io.IOException;  
+import java.util.Arrays;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            var numberFactory = NumberFactory.loadFromTextFile(args[0]);  
+            var numbers = numberFactory.getNumbers();  
+  
+            var count = Arrays.stream(numbers)  
+                    .takeWhile(n -> !NumberUtil.isPrime(n))  
+                    .count();  
+  
+            Console.writeLine("Count:%s", count);  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örnekte stokta bulunmayan ilk ürüne kadar kaç tane ürün olduğu bilgisi elde edilmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        var count = productFactory.PRODUCTS.stream().takeWhile(p -> p.getStock() > 0).count();  
+  
+        Console.writeLine("Count:%s", count);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback, () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+
+Bazı stream'ler sonsuz işlem yaparlar. Bu tarz stream'lere **infinite stream** de denilmektedir. Sonsuz stream'leri sonlandırmak için bazı ara işlemlere yönelik metotlar vardır ya da bazı sonsuz stream'ler üreten metotların koşul parametreleri ile ilgili stream sonlandırılabilir. 
+
+Stream arayüzülerinin **generate** metotları parametresi ile aldığı supplier callback ile verilen değerlere ilişkin sonsuz stream üretir. **limit** metodu parametresi ile aldığı sayı kadar elemanın bulunduğu stream referansına geri döner. Bu metot tipik olarak sonsuz stream'ler ile belirli sayıda işlem yapmak için kullanılabilir.
+
+Aşağıdaki örnekte komut satırından int türden sayı alınan sayı kadar int türden asal sayı üretilmektedir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.util.Random;  
+import java.util.stream.IntStream;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            var count = Integer.parseInt(args[0]);  
+            var random = new Random();  
+              
+            IntStream.generate(random::nextInt).filter(NumberUtil::isPrime).limit(count).forEach(Console::writeLine);  
+        }  
+        catch (NumberFormatException e) {  
+            Console.Error.writeLine("Invalid count value");  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örnekte klavyeden sıfır girilene kadar alınan pozitif sayıların kaç tane olduğu bilgisi elde edilmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.stream.IntStream;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var count = IntStream.generate(() -> Console.readInt("Input a number:"))
+                .takeWhile(n -> n != 0)  
+                .filter(n -> n > 0)  
+                .count();  
+  
+        Console.writeLine("Count:%s", count);  
+    }  
+}
+```
 
