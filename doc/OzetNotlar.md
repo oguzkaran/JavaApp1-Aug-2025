@@ -11870,7 +11870,10 @@ import com.karandev.io.util.console.Console;
 import lombok.extern.slf4j.Slf4j;  
   
 import java.io.IOException;  
-import java.nio.file.*;  
+import java.nio.file.FileVisitResult;  
+import java.nio.file.FileVisitor;  
+import java.nio.file.Files;  
+import java.nio.file.Path;  
 import java.nio.file.attribute.BasicFileAttributes;  
   
 import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
@@ -11917,9 +11920,6 @@ class Application {
         try {  
             Files.walkFileTree(srcPath, createFileVisitor(srcPath, destPath));  
         }  
-        catch (NotDirectoryException ignore) {  
-            Console.Error.writeLine("%s is not a directory", srcPath);  
-        }  
         catch (IOException e) {  
             Console.Error.writeLine("IO error occurred while copying files to path:%s", srcPath);  
         }  
@@ -11933,10 +11933,18 @@ class Application {
             Console.Error.writeLine("%s already exists. Copy operation can not be started", destPath);  
     }  
   
+    private static void doIfSourceExists(Path srcPath, Path destPath)  
+    {  
+        if (Files.isDirectory(srcPath))  
+            doIfSourceIsDirectory(srcPath, destPath);  
+        else  
+            Console.Error.writeLine("%s is not a directory", srcPath);  
+    }  
+  
     private static void doCopy(Path srcPath, Path destPath)  
     {  
         if (Files.exists(srcPath))  
-            doIfSourceIsDirectory(srcPath, destPath);  
+            doIfSourceExists(srcPath, destPath);  
         else  
             Console.Error.writeLine("%s not found", srcPath);  
     }  
@@ -11965,12 +11973,337 @@ class Application {
 - Dizin dolaşımı için `Files` sınıfının `walkFileTree` metodu kullanılacaktır.
 - Alınan yol bilgisi yoksa veya bir dizin belirtmiyorsa uygun mesajlar verilecektir.
 
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.io.IOException;  
+import java.nio.file.FileVisitResult;  
+import java.nio.file.FileVisitor;  
+import java.nio.file.Files;  
+import java.nio.file.Path;  
+import java.nio.file.attribute.BasicFileAttributes;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static long ms_length;  
+  
+    private static FileVisitor<Path> createFileVisitor()  
+    {  
+        return new FileVisitor<>() {  
+            @Override  
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException  
+            {  
+                log.debug("Visiting directory: {}", dir);  
+                return FileVisitResult.CONTINUE;  
+            }  
+  
+            @Override  
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException  
+            {  
+                log.debug("\tVisiting file: {}", file);  
+                ms_length += Files.size(file);  
+  
+                return FileVisitResult.CONTINUE;  
+            }  
+  
+            @Override  
+            public FileVisitResult visitFileFailed(Path file, IOException e)  
+            {  
+                Console.Error.writeLine("Error while visiting file:%s", e.getMessage());  
+  
+                return FileVisitResult.TERMINATE;  
+            }  
+  
+            @Override  
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException  
+            {  
+                return FileVisitResult.CONTINUE;  
+            }  
+        };  
+    }  
+  
+    private static void calculate(Path path)  
+    {  
+        try {  
+            if (Files.isDirectory(path)) {  
+                Files.walkFileTree(path, createFileVisitor());  
+                Console.writeLine("Length:%d", ms_length);  
+            }  
+            else  
+                Console.Error.writeLine("%s is not a directory", path);  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred while calculating:%s", path);  
+        }  
+    }  
+  
+    private static void doCalculate(Path path)  
+    {  
+        if (Files.exists(path))  
+            calculate(path);  
+        else  
+            Console.Error.writeLine("%s not found", path);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+  
+        try {  
+            var path = Path.of(args[0]);  
+  
+            doCalculate(path);  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred: %s", e.getMessage());  
+        }  
+    }  
+}
+```
 
-**Soru:** Komut satırından alınan yol bilgisine göre dizin ise dizini dosya ise dosyayı silen programı yazınız
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.io.file.FileUtil;  
+  
+import java.io.UncheckedIOException;  
+import java.nio.file.Files;  
+import java.nio.file.Path;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void calculate(Path path)  
+    {  
+        try {  
+            if (Files.isDirectory(path))  
+                Console.writeLine("Length:%d", FileUtil.dirSize(path));  
+            else  
+                Console.Error.writeLine("%s is not a directory", path);  
+        }  
+        catch (UncheckedIOException e) {  
+            Console.Error.writeLine("IO error occurred while calculating:%s", path);  
+        }  
+    }  
+  
+    private static void doCalculate(Path path)  
+    {  
+        if (Files.exists(path))  
+            calculate(path);  
+        else  
+            Console.Error.writeLine("%s not found", path);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+  
+        try {  
+            var path = Path.of(args[0]);  
+  
+            doCalculate(path);  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred: %s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+**Soru:** Komut satırından alınan yol bilgisine göre, dizin ise dizini dosya ise dosyayı silen programı yazınız
 **Açıklamalar:** 
 - Dizin dolaşımı için `Files` sınıfının `walkFileTree` metodu kullanılacaktır.
 - Alınan yol bilgisi yoksa uygun mesaj verilecektir.
 - Alınan yol bilgisi bir dizin belirtiyorsa silinip silinmemesine yönelik mesaj verilecek ve yanıta göre işlem yapılacaktır.
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.io.IOException;  
+import java.nio.file.FileVisitResult;  
+import java.nio.file.FileVisitor;  
+import java.nio.file.Files;  
+import java.nio.file.Path;  
+import java.nio.file.attribute.BasicFileAttributes;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static FileVisitor<Path> createFileVisitor()  
+    {  
+        return new FileVisitor<>() {  
+            @Override  
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException  
+            {  
+                log.debug("Visiting directory: {}", dir);  
+                return FileVisitResult.CONTINUE;  
+            }  
+  
+            @Override  
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException  
+            {  
+                log.debug("\tVisiting file: {}", file);  
+                Files.delete(file);  
+                return FileVisitResult.CONTINUE;  
+            }  
+  
+            @Override  
+            public FileVisitResult visitFileFailed(Path file, IOException e)  
+            {  
+                Console.Error.writeLine("Error while visiting file:%s", e.getMessage());  
+  
+                return FileVisitResult.TERMINATE;  
+            }  
+  
+            @Override  
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException  
+            {  
+                log.debug("Leaving and deleting directory: {}", dir);  
+                Files.delete(dir);  
+                return FileVisitResult.CONTINUE;  
+            }  
+        };  
+    }  
+  
+    private static char getOption(Path dir)  
+    {  
+        char c;  
+  
+        do  
+            c = Console.readChar("Are you sure to delete that directory '%s'?".formatted(dir));  
+        while (c != 'Y' && c != 'y' && c != 'N' && c != 'n');  
+  
+        return c;  
+    }  
+  
+    private static void delete(Path path)  
+    {  
+        try {  
+            if (Files.isDirectory(path)) {  
+                var option = getOption(path);  
+  
+                if (option == 'Y' || option == 'y') {  
+                    Files.walkFileTree(path, createFileVisitor());  
+                    Console.writeLine("Directory %s deleted successfully", path);  
+                }  
+            }  
+            else {  
+                Files.delete(path);  
+                Console.writeLine("File %s deleted successfully", path);  
+            }  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred while calculating:%s", path);  
+        }  
+    }  
+  
+    private static void doDelete(Path path)  
+    {  
+        if (Files.exists(path))  
+            delete(path);  
+        else  
+            Console.Error.writeLine("%s not found", path);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+  
+        try {  
+            var path = Path.of(args[0]);  
+  
+            doDelete(path);  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred: %s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.io.file.FileUtil;  
+  
+import java.io.IOException;  
+import java.nio.file.Files;  
+import java.nio.file.Path;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static char getOption(Path dir)  
+    {  
+        char c;  
+  
+        do  
+            c = Console.readChar("Are you sure to delete that directory '%s'?".formatted(dir));  
+        while (c != 'Y' && c != 'y' && c != 'N' && c != 'n');  
+  
+        return c;  
+    }  
+  
+    private static void delete(Path path)  
+    {  
+        try {  
+            if (Files.isDirectory(path)) {  
+                var option = getOption(path);  
+  
+                if (option == 'Y' || option == 'y') {  
+                    FileUtil.deleteDir(path);  
+                    Console.writeLine("Directory %s deleted successfully", path);  
+                }  
+            }  
+            else {  
+                Files.delete(path);  
+                Console.writeLine("File %s deleted successfully", path);  
+            }  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred while calculating:%s", path);  
+        }  
+    }  
+  
+    private static void doDelete(Path path)  
+    {  
+        if (Files.exists(path))  
+            delete(path);  
+        else  
+            Console.Error.writeLine("%s not found", path);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+  
+        try {  
+            var path = Path.of(args[0]);  
+  
+            doDelete(path);  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred: %s", e.getMessage());  
+        }  
+    }  
+}
+```
+
 
 
 Stream arayüzlerinin **anyMatch**, **noneMatch** ve **allMatch** isimli metotları aldıkları predicate callback'e ilişkin koşula göre `boolean` türüne geri dönerler. `anyMatch` metodu aldığı predicate'a ilişkin koşula uyan en az bir tane eleman varsa true aksi durumda false değerine geri döner. `noneMatch` metodu, hiç bir eleman aldığı predicate'a ilişkin koşula uymuyorsa true, aksi durumda false değerine geri döner. `allMatch` metodu, tüm elemanlar aldığı predicate'a ilişkin koşula uyuyorsa true, aksi durumda false değerine geri döner. Aslında bu 3 metot birbirleri yerine kullanılabilir ancak **okunabilirlik/algılanabilirlik** açısından en uygunu duruma göre seçilmelidir.
@@ -12406,4 +12739,3 @@ class Application {
     }  
 }
 ```
-
