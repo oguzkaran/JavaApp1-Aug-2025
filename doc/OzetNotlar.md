@@ -12595,7 +12595,7 @@ class Application {
 
 Örnek `count` metodunun Java SE resmi dokümanlarından alınmıştır.
 
-Stream arayüzülerinin **takeWhile** metodu ile, aldığı predicate callback'e ilişkin koşul gerçeklendiği sürece stream elde edilir. `takeWhile` metodu tipik while döngü deyime benzetilebilir. Hatta yerine kullanılabilir.
+Stream arayüzülerinin **takeWhile** metodu ile, aldığı predicate callback'e ilişkin koşul gerçeklendiği sürece stream elde edilir. `takeWhile` metodu tipik while döngü deyime benzetilebilir, yerine kullanılabilir.
 
 Aşağıdaki örnekte int türden bir dizi içerisindeki ilk asal sayıya kadar olan sayıların kaç tane olduğu bilgisi elde edilmiştir
 
@@ -12739,3 +12739,224 @@ class Application {
     }  
 }
 ```
+
+Stream arayüzlerinin **findFirst** metotları ilgili Stream'in ilk elemanına geri döner. Stream boş olabileceği için bu metotların geri dönüş değerleri ilgili optional sınıfı türündendir. `findFirst` metodu bir `short-circuiting terminal operation` biçiminde işlem yapmaktadır.
+
+Aşağıdaki örnekte stokta bulunmayan ilk ürün elde edilmektedir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        var opt = productFactory.PRODUCTS.stream()  
+                .filter(p -> p.getStock() <= 0)  
+                        .findFirst();  
+  
+        opt.ifPresentOrElse(p -> Console.writeLine("First product not in stock:%s", p), () -> Console.writeLine("All products are in stock"));  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback, () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örnekte ilgili aralıkta ilk üretilen asal sayı elde edilmektedir. Örnekte asal sayı üretilemezse sonsuz stream devam edecektir, dolayısıyla findFirst metodu geri dönmeyecektir. Bu durumda `ifPresentOrElse` metodunun ikinci parametresine geçilen callable çağrılmayacaktır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.util.Random;  
+import java.util.stream.IntStream;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+  
+        try {  
+            var a = Integer.parseInt(args[0]);  
+            var b = Integer.parseInt(args[1]);  
+            var random = new Random();  
+  
+            var valueOpt = IntStream.generate(() -> random.nextInt(a, b))  
+                    .peek(v -> log.info("Generated value: {} ", v))  
+                    .filter(NumberUtil::isPrime)  
+                    .findFirst();  
+  
+            valueOpt.ifPresentOrElse(p -> Console.writeLine("First generated prime number:%d", p), () -> Console.Error.writeLine("No prime number generated"));  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid values");  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred:%s", e.getMessage());  
+        }  
+  
+    }  
+}
+```
+
+Aşağıdaki örnekte komut satırından satırından değer kadar üretilen sayılar içerisindeki ilk asal sayı elde edilmektedir. 
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.util.Random;  
+import java.util.stream.IntStream;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        checkLengthEquals(args.length, 3, "Wrong number of arguments");  
+  
+        try {  
+            var n = Integer.parseInt(args[0]);  
+            var a = Integer.parseInt(args[1]);  
+            var b = Integer.parseInt(args[2]);  
+            var random = new Random();  
+  
+            var valueOpt = IntStream.generate(() -> random.nextInt(a, b))  
+                    .peek(v -> log.info("Generated value: {} ", v))  
+                    .limit(n)  
+                    .filter(NumberUtil::isPrime)  
+                    .findFirst();  
+  
+            valueOpt.ifPresentOrElse(p -> Console.writeLine("First generated prime number:%d", p), () -> Console.Error.writeLine("No prime number generated"));  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid values");  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred:%s", e.getMessage());  
+        }  
+  
+    }  
+}
+```
+
+Stream arayüzlerinin **findAny** metotları ilgili Stream'in bir elemanına geri döner. Stream boş olabileceği için bu metotların geri dönüş değerleri ilgili optional sınıfı türündendir.  Bu metodun hangi elemanı vereceği çeşitli durumlara bağlı olarak değişebilmektedir. Bu durumların detayları burada ele alınmayacaktır. Bu metodun eşdeğer stream'ler için aynı sonucu vereceği garanti değildir. Zaten amaç da garanti olmamasıdır. `findAny` metodu bir `short-circuiting terminal operation` biçiminde işlem yapmaktadır.
+
+Aşağıdaki örnekte stokta bulunmayan herhangi bir ürün elde edilmektedir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        var opt = productFactory.PRODUCTS.stream()  
+                .filter(p -> p.getStock() <= 0)  
+                .findAny();  
+  
+        opt.ifPresentOrElse(p -> Console.writeLine("First product not in stock:%s", p), () -> Console.writeLine("All products are in stock"));  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback, () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+
+Aşağıdaki örnekte komut satırından satırından değer kadar üretilen sayılar içerisindeki herhangi bir asal sayı elde edilmektedir. 
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.util.Random;  
+import java.util.stream.IntStream;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        checkLengthEquals(args.length, 3, "Wrong number of arguments");  
+  
+        try {  
+            var n = Integer.parseInt(args[0]);  
+            var a = Integer.parseInt(args[1]);  
+            var b = Integer.parseInt(args[2]);  
+            var random = new Random();  
+  
+            var valueOpt = IntStream.generate(() -> random.nextInt(a, b))  
+                    .peek(v -> log.info("Generated value: {} ", v))  
+                    .limit(n)  
+                    .filter(NumberUtil::isPrime)  
+                    .findAny();  
+  
+            valueOpt.ifPresentOrElse(p -> Console.writeLine("First generated prime number:%d", p), () -> Console.Error.writeLine("No prime number generated"));  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid values");  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred:%s", e.getMessage());  
+        }  
+  
+    }  
+}
+```
+
