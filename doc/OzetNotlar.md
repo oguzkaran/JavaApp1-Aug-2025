@@ -12914,7 +12914,6 @@ class Application {
 }
 ```
 
-
 Aşağıdaki örnekte komut satırından satırından değer kadar üretilen sayılar içerisindeki herhangi bir asal sayı elde edilmektedir. 
 
 ```java
@@ -12956,6 +12955,335 @@ class Application {
             Console.Error.writeLine("Error occurred:%s", e.getMessage());  
         }  
   
+    }  
+}
+```
+
+
+Stream arayüzlerinin **reduce** metotları stream'e ilişkin verilerin kümülatif olarak bir işleme sokulmasını sağlar ve bu işlemin sonucunu döndürür. Bu metodun `BinaryOperator` parametreli overload'u aldığı callback ile tüm verileri işleme sokar. Tek parametreli overload'u ilk değer olarak stream'in ilk elemanını alır. Stream boş olabileceğinden bu overload, optional referansına geri döner. İki parametreli overload'u ilk değeri de parametre olarak alır. Bu durumda bu metot doğrudan ilgili işlemin sonucuna geri döner.
+
+Aşağıdaki örnekte stokta bulunan ürünlere ilişkin total değer (kar-zarar durumu) elde edilmiştir. Örnekte reduce metoduna lambda ifadesi durumu anlatmak için yazılmıştır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+import java.math.BigDecimal;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        var totalOpt = productFactory.PRODUCTS.stream()  
+                .filter(p -> p.getStock() > 0)  
+                .map(p -> p.getPrice().subtract(p.getCost()).multiply(BigDecimal.valueOf(p.getStock())))  
+                .reduce((r, v) -> r.add(v));  
+  
+        totalOpt.ifPresentOrElse(t -> Console.writeLine("Total stock available:%s", t), () -> Console.writeLine("There is no product in stock"));  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback, () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Yukarıdaki örnek aşağıdaki gibi method reference kullanılarak daha okunabilir/algılanabilir olarak yazılabilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+import java.math.BigDecimal;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        var totalOpt = productFactory.PRODUCTS.stream()  
+                .filter(p -> p.getStock() > 0)  
+                .map(p -> p.getPrice().subtract(p.getCost()).multiply(BigDecimal.valueOf(p.getStock())))  
+                .reduce(BigDecimal::add);  
+  
+        totalOpt.ifPresentOrElse(t -> Console.writeLine("Total stock available:%s", t), () -> Console.writeLine("There is no product in stock"));  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback, () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örnekte stokta bulunan ürünlere ilişkin total değer (kar-zarar durumu) elde edilmiştir. Örnekte toplama işlemi sıfır değerinden başlatılmıştır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+import java.math.BigDecimal;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        var total = productFactory.PRODUCTS.stream()  
+                .filter(p -> p.getStock() > 0)  
+                .map(p -> p.getPrice().subtract(p.getCost()).multiply(BigDecimal.valueOf(p.getStock())))  
+                .reduce(BigDecimal.ZERO, BigDecimal::add);  
+  
+        Console.writeLine("Total:%s", total);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback, () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örnekte stokta bulunan, birim fiyatı, komut satırından alınan minPrice ve maxPrice arasında kalan ürünlerin stok toplamı elde edilmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+import org.csystem.util.datasource.product.ProductInfo;  
+  
+import java.io.IOException;  
+import java.math.BigDecimal;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory, BigDecimal minPrice, BigDecimal maxPrice)  
+    {  
+        var totalStockOpt = productFactory.PRODUCTS.stream()  
+                .filter(p -> p.getStock() > 0)  
+                .filter(p -> minPrice.compareTo(p.getPrice()) <= 0)  
+                .filter(p -> p.getPrice().compareTo(maxPrice) <= 0)  
+                //.peek(p -> log.info("{}", p))  
+                .mapToLong(ProductInfo::getStock)  
+                .reduce(Long::sum);  
+  
+        totalStockOpt.ifPresentOrElse(t -> Console.writeLine("Total stock:%s", t), () -> Console.writeLine("There is no product in stock"));  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 3, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(pf -> dataExistCallback(pf, new BigDecimal(args[1]), new BigDecimal(args[2])),  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid values for price(s)");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+`IntStream, LongStream ve DoubleStream` arayüzlerinin **sum** metotları ile stream'e ilişkin değerlerin toplamı elde edilebilir. sum metotlarının yaklaşık eşdeğerleri şu şekildedir:
+
+```java
+IntStream -> reduce(0, Integer::sum);
+LongStream -> reduce(0L, Long::sum);
+DoubleStream -> reduce(0., Double::sum);
+```
+
+Aşağıdaki örnekte stokta bulunan, birim fiyatı, komut satırından alınan minPrice ve maxPrice arasında kalan ürünlerin stok toplamı elde edilmiştir
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+import org.csystem.util.datasource.product.ProductInfo;  
+  
+import java.io.IOException;  
+import java.math.BigDecimal;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory, BigDecimal minPrice, BigDecimal maxPrice)  
+    {  
+        var totalStock = productFactory.PRODUCTS.stream()  
+                .filter(p -> p.getStock() > 0)  
+                .filter(p -> minPrice.compareTo(p.getPrice()) <= 0)  
+                .filter(p -> p.getPrice().compareTo(maxPrice) <= 0)  
+                .peek(p -> log.info("{}", p))  
+                .mapToLong(ProductInfo::getStock)  
+                .sum();  
+  
+        Console.writeLine("%s", totalStock > 0 ? "Total stock:%s".formatted(totalStock) : "There is no product in stock");  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 3, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(pf -> dataExistCallback(pf, new BigDecimal(args[1]), new BigDecimal(args[2])),  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid values for price(s)");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki demo örnekte komut satırından alınan n, a ve b değerleri için `[a, b)` aralığında üretilen int türden n tane rassal sayının çarpımı elde edilmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.Random;  
+import java.util.stream.LongStream;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 3, "Wrong number of arguments");  
+            var n = Integer.parseInt(args[0]);  
+            var a = Integer.parseInt(args[1]);  
+            var b = Integer.parseInt(args[2]);  
+            var random = new Random();  
+  
+            var result = LongStream.generate(() -> random.nextInt(a, b))  
+                    .limit(n)  
+                    .peek(v -> log.info("Value:{}", v))  
+                    .reduce(1, (r, v) -> r * v);  
+  
+            Console.writeLine("Result:%d", result);  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid values");  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örnekte komut satırından `yyyy-MM-dd` formatında alınan `minDate` ve `maxDate` değerleri için `(minDate, maxDate)` aralığında bir tarihte işe girmiş olan çalışanların isimleri aralarında `, ` olacak şekilde birleştirilmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.StaffFactory;  
+import org.csystem.util.datasource.staff.StaffInfo;  
+  
+import java.io.IOException;  
+import java.time.LocalDate;  
+import java.time.format.DateTimeFormatter;  
+import java.util.Arrays;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 3, "Wrong number of arguments");  
+            var minDate = LocalDate.parse(args[1], DateTimeFormatter.ISO_LOCAL_DATE);  
+            var maxDate = LocalDate.parse(args[2], DateTimeFormatter.ISO_LOCAL_DATE);  
+            var factory = StaffFactory.loadFromTextFile(args[0]);  
+            var staffs = factory.getStaffAsArray();  
+  
+            var namesOpt = Arrays.stream(staffs)  
+                    .filter(s -> s.getEntryDate().isAfter(minDate))  
+                    .filter(s -> s.getEntryDate().isBefore(maxDate))  
+                    .peek(s -> log.info("{}", s))  
+                    .map(StaffInfo::getName)  
+                    .reduce("%s, %s"::formatted);  
+  
+            namesOpt.ifPresentOrElse(str -> Console.writeLine("Names:%s", str), () -> Console.writeLine("No staff found"));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
     }  
 }
 ```
