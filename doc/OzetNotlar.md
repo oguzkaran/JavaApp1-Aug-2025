@@ -13274,7 +13274,7 @@ class Application {
                     .filter(s -> s.getEntryDate().isBefore(maxDate))  
                     .peek(s -> log.info("{}", s))  
                     .map(StaffInfo::getName)  
-                    .reduce("%s, %s"::formatted);  
+                    .reduce("%s, %s"::formatted);
   
             namesOpt.ifPresentOrElse(str -> Console.writeLine("Names:%s", str), () -> Console.writeLine("No staff found"));  
         }  
@@ -13287,4 +13287,245 @@ class Application {
     }  
 }
 ```
+
+**IntStream** ve **LongStream** arayüzlerinin **range** metotları, parametresi ile aldığı a ve b değerleri için `[a, b)` aralığındaki sayılara ilişkin stream referansına geri döner. **rangeClosed** metotları ise parametresi ile aldığı a ve b değerleri için `[a, b]` aralığındaki sayılara ilişkin stream referansına geri döner. Bu metotlar tipik olarak birer birer artan `for` döngüsüne eşdeğerdir.
+
+Aşağıdaki örnekte komut satırından alınan a ve b değerleri için `[a, b)` aralığındaki sayılar stdout'a gönderilmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.stream.IntStream;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var a = Integer.parseInt(args[0]);  
+            var b = Integer.parseInt(args[1]);  
+  
+            IntStream.range(a, b).forEach(i -> Console.write("%d ", i));  
+            Console.writeLine();  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid bound value(s)");  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örnekte komut satırından alınan a ve b değerleri için `[a, b]` aralığındaki sayılar stdout'a gönderilmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.stream.IntStream;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var a = Integer.parseInt(args[0]);  
+            var b = Integer.parseInt(args[1]);  
+  
+            IntStream.rangeClosed(a, b).forEach(i -> Console.write("%d ", i));  
+            Console.writeLine();  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid bound value(s)");  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örnekte komut satırından alınan a ve b değerleri için `[a, b]` aralığındaki asal sayılar stdout'a gönderilmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.util.stream.IntStream;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var a = Integer.parseInt(args[0]);  
+            var b = Integer.parseInt(args[1]);  
+  
+            IntStream.rangeClosed(a, b)  
+                    .filter(NumberUtil::isPrime)  
+                    .forEach(i -> Console.write("%d ", i));  
+            Console.writeLine();  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid bound value(s)");  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.stream.IntStream;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        IntStream.range(0, 26).map(i -> 'A' + i).forEach(cp -> Console.write("%c", (char)cp));  
+        Console.writeLine();  
+        IntStream.range(0, 26).map(i -> 'a' + i).forEach(cp -> Console.write("%c", (char)cp));  
+        Console.writeLine();  
+    }  
+}
+```
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.stream.IntStream;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        IntStream.rangeClosed('A', 'Z').forEach(cp -> Console.write("%c", (char)cp));  
+        Console.writeLine();  
+        IntStream.rangeClosed('a', 'z').forEach(cp -> Console.write("%c", (char)cp));  
+        Console.writeLine();  
+    }  
+}
+```
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.stream.IntStream;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        IntStream.range(0, 65536).forEach(cp -> Console.write("%c ", (char)cp));  
+        Console.writeLine();  
+    }  
+}
+```
+
+Aşağıdaki örnekte komut satırından alınan int türden bir sayının factorial değeri long türden elde edilmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.stream.LongStream;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            var n = Integer.parseInt(args[0]);  
+            var result = LongStream.rangeClosed(2, n).reduce(1, (r, v) -> r * v);  
+  
+            Console.writeLine("%d! = %d", n, result);  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid value");  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örnekte komut satırından alınan int türden bir sayının factorial değeri BigInteger türden elde edilmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.math.BigInteger;  
+import java.util.stream.IntStream;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            var n = Integer.parseInt(args[0]);  
+            var result = IntStream.rangeClosed(2, n)  
+                    .mapToObj(BigInteger::valueOf)  
+                            .reduce(BigInteger.ONE, BigInteger::multiply);  
+  
+            Console.writeLine("%d! = %s", n, result);  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid value");  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
 
