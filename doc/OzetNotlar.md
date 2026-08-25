@@ -13529,3 +13529,109 @@ class Application {
 ```
 
 
+Stream arayüzlerinin **iterate** metotları ile tipik olarak iterasyon işlemleri yapılır. Bu metotların iki parametreli overload'ları birinci parametresi ile aldıkları başlangıç (seed) değerinden itibaren ikinci parametresi ile aldıkları `unary operator` callable değerine göre iterasyon yapar. Sonsuz stream olarak çalışır. 3 parametreli overload'ları birinci parametresi ile aldıkları başlangıç değerinden itibaren ikinci parametresi ile aldıkları predicate sağlandığı sürece üçüncü parametresi ile aldıkları callback'e ilişkin iterasyonu yapar.
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.stream.IntStream;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 3, "Wrong number of arguments");  
+            var a = Integer.parseInt(args[0]);  
+            var n = Integer.parseInt(args[1]);  
+            var s =  Integer.parseInt(args[2]);  
+  
+            var result = IntStream.iterate(a, v -> v + s)  
+                    .peek(v -> log.info("value:{}", v))  
+                    .limit(n).sum();  
+  
+            Console.writeLine("result:%d", result);  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid value(s)");  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örnekte stdin'den girilen int türden bir sayının asal olup olmadığı belirlenmiş ve uygun mesajlar verilmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.stream.IntStream;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var a = Console.readInt("Input a number:");  
+  
+        if (a > 1 && IntStream.iterate(2, v -> v <= a / 2, i -> i + 1).allMatch(v -> a % v != 0))  
+            Console.writeLine("%d is a prime number", a);  
+        else  
+            Console.writeLine("%d is not a prime number", a);  
+  
+        Console.writeLine();  
+    }  
+}
+```
+
+
+Aşağıdaki örnekte komut satırından alınan int türden bir sayının factorial değeri BigInteger türden elde edilmiştir. Örneğin iterate metodu ile yapılmıştır. Şüphesiz rangeClosed metodu ile yapılması daha yalındır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.math.BigInteger;  
+import java.util.stream.IntStream;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            var n = Integer.parseInt(args[0]);  
+            var result = IntStream.iterate(2, i -> i <= n, i -> i + 1)  
+                    .mapToObj(BigInteger::valueOf)  
+                    .reduce(BigInteger.ONE, BigInteger::multiply);  
+  
+            Console.writeLine("%d! = %s", n, result);  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid value");  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+
+Stream arayüzlerinin **distinct** metotları stream'e ilişkin elemanlardan tekrarlı olanlardan bir tane olacak şekilde stream elde edilmesini sağlar. `Stream` arayüzünün distinct metodu aynı olup olmama durumu için `equals` ve `hashCode` metotlarını kullanır. Bu metot sıralı stream'lerde (ordered stream) aynı olan elemanlardan stream içerisinde önce olanı alacağını garanti eder (stable), sıralı olmayan stream'ler (unordered stream) için bunu garanti etmez. Sıralı ve sırasız stream'ler ileride ayrıca ele alınacaktır.
+
