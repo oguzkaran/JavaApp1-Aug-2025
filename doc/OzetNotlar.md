@@ -4790,27 +4790,106 @@ MR 4(dört) çeşittir:
 Aşağıdaki demo örnekte kullanılan MR'leri inceleyiniz
 
 ```java
-package org.csystem.scheduler;  
-  
-import org.csystem.util.thread.ThreadUtil;  
-import org.junit.jupiter.api.Assertions;  
-import org.junit.jupiter.api.Test;  
-  
-import java.util.concurrent.TimeUnit;  
-  
-public class SchedulerTest {  
-    private int m_count;  
-  
-    @Test  
-    void test()  
-    {  
-        var scheduler = Scheduler.of(1, TimeUnit.SECONDS).schedule(() -> ++m_count);  
-  
-        ThreadUtil.sleep(5_000);  
-        scheduler.cancel();  
-  
-        Assertions.assertEquals(6, m_count);  
-    }  
+package org.csystem.app;
+
+import com.karandev.io.util.console.Console;
+import org.csystem.util.numeric.NumberUtil;
+
+import java.util.Random;
+
+class Application {
+    public static void run(String[] args)
+    {
+        var random = new Random();
+
+        IIntBinaryOperator ibo = IntOperation::multiply; //1 -> Lambda karşılığı: (a, b) -> IntOperation.multiply(a, b);
+
+        Console.writeLine(ibo.applyAsInt(10, 20));
+        Console.writeLine("------------------------------------------------------------------");
+
+        ibo = Integer::sum; //1
+        Console.writeLine(ibo.applyAsInt(10, 20));
+        Console.writeLine("------------------------------------------------------------------");
+
+        IIntPredicate intPredicate = NumberUtil::isPrime; //1 -> Lambda karşılığı: a -> NumberUtil.isPrime(a);
+        Console.writeLine(intPredicate.test(1_000_003) ? "Asal" : "Asal değil");
+        Console.writeLine("------------------------------------------------------------------");
+
+        IIntSupplier intSupplier = random::nextInt; //2 -> Lambda karşılığı:() -> random.nextInt();
+        Console.writeLine(intSupplier.get());
+        Console.writeLine("------------------------------------------------------------------");
+
+        IIntRandomBoundSupplier intRandomBoundSupplier = Random::nextInt; //3 -> Lambda karşılığı: (r, b) -> r.nextInt(b);
+        Console.writeLine(intRandomBoundSupplier.get(random, 100));
+        Console.writeLine("------------------------------------------------------------------");
+
+        IStringToIntConverter converter = String::length; //3 -> Lambda karşılığı: s -> s.length();
+        Console.writeLine(converter.convert("ankara"));
+        Console.writeLine("------------------------------------------------------------------");
+
+        IIntValueFactory intValueFactory = IntValue::new; //4 -> Lambda karşılığı: a -> new IntValue(a);
+        Console.writeLine(intValueFactory.create(10).getValue());
+        Console.writeLine("------------------------------------------------------------------");
+
+        IIntValueDefaultFactory intValueDefaultFactory = IntValue::new; //4 -> Lambda karşılığı: () -> new IntValue();
+        Console.writeLine(intValueDefaultFactory.create().getValue());
+        Console.writeLine("------------------------------------------------------------------");
+    }
+}
+
+class IntOperation {
+    public static int multiply(int a, int b)
+    {
+        return a * b;
+    }
+}
+
+class IntValue {
+    private int m_value;
+
+    public IntValue()
+    {
+    }
+
+    public IntValue(int value)
+    {
+        m_value = value;
+    }
+
+    public int getValue()
+    {
+        return m_value;
+    }
+
+    //...
+}
+
+interface IIntValueFactory {
+    IntValue create(int val);
+}
+
+interface IIntValueDefaultFactory {
+    IntValue create();
+}
+
+interface IIntBinaryOperator {
+    int applyAsInt(int a, int b);
+}
+
+interface IIntPredicate {
+    boolean test(int a);
+}
+
+interface IIntSupplier {
+    int get();
+}
+
+interface IIntRandomBoundSupplier {
+    int get(Random random, int bound);
+}
+
+interface IStringToIntConverter {
+    int convert(String str);
 }
 ```
 
@@ -13632,6 +13711,192 @@ class Application {
 }
 ```
 
+Aşağıdaki örnekte komut satırından alınan dosyaya komut satırından alınan sayı kadar rassal olarak üretilmiş byte değerleri eklenmektedir (append)
 
-Stream arayüzlerinin **distinct** metotları stream'e ilişkin elemanlardan tekrarlı olanlardan bir tane olacak şekilde stream elde edilmesini sağlar. `Stream` arayüzünün distinct metodu aynı olup olmama durumu için `equals` ve `hashCode` metotlarını kullanır. Bu metot sıralı stream'lerde (ordered stream) aynı olan elemanlardan stream içerisinde önce olanı alacağını garanti eder (stable), sıralı olmayan stream'ler (unordered stream) için bunu garanti etmez. Sıralı ve sırasız stream'ler ileride ayrıca ele alınacaktır.
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.io.FileNotFoundException;  
+import java.io.FileOutputStream;  
+import java.io.IOException;  
+import java.util.Random;  
+import java.util.stream.IntStream;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+  
+@Slf4j  
+class Application {  
+    private static void addBytesCallback(FileOutputStream fos, Random random)  
+    {  
+        try {  
+            byte v = (byte) random.nextInt(-128, 128);  
+  
+            Console.write("%d ", v);  
+            fos.write(v);  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred while adding random byte:%s", e.getMessage());  
+        }  
+    }  
+  
+    private static void writeFile(String path, int count) throws IOException  
+    {  
+        try (var fos = new FileOutputStream(path, true)) {  
+            Random r = new Random();  
+  
+            IntStream.range(0, count).forEach(i -> addBytesCallback(fos, r));  
+            Console.writeLine();  
+        }  
+        catch (FileNotFoundException ignore) {  
+            Console.Error.writeLine("Error occurred while creating file:%s", path);  
+        }  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        checkLengthEquals(2, args.length, "Wrong number of arguments");  
+  
+        try {  
+            var count = Integer.parseInt(args[1]);  
+  
+            if (count < 1)  
+                throw new NumberFormatException();  
+  
+            writeFile(args[0], count);  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Count must be a positive integer");  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred:%s", e.getMessage());  
+        }  
+    }  
+}
+```
 
+Aşağıdaki demo örnekte komut satırından alınan dosyadan, komut satırından chunk değeri ile blok blok okuma yapılmaktadır. İleride daha yalın olarak yazılacaktır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.io.FileInputStream;  
+import java.io.FileNotFoundException;  
+import java.io.IOException;  
+import java.util.stream.IntStream;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static int readByteCallback(FileInputStream fis, byte [] buf)  
+    {  
+        int result = -1;  
+  
+        try {  
+            result = fis.read(buf);  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("Error occurred while reading data");  
+        }  
+  
+        return result;  
+    }  
+  
+    private static void processByteCallback(int result, byte [] buf)  
+    {  
+        IntStream.range(0, result - 1)  
+                .mapToObj(i -> "%d, ".formatted(buf[i]))  
+                .forEach(Console::write);  
+        Console.write("%d:", buf[result - 1]);  
+    }  
+  
+    private static void readFile(String path, int chunkSize)  
+    {  
+        try (FileInputStream fis = new FileInputStream(path)) {  
+            byte [] buf = new byte[chunkSize];  
+  
+            IntStream.generate(() -> readByteCallback(fis, buf)).takeWhile(r -> r != -1).forEach(r -> processByteCallback(r, buf));  
+            Console.writeLine();  
+        }  
+        catch (FileNotFoundException ignore) {  
+            Console.Error.writeLine("Error occurred while opening file:%s", path);  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred:%s", e.getMessage());  
+        }  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        checkLengthEquals(2, args.length, "Wrong number of arguments");  
+  
+        try {  
+            int chunkSize = Integer.parseInt(args[1]);  
+  
+            if (chunkSize <= 0)  
+                throw new NumberFormatException();  
+  
+            readFile(args[0], chunkSize);  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid chunk size");  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred:%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Stream API içerisinde bazı terminal işlemleri elde edilen stream'e ilişkin elemanlardan başka bir veri yapısı elde etmeye yöneliktir. Bu anlamda bir Stream'den bir dizi ya da bir collection gibi veri yapıları elde edilebilir. Şüphesiz bu durumda artık tutulan elemanlar da kopyalanmış olur. Bu işlemler dışında stream içerisinde elde edilen kaynağa ilişkin elemanların genel olarak kopyaları çıkartılmaz. Bu sebeple stream işlemleri oldukça efektif çalışma eğilimindedir.
+
+Stream arayüzlerinin **toArray** metotları ile ilgili stream'e ilişkin elemanlardan bir dizi elde edilebilir. `IntStream, LongStream ve DoubleStream` sınıflarının `toArray` metotları birer tanedir ve parametresizdir. Bu metotlar sırasıyla int türden long türden ve double türden dizi referansına geri dönerler. 
+
+Aşağıdaki örnekte durumu göstermek için dizi elde edilmiş ve sonrasında stdout'a yazdırılmıştır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.util.Arrays;  
+import java.util.Random;  
+import java.util.stream.LongStream;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            int count = Short.parseShort(args[0]);  
+  
+            if (count <= 0)  
+                throw new NumberFormatException();  
+  
+            var random = new Random();  
+  
+            var primes = LongStream.generate(random::nextLong)  
+                    .peek(v -> log.info("{}", v))  
+                    .filter(NumberUtil::isPrime).limit(count).toArray();  
+  
+            Console.writeLine("Generated prime numbers:");  
+            Arrays.stream(primes).forEach(Console::writeLine);
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid count value");  
+        }  
+    }  
+}
+```
