@@ -13900,3 +13900,251 @@ class Application {
     }  
 }
 ```
+
+`Stream` arayüzünün iki tane `toArray` metodu vardır. `Stream` arayüzünün parametresiz `toArray` metodu stream'e ilişkin elemanlardan oluşan `Object[]` referansına geri döner. İçsel olarak üretilen dizi genel olarak Stream'in açılımına yönelik  olmayacağından (yani örneğin `Stream<String>` ise `String[]` oluşturulmayabileceğinden) bu diziyi ilgili türden diziye cast işlemi `ClassCastException` oluşumuna yol açar. Bu durumda programcı ilgili dizinin elemanlarını dolaşırken her bir elemanı, dinamik türler homojense doğrudan cast işlemi ile, heterojense tür kontrolü yaparak ilgili türe cast işlemini yapmalıdır.
+
+Aşağıdaki örnekte durumu göstermek için dizi elde edilmiş ve sonrasında stdout'a yazdırılmıştır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.NameFactory;  
+  
+import java.io.IOException;  
+import java.util.Arrays;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var names = NameFactory.loadFromTextFile(args[0]).NAMES;  
+            var namesArray = names.stream()  
+                    .filter(n -> n.contains(args[1]))  
+                    .toArray();  
+  
+            Arrays.stream(namesArray)  
+                    .map(o -> ((String)o).toUpperCase())  
+                    .forEach(Console::writeLine);  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred:%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred:%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örnekte `ClassCastException` fırlatılır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.NameFactory;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var names = NameFactory.loadFromTextFile(args[0]).NAMES;  
+            var namesArray = names.stream()  
+                    .filter(n -> n.contains(args[1]))  
+                    .toArray();  
+  
+            String [] str = (String []) namesArray; //ClassCastException  
+                        //...  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred:%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred:%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+`Stream<T>` arayüzünün `IntFunction<A[]>` parametreli `toArray` metodu parametresi ile aldığı callback'e ilişkin dizi elde edilmesini sağlar. Bu durumda `IntFunction<T>` için `apply` metodunun parametresi ilgili elemanın indeks numarasıdır. `apply` metodu `A[]` (yani generic dizi) türüne geri döner. Bu durumda `toArray` generic metodu da callback ile elde edilen dizi referansına geri döner.
+
+Aşağıdaki örnekte durumu göstermek için dizi elde edilmiş ve sonrasında stdout'a yazdırılmıştır
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.NameFactory;  
+  
+import java.io.IOException;  
+import java.util.Arrays;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var names = NameFactory.loadFromTextFile(args[0]).NAMES;  
+            var namesArray = names.stream()  
+                    .filter(s -> s.contains(args[1]))  
+                    .toArray(String[]::new);  
+  
+            Arrays.stream(namesArray)  
+                    .map(String::toUpperCase)  
+                    .forEach(Console::writeLine);  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred:%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred:%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.generator.ObjectArrayGenerator;  
+  
+import java.util.Arrays;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            var n = Integer.parseInt(args[0]);  
+            var generator = new ObjectArrayGenerator();  
+  
+            Arrays.stream(generator.createObjectArray(n))  
+                    .peek(o -> log.info("Dynamic type:{}, Value:{}", o.getClass().getSimpleName(), o))  
+                    .filter(o -> o instanceof String)  
+                    .map(o -> ((String)o).toUpperCase())  
+                    .forEach(Console::writeLine);  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid count value");  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred:%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+```java
+package org.csystem.generator;  
+  
+import org.csystem.math.Complex;  
+import org.csystem.math.geometry.AnalyticalCircle;  
+import org.csystem.math.geometry.Circle;  
+import org.csystem.math.geometry.Point;  
+import org.csystem.util.string.StringUtil;  
+  
+import java.util.Random;  
+import java.util.random.RandomGenerator;  
+  
+public class ObjectArrayGenerator {  
+    private final RandomGenerator m_randomGenerator = new Random();  
+  
+  
+    private Object createObject()  
+    {  
+        return switch (m_randomGenerator.nextInt(0, 10)) {  
+            case 0 -> Point.createCartesian(m_randomGenerator.nextDouble(-100, 100), m_randomGenerator.nextDouble(-100, 100));  
+            case 1 -> new Complex(m_randomGenerator.nextDouble(-10, 10), m_randomGenerator.nextDouble(-10, 10));  
+            case 2 -> new Circle(m_randomGenerator.nextInt(0, 10));  
+            case 3 -> new AnalyticalCircle(m_randomGenerator.nextInt(0, 10), m_randomGenerator.nextInt(-100, 100), m_randomGenerator.nextInt(-100, 100));  
+            case 4 -> StringUtil.randomTextEN(m_randomGenerator, m_randomGenerator.nextInt(5, 16));  
+            case 5 -> m_randomGenerator.nextInt(-128, 128);  
+            case 6 -> (char)((m_randomGenerator.nextBoolean() ? 'A' : 'a') + m_randomGenerator.nextInt(26));  
+            case 7 -> m_randomGenerator.nextDouble();  
+            case 8 -> m_randomGenerator.nextBoolean();  
+            default -> new Random();  
+        };  
+    }  
+  
+    public Object [] createObjectArray(int count)  
+    {  
+        Object [] objects = new Object[count];  
+  
+        for (int i = 0; i < count; ++i)  
+            objects[i] = createObject();  
+  
+        return objects;  
+    }  
+}
+```
+
+Stream'ler verilerin organizasyonu bakımından iki gruba ayrılır: **ordered, unordered**. ordered bir stream ile ara bir işlem yapıldığında dizilim değişmez. unordered stream'lerde ara bir işlemde dizilimin aynı kalacağı garanti değildir. Stream elde edilen bazı kaynaklar kendileri dizilim anlamında ordered olduklarından elde edilen stream'ler de ordered olarak alınır. Örneğin bir `List`'den elde edilen bir stream ordered'dır ancak bir `HashSet`'den elde edilen stream ordered değil unordered'dır. Stream arayüzlerinin **unordered** metodu ile (aslında BaseStream arayüzünün metodudur) stream ordered veya unordered bakımdan nasıl olursa olsun unordered bir stream elde edilir.
+
+Aşağıdaki örnekte elemanların öncelik sonralık ilişkisinin ara işlemler boyunca değişmeyeceği garanti altındadır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.stream.Stream;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        Stream.of(10, 20, 41, 8, 11, 6).filter(v -> v % 2 == 0).forEach(Console::writeLine);  
+    }  
+}
+```
+
+Aşağıdaki örnekte elemanların öncelik sonralık ilişkisinin ara işlemler boyunca değişmeyeceği garanti altında değildir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.Set;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        Set.of(10, 20, 41, 8, 11, 6).stream().filter(v -> v % 2 == 0).forEach(Console::writeLine);  
+    }  
+}
+```
+
+
+
+
+
+
+

@@ -2,14 +2,11 @@ package org.csystem.app;
 
 import com.karandev.io.util.console.Console;
 import lombok.extern.slf4j.Slf4j;
-import org.csystem.util.numeric.NumberUtil;
+import org.csystem.generator.ObjectArrayGenerator;
 
 import java.util.Arrays;
-import java.util.Random;
-import java.util.stream.LongStream;
 
 import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;
-
 
 @Slf4j
 class Application {
@@ -17,22 +14,20 @@ class Application {
     {
         try {
             checkLengthEquals(args.length, 1, "Wrong number of arguments");
-            int count = Short.parseShort(args[0]);
+            var n = Integer.parseInt(args[0]);
+            var generator = new ObjectArrayGenerator();
 
-            if (count <= 0)
-                throw new NumberFormatException();
-
-            var random = new Random();
-
-            var primes = LongStream.generate(random::nextLong)
-                    .peek(v -> log.info("{}", v))
-                    .filter(NumberUtil::isPrime).limit(count).toArray();
-
-            Console.writeLine("Generated prime numbers:");
-            Arrays.stream(primes).forEach(Console::writeLine);
+            Arrays.stream(generator.createObjectArray(n))
+                    .peek(o -> log.info("Dynamic type:{}, Value:{}", o.getClass().getSimpleName(), o))
+                    .filter(o -> o instanceof String)
+                    .map(o -> ((String)o).toUpperCase())
+                    .forEach(Console::writeLine);
         }
         catch (NumberFormatException ignore) {
             Console.Error.writeLine("Invalid count value");
+        }
+        catch (Exception e) {
+            Console.Error.writeLine("Error occurred:%s", e.getMessage());
         }
     }
 }
