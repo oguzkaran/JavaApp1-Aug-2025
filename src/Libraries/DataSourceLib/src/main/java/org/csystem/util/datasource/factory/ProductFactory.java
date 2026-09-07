@@ -109,6 +109,16 @@ public final class ProductFactory {
     }
 
     /**
+     * Returns all loaded products as a {@link Set}.
+     *
+     * @return a set over {@link ProductInfo} objects
+     */
+    public Set<ProductInfo> getProductsAsSet()
+    {
+        return new HashSet<>(PRODUCTS);
+    }
+
+    /**
      * Returns a randomly selected product, or empty if the product list is empty.
      *
      * @param r the {@link Random} instance used for selection

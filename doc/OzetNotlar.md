@@ -14102,7 +14102,7 @@ public class ObjectArrayGenerator {
 }
 ```
 
-Stream'ler verilerin organizasyonu bakımından iki gruba ayrılır: **ordered, unordered**. ordered bir stream ile ara bir işlem yapıldığında dizilim değişmez. unordered stream'lerde ara bir işlemde dizilimin aynı kalacağı garanti değildir. Stream elde edilen bazı kaynaklar kendileri dizilim anlamında ordered olduklarından elde edilen stream'ler de ordered olarak alınır. Örneğin bir `List`'den elde edilen bir stream ordered'dır ancak bir `HashSet`'den elde edilen stream ordered değil unordered'dır. Stream arayüzlerinin **unordered** metodu ile (aslında BaseStream arayüzünün metodudur) stream ordered veya unordered bakımdan nasıl olursa olsun unordered bir stream elde edilir.
+Stream'ler verilerin organizasyonu bakımından iki gruba ayrılır: **ordered, unordered**. ordered bir stream ile ara bir işlem yapıldığında dizilim değişmez. unordered stream'lerde ara bir işlemde dizilimin aynı kalacağı garanti değildir. Stream elde edilen bazı kaynaklar kendileri dizilim anlamında ordered olduklarından elde edilen stream'ler de ordered olarak alınır. Örneğin `List`'den elde edilen bir stream ordered'dır ancak bir `HashSet`'den elde edilen stream ordered değil unordered'dır. Stream arayüzlerinin **unordered** metodu ile (aslında BaseStream arayüzünün metodudur) stream ordered veya unordered bakımdan nasıl olursa olsun unordered bir stream elde edilir.
 
 Aşağıdaki örnekte elemanların öncelik sonralık ilişkisinin ara işlemler boyunca değişmeyeceği garanti altındadır
 
@@ -14118,7 +14118,7 @@ import java.util.stream.Stream;
 class Application {  
     public static void run(String[] args)  
     {  
-        Stream.of(10, 20, 41, 8, 11, 6).filter(v -> v % 2 == 0).forEach(Console::writeLine);  
+        Stream.of(10, 20, 41, 8, 11, 6).filter(v -> v % 2 == 0).forEach(v -> Console.write("%d ", v));  
     }  
 }
 ```
@@ -14137,7 +14137,173 @@ import java.util.Set;
 class Application {  
     public static void run(String[] args)  
     {  
-        Set.of(10, 20, 41, 8, 11, 6).stream().filter(v -> v % 2 == 0).forEach(Console::writeLine);  
+        Set.of(10, 20, 41, 8, 11, 6).stream().filter(v -> v % 2 == 0).forEach(v -> Console.write("%d ", v));  
+    }  
+}
+```
+
+Aşağıdaki örnekte elemanların öncelik sonralık ilişkisinin ara işlemler boyunca değişmeyeceği garanti altında değildir
+
+```java
+package org.csystem.app;
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.stream.Stream;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        Stream.of(10, 20, 41, 8, 11, 6).unordered().filter(v -> v % 2 == 0).forEach(v -> Console.write("%d ", v));  
+    }  
+}
+```
+
+Stream arayüzlerinin **distinct** metotları stream'e ilişkin elemanlardan tekrarlı olanlardan bir tane olacak şekilde stream elde edilmesini sağlar. `Stream` arayüzünün distinct metodu aynı olup olmama durumu için `equals` ve `hashCode` metotlarını kullanır. Bu metot sıralı stream'lerde (ordered stream) aynı olan elemanlardan stream içerisinde önce olanı alacağını garanti eder (stable), sıralı olmayan stream'ler (unordered stream) için bunu garanti etmez.
+
+Aşağıdaki örneği inceleyiniz
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        productFactory.PRODUCTS.stream()  
+                .distinct()  
+                .forEach(p -> log.info("{}", p));  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback,  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        productFactory.getProductsAsSet().stream()  
+                .distinct()  
+                .forEach(p -> log.info("{}", p));  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback,  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Stream arayüzlerinin **sorted** metotları, stream'e ilişkin elemanların doğal sıralanmış (natural sort order) stream'ini elde etmek için kullanılır. `Stream<T>` arayüzünün parametresiz sorted metodu tipik olarak `Comparable` arayüzüne göre işlem yapar. Bu arayüzün `Comparator` parametreli metodu tipik olarak sıralama kriterini callback olarak alır.
+
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.game.lottery.NumericLottery;  
+  
+import java.util.Arrays;  
+import java.util.Random;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void writeNumbersCallback(int [] a)  
+    {  
+        Arrays.stream(a).forEach(v -> Console.write("%02d ", v));  
+        Console.writeLine();  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            int n = Integer.parseInt(args[0]);  
+            var lottery = new NumericLottery(new Random());  
+  
+            Arrays.stream(lottery.getNumbers(n)).forEach(Application::writeNumbersCallback);  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid count value");  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+```java
+package org.csystem.game.lottery;  
+  
+import java.util.random.RandomGenerator;  
+import java.util.stream.Stream;  
+  
+public class NumericLottery {  
+    private final RandomGenerator m_randomGenerator;  
+  
+    public NumericLottery(RandomGenerator randomGenerator)  
+    {  
+        m_randomGenerator = randomGenerator;  
+    }  
+  
+    public int [][] getNumbers(int n)  
+    {  
+        return Stream.generate(() -> m_randomGenerator.ints(1, 50).distinct().limit(6).sorted().toArray())  
+                .limit(n).toArray(int[][]::new);  
     }  
 }
 ```

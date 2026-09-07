@@ -14,6 +14,7 @@ public class NumericLottery {
     public int [][] getNumbers(int n)
     {
         return Stream.generate(() -> m_randomGenerator.ints(1, 50).distinct().limit(6).sorted().toArray())
-                .limit(n).toArray(int[][]::new);
+                .limit(n)
+                .toArray(int[][]::new);
     }
 }
