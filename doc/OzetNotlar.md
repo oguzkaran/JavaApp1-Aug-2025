@@ -14242,8 +14242,7 @@ class Application {
 }
 ```
 
-Stream arayüzlerinin **sorted** metotları, stream'e ilişkin elemanların doğal sıralanmış (natural sort order) stream'ini elde etmek için kullanılır. `Stream<T>` arayüzünün parametresiz sorted metodu tipik olarak `Comparable` arayüzüne göre işlem yapar. Bu arayüzün `Comparator` parametreli metodu tipik olarak sıralama kriterini callback olarak alır.
-
+Stream arayüzlerinin **sorted** metotları, stream'e ilişkin elemanların doğal sıralanmış (natural sort order) stream'ini elde etmek için kullanılır. `Stream` arayüzünün parametresiz sorted metodu tipik olarak `Comparable` arayüzüne göre işlem yapar. Bu arayüzün `Comparator` parametreli metodu tipik olarak sıralama kriterini callback olarak alır.
 
 Aşağıdaki örneği inceleyiniz
 
@@ -14308,9 +14307,341 @@ public class NumericLottery {
 }
 ```
 
+Aşağıdaki örnekte ürünler içerisinde tekrarlananlardan birer tane alınmış ve `ProductInfo` sınıfının `compareTo` metoduna göre yani `Comparable` arayüzünü desteklemesine göre (price'a göre) artan sırada (ascending sort order) dizilmiştir. Bu sınıf bu arayüzü price değerlerinin karşılaştırılması biçiminde desteklemektedir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        productFactory.PRODUCTS.stream()  
+                .distinct()  
+                .sorted()  
+                .forEach(Console::writeLine);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback,  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
 
 
+Aşağıdaki örnekte ürünler içerisinde tekrarlananlardan birer tane alınmış ve price' a göre azalan sırada (descending sort order) dizilmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        productFactory.PRODUCTS.stream()  
+                .distinct()  
+                .sorted((p1, p2) -> p2.getPrice().compareTo(p1.getPrice()))  
+                .forEach(Console::writeLine);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback,  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Yukarıdaki örnek aşağıdaki gibi de yazılabilir. Çünkü ProductInfo Comparable arayüzünü price değerleri karşılaştırılacak şekilde desteklemektedir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+import java.util.Comparator;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        productFactory.PRODUCTS.stream()  
+                .distinct()  
+                .sorted(Comparator.reverseOrder())  
+                .forEach(Console::writeLine);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback,  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örnekte ürünler içerisinde tekrarlananlardan birer tane alınmış ve stok miktarına göre artan sırada dizilmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        productFactory.PRODUCTS.stream()  
+                .distinct()  
+                .sorted((p1, p2) -> p1.getStock() - p2.getStock())  
+                .forEach(Console::writeLine);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback,  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Yukarıdaki örnek aşağıdaki gibi de yapılabilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+import org.csystem.util.datasource.product.ProductInfo;  
+  
+import java.io.IOException;  
+import java.util.Comparator;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        productFactory.PRODUCTS.stream()  
+                .distinct()  
+                .sorted(Comparator.comparingInt(ProductInfo::getStock))  
+                .forEach(Console::writeLine);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback,  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
 
 
+Aşağıdaki örnekte ürünler içerisinde tekrarlananlardan birer tane alınmış ve stok miktarına göre azalan sırada dizilmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        productFactory.PRODUCTS.stream()  
+                .distinct()  
+                .sorted((p1, p2) -> p2.getStock() - p1.getStock())  
+                .forEach(Console::writeLine);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback,  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+
+Aşağıdaki örnekte komut satırından alınan n değeri için n, a ve b değerleri için `[a, b]`aralığında rassal olarak n tane birbirinden farklı asal sayı artan sırada dizilmektedir. Şüphesiz n sayısı `[a, b]` aralığındaki birbirinden farklı asal sayıların sayısından büyükse sonsuz döngü oluşur
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.util.Random;  
+import java.util.stream.IntStream;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 3, "Wrong number of arguments");  
+            var n = Integer.parseInt(args[0]);  
+            var a = Integer.parseInt(args[1]);  
+            var b = Integer.parseInt(args[2]);  
+            var random = new Random();  
+  
+            IntStream.generate(() -> random.nextInt(a, b + 1))  
+                    .filter(NumberUtil::isPrime)  
+                    .distinct()  
+                    .limit(n)  
+                    .sorted()  
+                    .forEach(v -> Console.write("%d ", v));  
+            Console.writeLine();  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid value(s)");  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Yukarıdaki örnek aşağıdaki gibi de yapılabilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.numeric.NumberUtil;  
+  
+import java.util.Random;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 3, "Wrong number of arguments");  
+            var n = Integer.parseInt(args[0]);  
+            var a = Integer.parseInt(args[1]);  
+            var b = Integer.parseInt(args[2]);  
+            var random = new Random();  
+  
+            random.ints(a, b + 1)  
+                    .filter(NumberUtil::isPrime)  
+                    .distinct()  
+                    .limit(n)  
+                    .sorted()  
+                    .forEach(v -> Console.write("%d ", v));  
+            Console.writeLine();  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid value(s)");  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
 
 
