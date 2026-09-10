@@ -14645,3 +14645,150 @@ class Application {
 ```
 
 
+`Stream` arayüzünün **collect** metotları ile bir Stream'in elemanlarından oluşan bir veri yapısı ya da değer elde edilebilir. collect metotları`Collector<T, A, R>` isimli generic bir arayüz referansını parametre olarak alır. Bu arayüzün birinci generic tür parametresi girdiye ilişkin yani Stream'in açılımına ilişkin türdür. İkinci generic tür parametresi accumulator olarak kullanılır. İçsel bir parametredir. Genel olarak Stream'i kullananları ilgilendirmez. Yazanları ilgilendirir. Üçüncü generic parametresi ise elde edilecek sonucun türüdür. `Collector<T, A, R>` elde etmek için tipik olarak `Collectors` utility sınıfının metotları kullanılır. collect metoduna Collectors sınıfının metotları geçilerek ilgili sonuç elde edilir. Collectors sınıfının metotları, çok karşılaşılan işlemlere ilişkin metotlardır.
+
+Collectors sınıfının **toList** metodu ilgili stream'den `List` elde etmek için kullanılır. Bu metottan elde edilen collection sınıfın immutable ya da mutable olup olmadığı garanti değildir. Genel olarak stream'e ilişkin kaynağa bağlıdır (implementation defined). Bu sebeple programcının, elde ettiği listede değişiklik yapması önerilmez.
+
+Aşağıdaki örneği inceleyiniz. Örnek bazı static kod analizi araçlarında Java 17 sonrası için uyarı verebilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+import static java.util.stream.Collectors.toList;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        var products = productFactory.PRODUCTS.stream()  
+                .distinct()  
+                .sorted((p1, p2) -> p2.getStock() - p1.getStock())  
+                .collect(toList());  
+  
+        products.forEach(Console::writeLine);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback,  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+`Java 10` ile birlikte `Collectors` sınıfına **toUnmodifiableList** isimli bir metot eklenmiştir. Bu metottan elde edilen collection sınıf immutable/unmodifiable özelliktedir. Metot, stream'e ilişkin bir eleman null ise `NullPointerException` fırlatır. Yani bu collection null referans kabul etmez, elde edilen collection sınıfta değişiklik yapılamaz.
+
+Aşağıdaki örneği inceleyiniz. Örnek bazı static kod analizi araçlarında Java 17 sonrası için uyarı verebilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+import static java.util.stream.Collectors.toUnmodifiableList;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        var products = productFactory.PRODUCTS.stream()  
+                .distinct()  
+                .sorted((p1, p2) -> p2.getStock() - p1.getStock())  
+                .collect(toUnmodifiableList());  
+  
+        products.forEach(Console::writeLine);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback,  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+`Java 16` ile birlikte `Stream` arayüzüne **toList**, default metot olarak eklenmiştir. Bu metot immutable/unmodifiable bir collection sınıfa geri döner. Bu metottan elde edilen `List` türünden referans ile listede değişiklik yapılması durumunda `UnsupportedOperationException` fırlatılır.
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        var products = productFactory.PRODUCTS.stream()  
+                .distinct()  
+                .sorted((p1, p2) -> p2.getStock() - p1.getStock())  
+                .toList();  
+  
+        products.forEach(Console::writeLine);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback,  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+**Anahtar Notlar:** Programcı `Java 17` ve sonrası ile çalışıyorsa `Stream` arayüzünün toList metodunu çağırmalıdır. Programcı elde edilen collection sınıfta değişiklik yapmak isterse bu durumda ilgili elemanları da içeren yeni bir collection sınıf yaratabilir.
+
+
+
+
+
+
+
