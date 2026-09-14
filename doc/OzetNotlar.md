@@ -14784,11 +14784,195 @@ class Application {
 }
 ```
 
-**Anahtar Notlar:** Programcı `Java 17` ve sonrası ile çalışıyorsa `Stream` arayüzünün toList metodunu çağırmalıdır. Programcı elde edilen collection sınıfta değişiklik yapmak isterse bu durumda ilgili elemanları da içeren yeni bir collection sınıf yaratabilir.
+**Anahtar Notlar:** Programcı `Java 17` ve sonrası ile çalışıyorsa `Stream` arayüzünün `toList` metodunu çağırmalıdır. Programcı elde edilen collection sınıfta değişiklik yapmak isterse bu durumda ilgili elemanları da içeren yeni bir collection sınıf yaratabilir.
+
+`Collectors` sınıfının **toSet** metodu ilgili stream'den `Set` elde etmek için kullanılır. Bu metottan elde edilen collection sınıfın immutable ya da mutable olup olmadığı garanti değildir. Genel olarak stream'e ilişkin kaynağa bağlıdır (implementation defined). Bu sebeple programcının, elde ettiği listede değişiklik yapması önerilmez.
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+import static java.util.stream.Collectors.toSet;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        var products = productFactory.PRODUCTS.stream()  
+                .filter(p -> p.getStock() > 0)  
+                .collect(toSet());  
+  
+        products.forEach(Console::writeLine);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback,  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+`Java 10` ile birlikte `Collectors` sınıfına **toUnmodifiableSet** isimli bir metot eklenmiştir. Bu metottan elde edilen collection sınıf immutable/unmodifiable özelliktedir. Metot, stream'e ilişkin bir eleman null ise NullPointerException fırlatır. Yani bu collection null referans kabul etmez, elde edilen collection sınıfta değişiklik yapılamaz.
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+import static java.util.stream.Collectors.toUnmodifiableSet;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        var products = productFactory.PRODUCTS.stream()  
+                .filter(p -> p.getStock() > 0)  
+                .collect(toUnmodifiableSet());  
+  
+        products.forEach(Console::writeLine);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback,  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Bu metotlar `mantıksal eşitlik (aynı olma)` kontrolü için `equals` ve `hashCode` metotlarını kullanırlar.
+
+`Collectors` sınıfının **toMap** metotları tipik olarak `Map` elde etmek için kullanılabilir. Bu metottan elde edilen collection sınıfın immutable ya da mutable olup olmadığı garanti değildir. Genel olarak stream'e ilişkin kaynağa bağlıdır (implementation defined). Bu sebeple programcının, elde ettiği listede değişiklik yapması önerilmez. Bu metodun iki parametreli overload'u stream içerisinde aynı key olması durumunda `IllegalStateException` fırlatır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+import org.csystem.util.datasource.product.ProductInfo;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+import static java.util.stream.Collectors.toMap;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        var map = productFactory.PRODUCTS.stream()  
+                .filter(p -> p.getStock() > 0)  
+                .collect(toMap(ProductInfo::getId, p -> p));  
+  
+        map.keySet().forEach(k -> Console.writeLine("%d -> %s", k, map.get(k)));  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback,  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Tekrarlayan anahtarlar olması durumunda 3 parametreli toMap metodu kullanılabilir. Bu metodun üçüncü parametresi çakışma durumunu engelleyecek bir callable alır. Buna göre 3 parametreye ilişkin BinaryOperator arayüzüne ilişkin callback'in argümanları sırasıyla metoda geçilen birinci ve ikinci argümanlardır. Programcı tipik olarak burada bir unique bir key oluşturmak için gereken callable metodu verir.
+
+```java
+
+```
+`Java 10` ile birlikte Collectors sınıfına **toUnmodifiableMap** metotları eklenmiştir. Bu metotlardan elde edilen collection sınıf immutable/unmodifiable özelliktedir. Metot, stream'e ilişkin bir eleman null ise `NullPointerException` fırlatır. Yani bu collection null referans kabul etmez, elde edilen collection sınıfta değişiklik yapılamaz. Bu metodun iki parametreli overload'u stream içerisinde aynı key olması durumunda `IllegalStateException` fırlatır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+import org.csystem.util.datasource.product.ProductInfo;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+import static java.util.stream.Collectors.toUnmodifiableMap;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        var map = productFactory.PRODUCTS.stream()  
+                .filter(p -> p.getStock() > 0)  
+                .collect(toUnmodifiableMap(ProductInfo::getId, p -> p));  
+  
+        map.keySet().forEach(k -> Console.writeLine("%d -> %s", k, map.get(k)));  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback,  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Tekrarlayan anahtarlar olması durumunda 3 parametreli toUnmodifiableMap metodu kullanılabilir. Bu metodun üçüncü parametresi çakışma durumunu engelleyecek bir callable alır.  Buna göre 3 parametreye ilişkin BinaryOperator arayüzüne ilişkin callback'in argümanları sırasıyla metoda geçilen birinci ve ikinci argümanlardır. Programcı tipik olarak burada bir unique bir key oluşturmak için gereken callable metodu verir.
+
+```java
+
+```
 
 
-
-
-
-
+Bu metotlar anahtarların `mantıksal eşitlik (aynı olma)` kontrolü için `equals` ve `hashCode` metotlarını kullanırlar.
 
