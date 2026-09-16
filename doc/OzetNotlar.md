@@ -14918,11 +14918,115 @@ class Application {
 }
 ```
 
-Tekrarlayan anahtarlar olması durumunda 3 parametreli toMap metodu kullanılabilir. Bu metodun üçüncü parametresi çakışma durumunu engelleyecek bir callable alır. Buna göre 3 parametreye ilişkin BinaryOperator arayüzüne ilişkin callback'in argümanları sırasıyla metoda geçilen birinci ve ikinci argümanlardır. Programcı tipik olarak burada bir unique bir key oluşturmak için gereken callable metodu verir.
+Bu metodun 3 parametreli overload'u indeks çakışması durumunda üçüncü parametresi ile aldığı BinaryOperator'e ilişkin callable'ın birinci parametresine argüman olarak ilgili indeksteki o anki değeri (value), ikinci argüman olarak karşılaşılan yeni değeri (tekrarlayan indeksteki) geçer. Bu durumda programcı çakışan indeks'lere ilişkin değerler için bir strateji belirlemiş olur.
 
 ```java
-
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+import org.csystem.util.datasource.product.ProductInfo;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+import static java.util.stream.Collectors.toMap;  
+  
+@Slf4j  
+class Application {  
+    private static ProductInfo mergeFunctionCallback(ProductInfo currentProduct, ProductInfo newProduct)  
+    {  
+        currentProduct.setName("%s + %s ".formatted(currentProduct.getName(), newProduct.getName()));  
+        currentProduct.setStock(currentProduct.getStock() + newProduct.getStock());  
+        currentProduct.setCost(currentProduct.getCost().add(newProduct.getCost()));  
+        currentProduct.setPrice(currentProduct.getCost().add(newProduct.getCost()));  
+  
+        return currentProduct;  
+    }  
+  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        var map = productFactory.PRODUCTS.stream()  
+                .filter(p -> p.getStock() > 0)  
+                .collect(toMap(ProductInfo::getId, p -> p, Application::mergeFunctionCallback));  
+  
+        map.keySet().forEach(k -> Console.writeLine("%d -> %s", k, map.get(k)));  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback,  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
 ```
+
+Bu metodun 4 parametreli overload'unun dördüncü parametresi oluşturulacak Map'in türünü belirlemek için kullanılabilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+import org.csystem.util.datasource.product.ProductInfo;  
+  
+import java.io.IOException;  
+import java.util.TreeMap;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+import static java.util.stream.Collectors.toMap;  
+  
+@Slf4j  
+class Application {  
+    private static ProductInfo mergeFunctionCallback(ProductInfo currentProduct, ProductInfo newProduct)  
+    {  
+        currentProduct.setName("%s + %s ".formatted(currentProduct.getName(), newProduct.getName()));  
+        currentProduct.setStock(currentProduct.getStock() + newProduct.getStock());  
+        currentProduct.setCost(currentProduct.getCost().add(newProduct.getCost()));  
+        currentProduct.setPrice(currentProduct.getCost().add(newProduct.getCost()));  
+  
+        return currentProduct;  
+    }  
+  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        var map = productFactory.PRODUCTS.stream()  
+                .filter(p -> p.getStock() > 0)  
+                .collect(toMap(ProductInfo::getId, p -> p, Application::mergeFunctionCallback, TreeMap::new));  
+  
+        map.keySet().forEach(k -> Console.writeLine("%d -> %s", k, map.get(k)));  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback,  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
 `Java 10` ile birlikte Collectors sınıfına **toUnmodifiableMap** metotları eklenmiştir. Bu metotlardan elde edilen collection sınıf immutable/unmodifiable özelliktedir. Metot, stream'e ilişkin bir eleman null ise `NullPointerException` fırlatır. Yani bu collection null referans kabul etmez, elde edilen collection sınıfta değişiklik yapılamaz. Bu metodun iki parametreli overload'u stream içerisinde aynı key olması durumunda `IllegalStateException` fırlatır
 
 ```java
@@ -14967,10 +15071,58 @@ class Application {
 }
 ```
 
-Tekrarlayan anahtarlar olması durumunda 3 parametreli toUnmodifiableMap metodu kullanılabilir. Bu metodun üçüncü parametresi çakışma durumunu engelleyecek bir callable alır.  Buna göre 3 parametreye ilişkin BinaryOperator arayüzüne ilişkin callback'in argümanları sırasıyla metoda geçilen birinci ve ikinci argümanlardır. Programcı tipik olarak burada bir unique bir key oluşturmak için gereken callable metodu verir.
+Bu metodun 3 parametreli overload'u indeks çakışması durumunda üçüncü parametresi ile aldığı BinaryOperator'e ilişkin callable'ın birinci parametresine argüman olarak ilgili indeksteki o anki değeri (value), ikinci argüman olarak karşılaşılan yeni değeri (tekrarlayan indeksteki) geçer. Bu durumda programcı çakışan indeks'lere ilişkin değerler için bir strateji belirlemiş olur.
 
 ```java
-
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+import org.csystem.util.datasource.product.ProductInfo;  
+  
+import java.io.IOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+import static java.util.stream.Collectors.toUnmodifiableMap;  
+  
+@Slf4j  
+class Application {  
+    private static ProductInfo mergeFunctionCallback(ProductInfo currentProduct, ProductInfo newProduct)  
+    {  
+        currentProduct.setName("%s + %s ".formatted(currentProduct.getName(), newProduct.getName()));  
+        currentProduct.setStock(currentProduct.getStock() + newProduct.getStock());  
+        currentProduct.setCost(currentProduct.getCost().add(newProduct.getCost()));  
+        currentProduct.setPrice(currentProduct.getCost().add(newProduct.getCost()));  
+  
+        return currentProduct;  
+    }  
+  
+    private static void dataExistCallback(ProductFactory productFactory)  
+    {  
+        var map = productFactory.PRODUCTS.stream()  
+                .filter(p -> p.getStock() > 0)  
+                .collect(toUnmodifiableMap(ProductInfo::getId, p -> p, Application::mergeFunctionCallback));  
+  
+        map.keySet().forEach(k -> Console.writeLine("%d -> %s", k, map.get(k)));  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(Application::dataExistCallback,  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
 ```
 
 
