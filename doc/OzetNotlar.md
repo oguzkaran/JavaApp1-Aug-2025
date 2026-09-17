@@ -15128,3 +15128,100 @@ class Application {
 
 Bu metotlar anahtarların `mantıksal eşitlik (aynı olma)` kontrolü için `equals` ve `hashCode` metotlarını kullanırlar.
 
+Stream arayüzünün **flatMap** metodu her bir elemanı bir stream'e dönüştürüp elde edilen tüm stream'lerin tek bir Stream olarak elde edilmesini sağlar (flatten). `map` metodu `1 - 1` dönüşüm yaparken `flatMap` metodu `1 - N` dönüşüm yaparak tek bir Stream elde edilmesini sağlar.
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.TextFactory;  
+  
+import java.io.IOException;  
+import java.nio.file.Path;  
+import java.util.Arrays;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var count = Integer.parseInt(args[1]);  
+  
+            if (count < 1)  
+                throw new NumberFormatException();  
+  
+            var textFactory = TextFactory.loadFromTextFile(Path.of(args[0]));  
+  
+            var opt = textFactory.LINES.stream()  
+                    .limit(count)  
+                    .flatMap(s -> Arrays.stream(s.split("[ ,.]")))  
+                    .reduce("%s-%s"::formatted);  
+  
+            opt.ifPresentOrElse(Console::writeLine, () -> Console.writeLine("No any text!!"));  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid count value!...");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.EmployeeFactory;  
+  
+import java.io.UncheckedIOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var count = Integer.parseInt(args[1]);  
+  
+            if (count < 1)  
+                throw new NumberFormatException();  
+  
+            var factory = EmployeeFactory.loadFromTextFile(args[0]);  
+  
+            var opt = factory.EMPLOYEES  
+                    .stream()  
+                    .limit(count)  
+                    .flatMap(e -> e.getEmails().stream())  
+                    .reduce("%s;%s"::formatted);  
+  
+            opt.ifPresentOrElse(Console::writeLine, () -> Console.writeLine("No such employee exists!"));  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid count value!...");  
+        }  
+        catch (UncheckedIOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+

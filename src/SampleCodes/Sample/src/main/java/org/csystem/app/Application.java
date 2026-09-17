@@ -2,33 +2,37 @@ package org.csystem.app;
 
 import com.karandev.io.util.console.Console;
 import lombok.extern.slf4j.Slf4j;
-import org.csystem.util.datasource.factory.ProductFactory;
+import org.csystem.util.datasource.factory.EmployeeFactory;
 
-import java.io.IOException;
+import java.io.UncheckedIOException;
 
 import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;
 
 @Slf4j
 class Application {
-    private static void dataExistCallback(ProductFactory productFactory)
-    {
-        var products = productFactory.PRODUCTS.stream()
-                .distinct()
-                .sorted((p1, p2) -> p2.getStock() - p1.getStock())
-                .toList();
-
-        products.forEach(Console::writeLine);
-    }
-
     public static void run(String[] args)
     {
         try {
-            checkLengthEquals(args.length, 1, "Wrong number of arguments");
-            ProductFactory.loadFromTextFile(args[0])
-                    .ifPresentOrElse(Application::dataExistCallback,
-                            () -> Console.Error.writeLine("Data not exist!..."));
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");
+            var count = Integer.parseInt(args[1]);
+
+            if (count < 1)
+                throw new NumberFormatException();
+
+            var factory = EmployeeFactory.loadFromTextFile(args[0]);
+
+            var opt = factory.EMPLOYEES
+                    .stream()
+                    .limit(count)
+                    .flatMap(e -> e.getEmails().stream())
+                    .reduce("%s;%s"::formatted);
+
+            opt.ifPresentOrElse(Console::writeLine, () -> Console.writeLine("No such employee exists!"));
         }
-        catch (IOException e) {
+        catch (NumberFormatException ignore) {
+            Console.Error.writeLine("Invalid count value!...");
+        }
+        catch (UncheckedIOException e) {
             Console.Error.writeLine("IO Error occurred :%s", e.getMessage());
         }
         catch (Exception e) {
