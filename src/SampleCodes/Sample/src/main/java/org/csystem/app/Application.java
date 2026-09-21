@@ -2,9 +2,9 @@ package org.csystem.app;
 
 import com.karandev.io.util.console.Console;
 import lombok.extern.slf4j.Slf4j;
-import org.csystem.util.datasource.factory.EmployeeFactory;
+import org.csystem.util.numeric.NumberUtil;
 
-import java.io.UncheckedIOException;
+import java.util.Random;
 
 import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;
 
@@ -13,27 +13,23 @@ class Application {
     public static void run(String[] args)
     {
         try {
-            checkLengthEquals(args.length, 2, "Wrong number of arguments");
-            var count = Integer.parseInt(args[1]);
+            checkLengthEquals(args.length, 3, "Wrong number of arguments");
+            var count = Integer.parseInt(args[0]);
+            var origin = Integer.parseInt(args[1]);
+            var bound = Integer.parseInt(args[2]);
+            var random = new Random();
 
-            if (count < 1)
-                throw new NumberFormatException();
-
-            var factory = EmployeeFactory.loadFromTextFile(args[0]);
-
-            var opt = factory.EMPLOYEES
-                    .stream()
+            var primesList = random.ints(origin, bound)
+                    .filter(NumberUtil::isPrime)
                     .limit(count)
-                    .flatMap(e -> e.getEmails().stream())
-                    .reduce("%s;%s"::formatted);
+                    .boxed() //.mapToObj(p -> p)
+                    .toList();
 
-            opt.ifPresentOrElse(Console::writeLine, () -> Console.writeLine("No such employee exists!"));
+            primesList.forEach(p -> Console.write("%d ", p));
+            Console.writeLine();
         }
         catch (NumberFormatException ignore) {
             Console.Error.writeLine("Invalid count value!...");
-        }
-        catch (UncheckedIOException e) {
-            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());
         }
         catch (Exception e) {
             Console.Error.writeLine("Error occurred :%s", e.getMessage());

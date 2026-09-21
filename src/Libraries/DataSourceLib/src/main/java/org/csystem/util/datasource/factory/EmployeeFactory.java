@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +21,8 @@ public class EmployeeFactory {
         var name = infoStr[1];
         var emails = infoStr[2].split(";");
         var address = infoStr[3];
-        var employee = new Employee(id, name, address);
+        var birthDate = LocalDate.parse(infoStr[4], DateTimeFormatter.ISO_LOCAL_DATE);
+        var employee = new Employee(id, name, address, birthDate);
 
         employee.getEmails().addAll(Arrays.stream(emails).toList());
 

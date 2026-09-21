@@ -1,24 +1,26 @@
 package org.csystem.util.datasource.employee;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
+import lombok.ToString;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
+@ToString
 public class Employee {
     private String m_id;
     private String m_name;
     private final List<String> m_emails = new ArrayList<>();
     private String m_address;
+    private LocalDate m_birthDate;
 
-    public Employee(String id, String name, String address)
+    public Employee(String id, String name, String address, LocalDate birthDate)
     {
         m_id = id;
         m_name = name;
         m_address = address;
+        m_birthDate = birthDate;
     }
 
     public String getId()
@@ -49,6 +51,21 @@ public class Employee {
     public String getAddress()
     {
         return m_address;
+    }
+
+    public LocalDate getBirthDate()
+    {
+        return m_birthDate;
+    }
+
+    public void setBirthDate(LocalDate birthDate)
+    {
+        m_birthDate = birthDate;
+    }
+
+    public double getAge()
+    {
+        return ChronoUnit.DAYS.between(m_birthDate, LocalDate.now()) / 365.;
     }
 
     public void setAddress(String address)
