@@ -15257,10 +15257,7 @@ class Application {
                             .collect(Collectors.toCollection(ArrayList::new));  
   
             emails.forEach(Console::writeLine);  
-        }  
-        catch (NumberFormatException ignore) {  
-            Console.Error.writeLine("Invalid count value!...");  
-        }  
+        } 
         catch (UncheckedIOException e) {  
             Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
         }  
@@ -15301,10 +15298,7 @@ class Application {
                             .collect(Collectors.toCollection(LinkedList::new));  
   
             emails.forEach(Console::writeLine);  
-        }  
-        catch (NumberFormatException ignore) {  
-            Console.Error.writeLine("Invalid count value!...");  
-        }  
+        }
         catch (UncheckedIOException e) {  
             Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
         }  
@@ -15346,10 +15340,7 @@ class Application {
                             .collect(Collectors.toCollection(HashSet::new));  
   
             emails.forEach(Console::writeLine);  
-        }  
-        catch (NumberFormatException ignore) {  
-            Console.Error.writeLine("Invalid count value!...");  
-        }  
+        }
         catch (UncheckedIOException e) {  
             Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
         }  
@@ -15359,7 +15350,6 @@ class Application {
     }  
 }
 ```
-
 
 
 `IntStream`, `LongStream` ve `DoubleStream` arayüzlerinin **boxed** metotları ilgili stream'den `Stream` arayüzünün ilgili `sarmalayan sınıf (wrapper class)` açılımı türünden Stream referansına geri döner. Bu durumda kutulama işlemi, `mapToObj` metodu yerine `boxed` metodu kullanılarak yapılabilir/yapılmalıdır.
@@ -15406,3 +15396,75 @@ class Application {
     }  
 }
 ```
+
+`IntStream`, `DoubleStream` ve `LongStream` arayüzlerini **summaryStatistics** metotları sırasıyla **IntSummaryStatistics**, **DoubleSummaryStatistics** ve **LongSummaryStatistics** türünden referansa geri dönerler. Bu sınıfların **getAverage**, **getSum**, **getCount**, **getMin**, **getMax** gibi metotları ile stream'e ilişkin istatistiksel bilgiler elde edilebilir.
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.stream.IntStream;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var statistics = IntStream.generate(() -> Console.readInt("Input a number:"))  
+                .takeWhile(v -> v != 0)  
+                .summaryStatistics();  
+  
+        Console.writeLine("Minimum:%d%nMaximum:%d%nAverage:%f%nCount:%d", statistics.getMin(), statistics.getMax(), statistics.getAverage(), statistics.getCount());  
+    }  
+}
+```
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.employee.Employee;  
+import org.csystem.util.datasource.factory.EmployeeFactory;  
+  
+import java.io.UncheckedIOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+  
+            var factory = EmployeeFactory.loadFromTextFile(args[0]);  
+  
+            var statistics = factory.EMPLOYEES  
+                    .stream()  
+                    .mapToDouble(Employee::getAge)  
+                    .summaryStatistics();  
+  
+            Console.writeLine("Minimum:%f%nMaximum:%f%nAverage:%f%nCount:%d", statistics.getMin(), statistics.getMax(), statistics.getAverage(), statistics.getCount());  
+        }  
+        catch (UncheckedIOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+[Homework-004](https://github.com/oguzkaran/Java-Sep-2024/blob/main/homework/Homework-004.pdf) 'de bulunan çalışma sorusu Stream API kullanarak yazılmıştır
+
+```java
+
+```
+
