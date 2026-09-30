@@ -15514,3 +15514,129 @@ class Application {
 }
 ```
 
+`Collectors` sınıfının **joining** metotları yazı birleştime işlemlerinde kullanılır. Parametresiz `joining` metodu stream'e ilişkin yazıları doğrudan birleştirir. 
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.employee.Employee;  
+import org.csystem.util.datasource.factory.EmployeeFactory;  
+  
+import java.io.UncheckedIOException;  
+import java.util.stream.Collectors;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+  
+            var factory = EmployeeFactory.loadFromTextFile(args[0]);  
+  
+            var names = factory.EMPLOYEES.stream()  
+                    .map(Employee::getName)  
+                    .collect(Collectors.joining());  
+  
+            Console.writeLine(names);
+        }  
+        catch (UncheckedIOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Metodun tek parametreli overload'u aldığı yazıyı ayraç olarak kullanıp birleştirme yapar. 
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.employee.Employee;  
+import org.csystem.util.datasource.factory.EmployeeFactory;  
+  
+import java.io.UncheckedIOException;  
+import java.util.stream.Collectors;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+  
+            var factory = EmployeeFactory.loadFromTextFile(args[0]);  
+  
+            var names = factory.EMPLOYEES.stream()  
+                    .map(Employee::getName)  
+                    .collect(Collectors.joining(", "));  
+  
+            Console.writeLine(names);  
+        }  
+        catch (UncheckedIOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Metodun üç parametreli overload'u parametresi ile ayracı kullanarak, yine parametresi ile aldığı prefix ve suffix yazılarını sırasıyla yazının başına ve sonuna koyarak birleştirme yapar
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.employee.Employee;  
+import org.csystem.util.datasource.factory.EmployeeFactory;  
+  
+import java.io.UncheckedIOException;  
+import java.util.stream.Collectors;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+  
+            var factory = EmployeeFactory.loadFromTextFile(args[0]);  
+  
+            var names = factory.EMPLOYEES.stream()  
+                    .map(Employee::getName)  
+                    .collect(Collectors.joining(", ", "[[ ", " ]]"));  
+  
+            Console.writeLine(names);  
+        }  
+        catch (UncheckedIOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
