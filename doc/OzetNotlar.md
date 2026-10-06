@@ -15640,3 +15640,181 @@ class Application {
 }
 ```
 
+`Collectors` sınıfının tek parametreli **partioningBy** metodu aldığı callback'e ilişkin koşula uyan elemanları elde edilen `Map<Boolean, List<T>>` veri yapısının true anahtarına karşılık gelen listeye, koşula uymayan elemanları ise elde edilen `Map<Boolean, List<T>>` veri yapısının false anahtarına karşılık gelen listeye ekler.
+
+Aşağıdaki örnekte `50` sınır notuna göre geçenler ve kalanlar bölümlenmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.StudentFactory;  
+import org.csystem.util.datasource.student.StudentInfo;  
+  
+import java.io.IOException;  
+import java.nio.file.Path;  
+import java.util.List;  
+import java.util.Map;  
+import java.util.stream.Collectors;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+  
+            var factory = StudentFactory.loadFromTextFile(Path.of(args[0]));  
+  
+            Map<Boolean, List<StudentInfo>> studentsMap = factory.STUDENTS.stream()  
+                            .collect(Collectors.partitioningBy(s -> s.getMidtermGrade() * 0.4 + s.getFinalGrade() * 0.6 >= 50));  
+  
+            Console.writeLine("Success:");  
+            studentsMap.get(true).forEach(Console::writeLine);  
+  
+            Console.writeLine();  
+            Console.writeLine("Fail:");  
+            studentsMap.get(false).forEach(Console::writeLine);  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.PersonFactory;  
+  
+import java.io.IOException;  
+import java.util.stream.Collectors;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var age = Double.parseDouble(args[1]);  
+  
+            var factory = PersonFactory.loadFromTextFile(args[0]);  
+  
+            var peopleMap = factory.PEOPLE.stream()  
+                            .collect(Collectors.partitioningBy(p -> p.getAge() >= age));  
+  
+            Console.writeLine("People greater or equal than %f:", age);  
+            peopleMap.get(true).forEach(Console::writeLine);  
+  
+            Console.writeLine();  
+            Console.writeLine("People less than %f:", age);  
+            peopleMap.get(false).forEach(Console::writeLine);  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid age value!...");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.employee.Employee;  
+import org.csystem.util.datasource.factory.EmployeeFactory;  
+  
+import java.io.UncheckedIOException;  
+import java.time.LocalDate;  
+import java.time.format.DateTimeFormatter;  
+import java.time.format.DateTimeParseException;  
+import java.util.List;  
+import java.util.stream.Collectors;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void employeeResulCallback(Boolean pred, List<Employee> employees)  
+    {  
+        var str = employees.stream()  
+                .map(Employee::getName)  
+                .collect(Collectors.joining(", "));  
+  
+        Console.writeLine("[%s] -> %s", pred ? "GE" : "S", str);  
+        Console.writeLine("\n");  
+    }  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var date = LocalDate.parse(args[1], DateTimeFormatter.ofPattern("dd-MM-yyyy"));  
+            var factory = EmployeeFactory.loadFromTextFile(args[0]);  
+  
+            var employeesMap = factory.EMPLOYEES.stream()  
+                            .collect(Collectors.partitioningBy(e -> e.getBirthDate().isBefore(date)));  
+  
+            employeesMap.forEach(Application::employeeResulCallback);  
+        }  
+        catch (DateTimeParseException ignore) {  
+            Console.Error.writeLine("Invalid date format. Date format must be like 06-09-2021");  
+        }  
+        catch (UncheckedIOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+
+Aşağıdaki örnekte satışı yapıldığında elde edilen kârı, komut satırından alınan değere göre bölümlenmiştir
+
+```java
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
