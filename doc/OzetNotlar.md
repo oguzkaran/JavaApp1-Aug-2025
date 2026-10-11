@@ -15793,28 +15793,156 @@ class Application {
 ```
 
 
-Aşağıdaki örnekte satışı yapıldığında elde edilen kârı, komut satırından alınan değere göre bölümlenmiştir
+Aşağıdaki örnekte stokta bulunan ürünlerin satışı yapıldığında elde edilen kâr durumları, komut satırından alınan değere göre bölümlenmiştir
 
 ```java
-
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+import java.math.BigDecimal;  
+import java.util.stream.Collectors;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory, BigDecimal threshold)  
+    {  
+        var productsMap = productFactory.PRODUCTS.stream()  
+                .filter(p -> p.getStock() > 0)  
+                .collect(Collectors.partitioningBy(p -> p.getTotal().compareTo(threshold) >= 0));  
+  
+        Console.writeLine("Greater or equal than %s", threshold);  
+        productsMap.get(true).forEach(Console::writeLine);  
+  
+        Console.writeLine("\n");  
+  
+        Console.writeLine("Less than %s", threshold);  
+        productsMap.get(false).forEach(Console::writeLine);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var threshold = new BigDecimal(args[1]);  
+  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(pf -> dataExistCallback(pf, threshold),  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid threshold value!...");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
 ```
 
+Aşağıdaki örnekte komut satırından alınan n, a ve b int türden sayılarına göre `[a, b]` aralığında rassal olarak üretilen n tane sayı çift ve tek olmasına göre bölümlenmiştir
 
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.Random;  
+import java.util.stream.Collectors;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 3, "Wrong number of arguments");  
+            var n = Integer.parseUnsignedInt(args[0]);  
+            var a = Integer.parseInt(args[1]);  
+            var b = Integer.parseInt(args[2]);  
+            var random = new Random();  
+  
+            var numbersMap = random.ints(a, b + 1)  
+                    .limit(n)  
+                    .peek(v -> log.info("{}", v))  
+                    .boxed()  
+                    .collect(Collectors.partitioningBy(v -> v % 2 == 0));  
+  
+            Console.writeLine("Evens:");  
+            numbersMap.get(true).forEach(v -> Console.write("%d ", v));  
+  
+            Console.writeLine("\n");  
+            Console.writeLine("Odds:");  
+            numbersMap.get(false).forEach(v -> Console.write("%d ", v));  
+            Console.writeLine();  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid values!...");  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
 
+`Collectors` sınıfının iki parametreli **partitioningBy** metodunda ikinci parametresi ile aldığı Collector arayüz parametresi ile bölümleme işleminde değerlere ilişkin elde edilen veri yapısı belirlenebilir
 
+Aşağıdaki örneği inceleyiniz
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.util.Random;  
+import java.util.stream.Collectors;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 3, "Wrong number of arguments");  
+            var n = Integer.parseUnsignedInt(args[0]);  
+            var a = Integer.parseInt(args[1]);  
+            var b = Integer.parseInt(args[2]);  
+            var random = new Random();  
+  
+            var numbersMap = random.ints(a, b + 1)  
+                    .limit(n)  
+                    .peek(v -> log.info("{}", v))  
+                    .boxed()  
+                    .collect(Collectors.partitioningBy(v -> v % 2 == 0, Collectors.toUnmodifiableSet()));  
+  
+            Console.writeLine("Evens:");  
+            numbersMap.get(true).forEach(v -> Console.write("%d ", v));  
+  
+            Console.writeLine("\n");  
+            Console.writeLine("Odds:");  
+            numbersMap.get(false).forEach(v -> Console.write("%d ", v));  
+            Console.writeLine();  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid values!...");  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
 
