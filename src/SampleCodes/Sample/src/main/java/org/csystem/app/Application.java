@@ -2,8 +2,13 @@ package org.csystem.app;
 
 import com.karandev.io.util.console.Console;
 import lombok.extern.slf4j.Slf4j;
+import org.csystem.util.datasource.factory.PersonFactory;
+import org.csystem.util.datasource.people.MaritalStatus;
+import org.csystem.util.datasource.people.Person;
 
-import java.util.Random;
+import java.io.IOException;
+import java.util.Comparator;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;
@@ -13,28 +18,15 @@ class Application {
     public static void run(String[] args)
     {
         try {
-            checkLengthEquals(args.length, 3, "Wrong number of arguments");
-            var n = Integer.parseUnsignedInt(args[0]);
-            var a = Integer.parseInt(args[1]);
-            var b = Integer.parseInt(args[2]);
-            var random = new Random();
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");
+            var factory = PersonFactory.loadFromTextFile(args[0]);
+            var peopleMap = factory.PEOPLE.stream().collect(Collectors.groupingBy(Person::getMaritalStatus,
+                    () -> new TreeMap<>(Comparator.comparing(MaritalStatus::toString)), Collectors.toUnmodifiableSet()));
 
-            var numbersMap = random.ints(a, b + 1)
-                    .limit(n)
-                    .peek(v -> log.info("{}", v))
-                    .boxed()
-                    .collect(Collectors.partitioningBy(v -> v % 2 == 0, Collectors.toUnmodifiableSet()));
-
-            Console.writeLine("Evens:");
-            numbersMap.get(true).forEach(v -> Console.write("%d ", v));
-
-            Console.writeLine("\n");
-            Console.writeLine("Odds:");
-            numbersMap.get(false).forEach(v -> Console.write("%d ", v));
-            Console.writeLine();
+            peopleMap.forEach((ms, pl) -> pl.forEach(p -> Console.writeLine("%s->%s", p.getName(), ms)));
         }
-        catch (NumberFormatException ignore) {
-            Console.Error.writeLine("Invalid values!...");
+        catch (IOException e) {
+            Console.Error.writeLine("IO error occurred:%s", e.getMessage());
         }
         catch (Exception e) {
             Console.Error.writeLine("Error occurred :%s", e.getMessage());

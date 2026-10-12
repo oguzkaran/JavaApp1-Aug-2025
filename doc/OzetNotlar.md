@@ -15848,6 +15848,56 @@ class Application {
 }
 ```
 
+Aşağıdaki örnekte stokta bulunan ürünlerin satışı yapıldığında elde edilen kâr durumlarına ilişkin kaçar tane olduğu bilgileri, komut satırından alınan değere göre bölümlenmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+import java.math.BigDecimal;  
+import java.util.stream.Collectors;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static void dataExistCallback(ProductFactory productFactory, BigDecimal threshold)  
+    {  
+        var productsMap = productFactory.PRODUCTS.stream()  
+                .filter(p -> p.getStock() > 0)  
+                .collect(Collectors.partitioningBy(p -> p.getTotal().compareTo(threshold) >= 0, Collectors.counting()));  
+  
+        productsMap.forEach((k, c) -> Console.writeLine("%s:%d", k ? "Greater or equal"  : "Less", c));  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var threshold = new BigDecimal(args[1]);  
+  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(pf -> dataExistCallback(pf, threshold),  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid threshold value!...");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+
 Aşağıdaki örnekte komut satırından alınan n, a ve b int türden sayılarına göre `[a, b]` aralığında rassal olarak üretilen n tane sayı çift ve tek olmasına göre bölümlenmiştir
 
 ```java
@@ -15945,4 +15995,211 @@ class Application {
     }  
 }
 ```
+
+
+`Collectors` sınıfının **groupingBy** metotları aldıkları callback'e göre sınıflandırma (gruplama) işlemi yaparlar. Metodun tek parametreli overload'u ile elde edilen `Map<K, List<T>>`  ile,  her bir anahtara (gruba) karşılık gelen elemanlar kullanılabilir.
+
+Aşağıdaki örnekte kişiler medeni durumlarına göre gruplanmıştır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.PersonFactory;  
+import org.csystem.util.datasource.people.Person;  
+  
+import java.io.IOException;  
+import java.util.stream.Collectors;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            var factory = PersonFactory.loadFromTextFile(args[0]);  
+            var peopleMap = factory.PEOPLE.stream().collect(Collectors.groupingBy(Person::getMaritalStatus));  
+  
+            peopleMap.forEach((ms, pl) -> pl.forEach(p -> Console.writeLine("%s->%s", p.getName(), ms)));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred:%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Metodun iki parametreli overload'u ile gruplanan bilgilere ilişkin collection belirlenebilir.
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.PersonFactory;  
+import org.csystem.util.datasource.people.Person;  
+  
+import java.io.IOException;  
+import java.util.stream.Collectors;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            var factory = PersonFactory.loadFromTextFile(args[0]);  
+            var peopleMap = factory.PEOPLE.stream().collect(Collectors.groupingBy(Person::getMaritalStatus, Collectors.toUnmodifiableSet()));  
+  
+            peopleMap.forEach((ms, pl) -> pl.forEach(p -> Console.writeLine("%s->%s", p.getName(), ms)));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred:%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örnekte kişiler medeni durumlarına göre kaçar kişi olduğu gruplanmıştır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.PersonFactory;  
+import org.csystem.util.datasource.people.Person;  
+  
+import java.io.IOException;  
+import java.util.stream.Collectors;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            var factory = PersonFactory.loadFromTextFile(args[0]);  
+            var peopleMap = factory.PEOPLE.stream().collect(Collectors.groupingBy(Person::getMaritalStatus, Collectors.counting()));  
+  
+            peopleMap.forEach((ms, c) -> Console.writeLine("%s:%d", ms, c));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred:%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Metodun üç parametreli overload'un ikinci parametresi ile anahtara ilişkin veri yapısı call back olarak belirlenebilir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.PersonFactory;  
+import org.csystem.util.datasource.people.Person;  
+  
+import java.io.IOException;  
+import java.util.TreeMap;  
+import java.util.stream.Collectors;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            var factory = PersonFactory.loadFromTextFile(args[0]);  
+            var peopleMap = factory.PEOPLE.stream().collect(Collectors.groupingBy(Person::getMaritalStatus, TreeMap::new, Collectors.toUnmodifiableSet()));  
+  
+            peopleMap.forEach((ms, pl) -> pl.forEach(p -> Console.writeLine("%s->%s", p.getName(), ms)));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred:%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.PersonFactory;  
+import org.csystem.util.datasource.people.MaritalStatus;  
+import org.csystem.util.datasource.people.Person;  
+  
+import java.io.IOException;  
+import java.util.Comparator;  
+import java.util.TreeMap;  
+import java.util.stream.Collectors;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            var factory = PersonFactory.loadFromTextFile(args[0]);  
+            var peopleMap = factory.PEOPLE.stream().collect(Collectors.groupingBy(Person::getMaritalStatus,  
+                    () -> new TreeMap<>(Comparator.comparing(MaritalStatus::toString)), Collectors.toUnmodifiableSet()));  
+  
+            peopleMap.forEach((ms, pl) -> pl.forEach(p -> Console.writeLine("%s->%s", p.getName(), ms)));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred:%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+
+Aşağıdaki örnekte çalışanlar (StaffInfo) izin günlerine göre gruplanmıştır
+
+```java
+
+```
+
+Aşağıdaki örnekte çalışanlar (StaffInfo) izin günlerine göre kaçar kişi oldukları gruplanmıştır
+
+```java
+
+```
+
+
+
+
 
