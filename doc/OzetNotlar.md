@@ -16187,16 +16187,204 @@ class Application {
 ```
 
 
-Aşağıdaki örnekte çalışanlar (StaffInfo) izin günlerine göre gruplanmıştır
+Aşağıdaki örnekte çalışanlar izin günlerine göre gruplanmıştır
 
 ```java
-
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.StaffFactory;  
+import org.csystem.util.datasource.staff.StaffInfo;  
+  
+import java.io.IOException;  
+import java.util.stream.Collectors;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            var factory = StaffFactory.loadFromTextFile(args[0]);  
+            var staffMap = factory.STAFF.stream()  
+                            .collect(Collectors.groupingBy(StaffInfo::getRestDay));  
+  
+            staffMap.forEach((rd, sl) -> sl.forEach(s -> Console.writeLine("%s->%s", s.getName(), rd)));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred:%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
 ```
 
-Aşağıdaki örnekte çalışanlar (StaffInfo) izin günlerine göre kaçar kişi oldukları gruplanmıştır
+Aşağıdaki örnekte çalışanların izin günlerine göre kaçar kişi oldukları gruplanmıştır
 
 ```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.StaffFactory;  
+import org.csystem.util.datasource.staff.StaffInfo;  
+  
+import java.io.IOException;  
+import java.util.TreeMap;  
+import java.util.stream.Collectors;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            var factory = StaffFactory.loadFromTextFile(args[0]);  
+            var staffMap = factory.STAFF.stream()  
+                            .collect(Collectors.groupingBy(StaffInfo::getRestDay, TreeMap::new, Collectors.counting()));  
+  
+            staffMap.forEach((rd, c) -> Console.writeLine("%s: %s", rd, c));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred:%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
 
+
+Aşağıdaki örnekte `Mutlak Değerlendirme Tablosu` kullanılarak harf notlarına göre öğrenciler gruplanmıştır. 
+
+Mutlak Değerlendirme Tablosu
+
+| Puan Değerleri | Harfli Başarı Notu | Başarı Katsayısı |
+| -------------- | ------------------ | ---------------- |
+| 91-100         | AA                 | 4.00             |
+| 82-90          | BA                 | 3.50             |
+| 73-81          | BB                 | 3.00             |
+| 64-72          | CB                 | 2.50             |
+| 55-63          | CC                 | 2.00             |
+| 50-54          | DC                 | 1.50             |
+| 45-49          | DD                 | 1.00             |
+| 0-44           | FF                 | 0.00             |
+Geçme notu `midterm * 0.4 + final * 0.6` formülü ile hesaplanmıştır.
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.StudentFactory;  
+import org.csystem.util.datasource.student.Score;  
+import org.csystem.util.datasource.student.StudentInfo;  
+  
+import java.io.IOException;  
+import java.nio.file.Path;  
+import java.util.TreeMap;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+import static java.util.stream.Collectors.groupingBy;  
+import static java.util.stream.Collectors.toUnmodifiableList;  
+  
+@Slf4j  
+class Application {  
+    private static Score groupingByKeyCallback(StudentInfo studentInfo)  
+    {  
+        var grade = studentInfo.getMidtermGrade() * 0.4 + studentInfo.getFinalGrade() * 0.6;  
+  
+        return Score.findScoreByGrade(grade);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            var factory = StudentFactory.loadFromTextFile(Path.of(args[0]));  
+            var studentMap = factory.STUDENTS.stream()  
+                            .collect(groupingBy(Application::groupingByKeyCallback, TreeMap::new, toUnmodifiableList()));  
+  
+            studentMap.forEach((sc, sl) -> sl.forEach(s -> Console.writeLine("%s->%s", s, sc)));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred:%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örnekte `Mutlak Değerlendirme Tablosu` kullanılarak harf notuna göre öğrenci sayıları gruplanmıştır
+
+Mutlak Değerlendirme Tablosu
+
+| Puan Değerleri | Harfli Başarı Notu | Başarı Katsayısı |
+|---------------|--------------------|------------------|
+| 91-100        | AA                 | 4.00             |
+| 82-90         | BA                 | 3.50             |
+| 73-81         | BB                 | 3.00             |
+| 64-72         | CB                 | 2.50             |
+| 55-63         | CC                 | 2.00             |
+| 50-54         | DC                 | 1.50             |
+| 45-49         | DD                 | 1.00             |
+| 0-44          | FF                 | 0.00             |
+Geçme notu `midterm * 0.4 + final * 0.6` formülü ile hesaplanmıştır.
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.StudentFactory;  
+import org.csystem.util.datasource.student.Score;  
+import org.csystem.util.datasource.student.StudentInfo;  
+  
+import java.io.IOException;  
+import java.nio.file.Path;  
+import java.util.TreeMap;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+import static java.util.stream.Collectors.counting;  
+import static java.util.stream.Collectors.groupingBy;  
+  
+@Slf4j  
+class Application {  
+    private static Score groupingByKeyCallback(StudentInfo studentInfo)  
+    {  
+        var grade = studentInfo.getMidtermGrade() * 0.4 + studentInfo.getFinalGrade() * 0.6;  
+  
+        return Score.findScoreByGrade(grade);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            var factory = StudentFactory.loadFromTextFile(Path.of(args[0]));  
+            var studentMap = factory.STUDENTS.stream()  
+                            .collect(groupingBy(Application::groupingByKeyCallback, TreeMap::new, counting()));  
+  
+            studentMap.forEach((sc, c) -> Console.writeLine("%s: %s", sc, c));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred:%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
 ```
 
 
