@@ -1,6 +1,9 @@
 package org.csystem.util.datasource.student;
 
 import java.util.Arrays;
+import java.util.NavigableMap;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 public enum Score {
     AA(91, 100, 4.00),
@@ -11,6 +14,12 @@ public enum Score {
     DC(50, 54, 1.50),
     DD(45, 49, 1.00),
     FF(0, 44, 0.00);
+
+    private static final NavigableMap<Integer, Score> ms_map = new TreeMap<>();
+
+    static {
+        Arrays.stream(values()).forEach(s -> ms_map.put(s.minGrade, s));
+    }
 
     public final int minGrade, maxGrade;
     public final double successValue;
@@ -27,10 +36,7 @@ public enum Score {
         if (grade < 0 || grade > 100)
             throw new IllegalArgumentException("Grade must be between 0 and 100");
 
-        return Arrays.stream(values())
-                .filter(s -> s.minGrade <= grade)
-                .filter(s -> grade < s.maxGrade)
-                .findFirst().orElse(FF);
+        return ms_map.get(ms_map.floorKey(grade));
     }
 
     public static Score findScoreByGrade(double grade)

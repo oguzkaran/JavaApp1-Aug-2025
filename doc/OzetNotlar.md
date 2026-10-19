@@ -10140,6 +10140,58 @@ class Application {
 }
 ```
 
+Aslında `TreeSet` sınıfı `NavigableSet` arayüzünü implemente etmiştir. Bu arayüz de `SortedSet` arayüzünden türetilmiştir. SortedSet adından da anlaşılacağı gibi sıralama (sort) yapılmasına yönelik bir anlaşma (contract) olarak düşünülebilir. NavigableSet, SortedSet'e aşağıdaki bazı önemli yetenekleri kazandırır:
+- Bir değere en yakın (küçük, büyük ya da eşit) değeri bulmak. Örneğin, floor, ceiling vb)
+- İlk ve son elemanlara doğrudan erişim
+- İlk ve son elemanları silme.
+- Sınırları belirlenebilen alt veri yapıları elde edilebilir. Örneğin, subSet, headSet, tailSet.
+Buradaki erişimlerin yapısı gereği yeterince efektif olduğuna dikkat ediniz.
+
+Aşağıdaki örneği inceleyiniz.
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.math.Complex;  
+import org.csystem.math.util.RandomComplexFactory;  
+  
+import java.util.Comparator;  
+import java.util.Random;  
+import java.util.TreeSet;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var treeSet = new TreeSet<Complex>(Comparator.comparingDouble(Complex::getNorm));  
+        var factory = new RandomComplexFactory(new Random());  
+  
+        while (true) {  
+            var z = factory.createRandom(-5, 5);  
+            Console.write("%s ", z);  
+  
+            if (z.getNorm() > 5)  
+                break;  
+  
+            treeSet.add(z);  
+        }  
+  
+        Console.writeLine('\n');  
+        treeSet.forEach(Console::writeLine);  
+  
+        var zVal = factory.createRandom(-5, 5);  
+  
+        Console.writeLine("Value:%s", zVal);  
+  
+        var floorVal = treeSet.floor(zVal);  
+  
+        Console.writeLine("Floor:%s", floorVal);  
+    }  
+}
+```
+
 `HashSet` collection sınıfı elemanları kendi algoritmasına göre bir sırada tutar. `HashSet`, elemanların tutuluş sırasını duruma göre değiştirebilmektedir.Bu sınıf, eklenen elemanın var olup olmadığının testini `equals` ve `hashCode` metotlarını çağırarak tespit eder. Eklenen ya da aranan bir eleman için equals metodu true dönen ve hashCode'u aynı olan bir eleman var kabul edilir. `HashSet` collection sınıfının iteratif olarak dolaşılması durumunda hangi sırada geleceği belirli değildir. Zaten `HashSet` collection sınıfını kullanan programcı bunu bilerek bu sınıfı seçer. Yani tipik olarak `HashSet`, `set` olması ve hızlı işlem yapılması gerek durumlar için tercih edilir. `HashSet` sınıfına ilişkin **load factor** kavramı burada ele alınmayacaktır. `HashSet` null değer tutabilmektedir.
 
 Aşağıdaki demo örneği inceleyiniz
@@ -10461,6 +10513,67 @@ class CarInfo {
     private String m_plate;  
     private LocalDateTime m_date;  
     //...  
+}
+```
+
+
+Aslında `TreeMap` sınıfı `NavigableMap` arayüzünü implemente etmiştir. Bu arayüz de `SortedMap` arayüzünden türetilmiştir. SortedMap adından da anlaşılacağı gibi anahtarlar için sıralama (sort) yapılmasına yönelik bir anlaşma (contract) olarak düşünülebilir. NavigableMap, SortedMap'e aşağıdaki bazı önemli yetenekleri kazandırır:
+- Bir değere en yakın (küçük, büyük ya da eşit) anahtar değerini bulmak. Örneğin, floor, ceiling vb)
+- İlk ve son elemanlara ilişkin anahtarlara doğrudan erişim
+- İlk ve son anahtarları elemanları silme.
+
+
+Aşağıdaki enum sınıfını inceleyiniz
+
+```java
+package org.csystem.util.datasource.student;  
+  
+import java.util.Arrays;  
+import java.util.NavigableMap;  
+import java.util.TreeMap;  
+import java.util.stream.Collectors;  
+  
+public enum Score {  
+    AA(91, 100, 4.00),  
+    BA(82, 90, 3.50),  
+    BB(73, 81, 3.00),  
+    CB(64, 72, 2.50),  
+    CC(55, 63, 2.00),  
+    DC(50, 54, 1.50),  
+    DD(45, 49, 1.00),  
+    FF(0, 44, 0.00);  
+  
+    private static final NavigableMap<Integer, Score> ms_map = new TreeMap<>();  
+  
+    static {  
+        Arrays.stream(values()).forEach(s -> ms_map.put(s.minGrade, s));  
+    }  
+  
+    public final int minGrade, maxGrade;  
+    public final double successValue;  
+  
+    Score(int minGrade, int maxGrade, double successValue)  
+    {  
+        this.minGrade = minGrade;  
+        this.maxGrade = maxGrade;  
+        this.successValue = successValue;  
+    }  
+  
+    public static Score findScoreByGrade(int grade)  
+    {  
+        if (grade < 0 || grade > 100)  
+            throw new IllegalArgumentException("Grade must be between 0 and 100");  
+  
+        return ms_map.get(ms_map.floorKey(grade));  
+    }  
+  
+    public static Score findScoreByGrade(double grade)  
+    {  
+        if (grade < 0 || grade > 100)  
+            throw new IllegalArgumentException("Grade must be between 0 and 100");  
+  
+        return findScoreByGrade((int)Math.round(grade));  
+    }  
 }
 ```
 
@@ -16277,6 +16390,7 @@ Mutlak Değerlendirme Tablosu
 | 50-54          | DC                 | 1.50             |
 | 45-49          | DD                 | 1.00             |
 | 0-44           | FF                 | 0.00             |
+
 Geçme notu `midterm * 0.4 + final * 0.6` formülü ile hesaplanmıştır.
 
 ```java
@@ -16330,15 +16444,17 @@ Aşağıdaki örnekte `Mutlak Değerlendirme Tablosu` kullanılarak harf notuna 
 Mutlak Değerlendirme Tablosu
 
 | Puan Değerleri | Harfli Başarı Notu | Başarı Katsayısı |
-|---------------|--------------------|------------------|
-| 91-100        | AA                 | 4.00             |
-| 82-90         | BA                 | 3.50             |
-| 73-81         | BB                 | 3.00             |
-| 64-72         | CB                 | 2.50             |
-| 55-63         | CC                 | 2.00             |
-| 50-54         | DC                 | 1.50             |
-| 45-49         | DD                 | 1.00             |
-| 0-44          | FF                 | 0.00             |
+| -------------- | ------------------ | ---------------- |
+| 91-100         | AA                 | 4.00             |
+| 82-90          | BA                 | 3.50             |
+| 73-81          | BB                 | 3.00             |
+| 64-72          | CB                 | 2.50             |
+| 55-63          | CC                 | 2.00             |
+| 50-54          | DC                 | 1.50             |
+| 45-49          | DD                 | 1.00             |
+| 0-44           | FF                 | 0.00             |
+
+
 Geçme notu `midterm * 0.4 + final * 0.6` formülü ile hesaplanmıştır.
 
 ```java
@@ -16383,6 +16499,108 @@ class Application {
         catch (Exception e) {  
             Console.Error.writeLine("Error occurred :%s", e.getMessage());  
         }  
+    }  
+}
+```
+
+Yukarıdaki örneklerde kullanılan Score enum sınıfının bir implementasyonu aşağıdaki gibidir
+
+```java
+package org.csystem.util.datasource.student;  
+  
+import java.util.Arrays;  
+  
+public enum Score {  
+    AA(91, 100, 4.00),  
+    BA(82, 90, 3.50),  
+    BB(73, 81, 3.00),  
+    CB(64, 72, 2.50),  
+    CC(55, 63, 2.00),  
+    DC(50, 54, 1.50),  
+    DD(45, 49, 1.00),  
+    FF(0, 44, 0.00);  
+  
+    public final int minGrade, maxGrade;  
+    public final double successValue;  
+  
+    Score(int minGrade, int maxGrade, double successValue)  
+    {  
+        this.minGrade = minGrade;  
+        this.maxGrade = maxGrade;  
+        this.successValue = successValue;  
+    }  
+  
+    public static Score findScoreByGrade(int grade)  
+    {  
+        if (grade < 0 || grade > 100)  
+            throw new IllegalArgumentException("Grade must be between 0 and 100");  
+  
+        return Arrays.stream(values())  
+                .filter(s -> s.minGrade <= grade)  
+                .filter(s -> grade <= s.maxGrade)  
+                .findFirst().orElse(FF);  
+    }  
+  
+    public static Score findScoreByGrade(double grade)  
+    {  
+        if (grade < 0 || grade > 100)  
+            throw new IllegalArgumentException("Grade must be between 0 and 100");  
+  
+        return findScoreByGrade((int)Math.round(grade));  
+    }  
+}
+```
+
+Buradaki Score enum sınıfının daha önce yazılmış aşağıdaki versiyonu daha iyidir.
+
+```java
+package org.csystem.util.datasource.student;  
+  
+import java.util.Arrays;  
+import java.util.NavigableMap;  
+import java.util.TreeMap;  
+import java.util.stream.Collectors;  
+  
+public enum Score {  
+    AA(91, 100, 4.00),  
+    BA(82, 90, 3.50),  
+    BB(73, 81, 3.00),  
+    CB(64, 72, 2.50),  
+    CC(55, 63, 2.00),  
+    DC(50, 54, 1.50),  
+    DD(45, 49, 1.00),  
+    FF(0, 44, 0.00);  
+  
+    private static final NavigableMap<Integer, Score> ms_map = new TreeMap<>();  
+  
+    static {  
+        Arrays.stream(values()).forEach(s -> ms_map.put(s.minGrade, s));  
+    }  
+  
+    public final int minGrade, maxGrade;  
+    public final double successValue;  
+  
+    Score(int minGrade, int maxGrade, double successValue)  
+    {  
+        this.minGrade = minGrade;  
+        this.maxGrade = maxGrade;  
+        this.successValue = successValue;  
+    }  
+  
+    public static Score findScoreByGrade(int grade)  
+    {  
+        if (grade < 0 || grade > 100)  
+            throw new IllegalArgumentException("Grade must be between 0 and 100");  
+  
+        return ms_map.get(ms_map.floorKey(grade));  
+    }  
+  
+    public static Score findScoreByGrade(double grade)  
+    {  
+        if (grade < 0 || grade > 100)  
+            throw new IllegalArgumentException("Grade must be between 0 and 100");  
+  
+        return findScoreByGrade((int)Math.round(grade));  
     }  
 }
 ```
