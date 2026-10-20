@@ -16,11 +16,20 @@ import static java.util.stream.Collectors.groupingBy;
 
 @Slf4j
 class Application {
+    private static double calculateGrade(int midtermGrade, int finalGrade)
+    {
+        return midtermGrade * 0.4 + finalGrade * 0.6;
+    }
+
     private static Score groupingByKeyCallback(StudentInfo studentInfo)
     {
-        var grade = studentInfo.getMidtermGrade() * 0.4 + studentInfo.getFinalGrade() * 0.6;
+        return Score.findScoreByGrade(calculateGrade(studentInfo.getMidtermGrade(), studentInfo.getFinalGrade()));
+    }
 
-        return Score.findScoreByGrade(grade);
+    private static boolean filterSuccessCallback(StudentInfo studentInfo)
+    {
+        return Score.findScoreByGrade(calculateGrade(studentInfo.getMidtermGrade(),
+                studentInfo.getFinalGrade())).ordinal() <= Score.CC.ordinal();
     }
 
     public static void run(String[] args)
@@ -29,7 +38,8 @@ class Application {
             checkLengthEquals(args.length, 1, "Wrong number of arguments");
             var factory = StudentFactory.loadFromTextFile(Path.of(args[0]));
             var studentMap = factory.STUDENTS.stream()
-                            .collect(groupingBy(Application::groupingByKeyCallback, TreeMap::new, counting()));
+                    .filter(Application::filterSuccessCallback)
+                    .collect(groupingBy(Application::groupingByKeyCallback, TreeMap::new, counting()));
 
             studentMap.forEach((sc, c) -> Console.writeLine("%s: %s", sc, c));
         }

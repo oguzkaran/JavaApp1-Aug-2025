@@ -10528,10 +10528,8 @@ Aşağıdaki enum sınıfını inceleyiniz
 ```java
 package org.csystem.util.datasource.student;  
   
-import java.util.Arrays;  
 import java.util.NavigableMap;  
 import java.util.TreeMap;  
-import java.util.stream.Collectors;  
   
 public enum Score {  
     AA(91, 100, 4.00),  
@@ -10546,7 +10544,8 @@ public enum Score {
     private static final NavigableMap<Integer, Score> ms_map = new TreeMap<>();  
   
     static {  
-        Arrays.stream(values()).forEach(s -> ms_map.put(s.minGrade, s));  
+        for (var s : values())  
+            ms_map.put(s.minGrade, s);  
     }  
   
     public final int minGrade, maxGrade;  
@@ -16503,7 +16502,81 @@ class Application {
 }
 ```
 
-Yukarıdaki örneklerde kullanılan Score enum sınıfının bir implementasyonu aşağıdaki gibidir
+
+Aşağıdaki örnekte `Mutlak Değerlendirme Tablosu` kullanılarak harf notuna göre başarılı öğrenci sayıları gruplanmıştır
+
+Mutlak Değerlendirme Tablosu
+
+| Puan Değerleri | Harfli Başarı Notu | Başarı Katsayısı |
+| -------------- | ------------------ | ---------------- |
+| 91-100         | AA                 | 4.00             |
+| 82-90          | BA                 | 3.50             |
+| 73-81          | BB                 | 3.00             |
+| 64-72          | CB                 | 2.50             |
+| 55-63          | CC                 | 2.00             |
+| 50-54          | DC                 | 1.50             |
+| 45-49          | DD                 | 1.00             |
+| 0-44           | FF                 | 0.00             |
+
+Geçme notu `midterm * 0.4 + final * 0.6` formülü ile hesaplanmıştır. Harf notu en az CC olan öğrenciler başarılı olabilmektedir.
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.StudentFactory;  
+import org.csystem.util.datasource.student.Score;  
+import org.csystem.util.datasource.student.StudentInfo;  
+  
+import java.io.IOException;  
+import java.nio.file.Path;  
+import java.util.TreeMap;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+import static java.util.stream.Collectors.counting;  
+import static java.util.stream.Collectors.groupingBy;  
+  
+@Slf4j  
+class Application {  
+    private static double calculateGrade(int midtermGrade, int finalGrade)  
+    {  
+        return midtermGrade * 0.4 + finalGrade * 0.6;  
+    }  
+  
+    private static Score groupingByKeyCallback(StudentInfo studentInfo)  
+    {  
+        return Score.findScoreByGrade(calculateGrade(studentInfo.getMidtermGrade(), studentInfo.getFinalGrade()));  
+    }  
+  
+    private static boolean filterSuccessCallback(StudentInfo studentInfo)  
+    {  
+        return Score.findScoreByGrade(calculateGrade(studentInfo.getMidtermGrade(),  
+                studentInfo.getFinalGrade())).ordinal() <= Score.CC.ordinal();  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            var factory = StudentFactory.loadFromTextFile(Path.of(args[0]));  
+            var studentMap = factory.STUDENTS.stream()  
+                    .filter(Application::filterSuccessCallback)  
+                    .collect(groupingBy(Application::groupingByKeyCallback, TreeMap::new, counting()));  
+  
+            studentMap.forEach((sc, c) -> Console.writeLine("%s: %s", sc, c));  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred:%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Yukarıdaki örneklerde kullanılan Score enum sınıfının bir implementasyonu aşağıdaki gibidir. 
 
 ```java
 package org.csystem.util.datasource.student;  
@@ -16551,7 +16624,7 @@ public enum Score {
 }
 ```
 
-Buradaki Score enum sınıfının daha önce yazılmış aşağıdaki versiyonu daha iyidir.
+Aşağıdaki Score enum sınıfı, yukarıdakinden görece daha efektif yazılmıştır
 
 ```java
 package org.csystem.util.datasource.student;  
@@ -16559,7 +16632,6 @@ package org.csystem.util.datasource.student;
 import java.util.Arrays;  
 import java.util.NavigableMap;  
 import java.util.TreeMap;  
-import java.util.stream.Collectors;  
   
 public enum Score {  
     AA(91, 100, 4.00),  
@@ -16571,10 +16643,67 @@ public enum Score {
     DD(45, 49, 1.00),  
     FF(0, 44, 0.00);  
   
-    private static final NavigableMap<Integer, Score> ms_map = new TreeMap<>();  
+    private static final NavigableMap<Integer, Score> ms_map;  
+  
+    static {
+        ms_map = new TreeMap<>();  
+        Arrays.stream(values()).forEach(s -> ms_map.put(s.minGrade, s));  
+    }  
+  
+    public final int minGrade, maxGrade;  
+    public final double successValue;  
+  
+    Score(int minGrade, int maxGrade, double successValue)  
+    {  
+        this.minGrade = minGrade;  
+        this.maxGrade = maxGrade;  
+        this.successValue = successValue;  
+    }  
+  
+    public static Score findScoreByGrade(int grade)  
+    {  
+        if (grade < 0 || grade > 100)  
+            throw new IllegalArgumentException("Grade must be between 0 and 100");  
+  
+        return ms_map.get(ms_map.floorKey(grade));  
+    }  
+  
+    public static Score findScoreByGrade(double grade)  
+    {  
+        if (grade < 0 || grade > 100)  
+            throw new IllegalArgumentException("Grade must be between 0 and 100");  
+  
+        return findScoreByGrade((int)Math.round(grade));  
+    }  
+}
+```
+
+Buradaki Score enum sınıfında TreeMap elde edilmesi aşağıdaki gibi de yapılabilir. Score enum sınıfı açısından önemli olmasa da yukarıdaki elde etme biçiminin, bazı nesnelerin yaratılmasını engellendiğinden daha efektif olduğu söylenebilir
+
+```java
+package org.csystem.util.datasource.student;  
+  
+import java.util.Arrays;  
+import java.util.NavigableMap;  
+import java.util.TreeMap;  
+  
+import static java.util.stream.Collectors.toMap;  
+  
+public enum Score {  
+    AA(91, 100, 4.00),  
+    BA(82, 90, 3.50),  
+    BB(73, 81, 3.00),  
+    CB(64, 72, 2.50),  
+    CC(55, 63, 2.00),  
+    DC(50, 54, 1.50),  
+    DD(45, 49, 1.00),  
+    FF(0, 44, 0.00);  
+  
+    private static final NavigableMap<Integer, Score> ms_map;  
   
     static {  
-        Arrays.stream(values()).forEach(s -> ms_map.put(s.minGrade, s));  
+        ms_map = Arrays.stream(values())  
+                .collect(toMap(s -> s.minGrade, s -> s, (s1, s2) -> s1, TreeMap::new));
     }  
   
     public final int minGrade, maxGrade;  
