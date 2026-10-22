@@ -11545,7 +11545,7 @@ class Application {
             Arrays.stream(staffs)  
                     .filter(s -> s.getBirthDate().isAfter(minDate))  
                     .filter(s -> s.getBirthDate().isBefore(maxDate))  
-                    .map(StaffInfo::getName)  
+                    .map(StaffInfo::getName)
                     .forEach(Console::writeLine);  
         }  
         catch (DateTimeParseException ignore) {  
@@ -16734,7 +16734,347 @@ public enum Score {
 }
 ```
 
+`Iterable` arayüzünden stream elde etmek için tipik olarak **StreamSupport** isimli utility sınıf kullanılır. Bu işlem için tipik olarak **Spliterator** parametreli **stream** metodu kullanılabilir. Metodun birinci parametresine `Iterable` arayüzünün **spliterator** metodundan elde edilen referans geçilebilir, metodun ikinci parametresi elde edilecek stream'in `parallel stream` olup olmamasına ilişkin flag parametresidir. StreamSupport sınıfının pek çok yararlı metodu vardır. `Spliterator`arayüzünün detaylarının şu aşamada önemi yoktur. `Iterable` arayüzünden stream elde edilmesi şu aşamada bir kalıp olarak düşünülebilir.
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.PersonFactory;  
+  
+import java.io.IOException;  
+import java.util.stream.Collectors;  
+import java.util.stream.StreamSupport;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var age = Double.parseDouble(args[1]);  
+  
+            var factory = PersonFactory.loadFromTextFile(args[0]);  
+            var stream = StreamSupport.stream(factory.getPeopleAsIterable().spliterator(), false);  
+            var peopleMap = stream.collect(Collectors.partitioningBy(p -> p.getAge() >= age));  
+  
+            Console.writeLine("People greater or equal than %f:", age);  
+            peopleMap.get(true).forEach(Console::writeLine);  
+  
+            Console.writeLine();  
+            Console.writeLine("People less than %f:", age);  
+            peopleMap.get(false).forEach(Console::writeLine);  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid age value!...");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.collection.CollectionUtil;  
+import org.csystem.util.datasource.factory.PersonFactory;  
+  
+import java.io.IOException;  
+import java.util.stream.Collectors;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var age = Double.parseDouble(args[1]);  
+  
+            var factory = PersonFactory.loadFromTextFile(args[0]);  
+            var peopleMap = CollectionUtil.toStream(factory.getPeopleAsIterable())  
+                    .collect(Collectors.partitioningBy(p -> p.getAge() >= age));  
+  
+            Console.writeLine("People greater or equal than %f:", age);  
+            peopleMap.get(true).forEach(Console::writeLine);  
+  
+            Console.writeLine();  
+            Console.writeLine("People less than %f:", age);  
+            peopleMap.get(false).forEach(Console::writeLine);  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid age value!...");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aslında `Stream` arayüzü **BaseStream** isimli bir arayüzden türetilmiştir. Bu arayüzün de çeşitli yararlı metotları bulunur. Arayüzün `iterator` metodu ile ilgili stream'den bir `Iterator` referansı elde edilebilir. Bu durumda bir stream'den bu metot kullanılarak `Iterable` referansı doğrudan elde edilebilir. 
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+import java.math.BigDecimal;  
+import java.util.ArrayList;  
+import java.util.stream.Collectors;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static <E> void print(Iterable<E> iterable)  
+    {  
+        iterable.forEach(Console::writeLine);  
+    }  
+  
+    private static void dataExistCallback(ProductFactory productFactory, BigDecimal threshold)  
+    {  
+        var iterator = productFactory.PRODUCTS.stream()
+		        .filter(p -> p.getTotal().compareTo(threshold) > 0) 
+                .filter(p -> p.getStock() > 0)  
+                .iterator();  
+  
+        print(() -> iterator);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var threshold = new BigDecimal(args[1]);  
+  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(pf -> dataExistCallback(pf, threshold),  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid threshold value!...");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+import java.math.BigDecimal;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static <E> void print(Iterable<E> iterable)  
+    {  
+        iterable.forEach(Console::writeLine);  
+    }  
+  
+    private static void dataExistCallback(ProductFactory productFactory, BigDecimal threshold)  
+    {  
+        var stream = productFactory.PRODUCTS.stream()  
+			    .filter(p -> p.getTotal().compareTo(threshold) > 0)
+                .filter(p -> p.getStock() > 0);  
+  
+        print(stream::iterator);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var threshold = new BigDecimal(args[1]);  
+  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(pf -> dataExistCallback(pf, threshold),  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid threshold value!...");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+import java.math.BigDecimal;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static <E> void print(Iterable<E> iterable)  
+    {  
+        iterable.forEach(Console::writeLine);  
+    }  
+  
+    private static void dataExistCallback(ProductFactory productFactory, BigDecimal threshold)  
+    {  
+        var products = productFactory.PRODUCTS;  
+          
+        print(products.stream().filter(p -> p.getStock() > 0).filter(p -> p.getTotal().compareTo(threshold) > 0)::iterator);  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var threshold = new BigDecimal(args[1]);  
+  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(pf -> dataExistCallback(pf, threshold),  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid threshold value!...");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki demo örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.collection.CollectionUtil;  
+import org.csystem.util.datasource.factory.ProductFactory;  
+  
+import java.io.IOException;  
+import java.math.BigDecimal;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    private static <E> void print(Iterable<E> iterable)  
+    {  
+        iterable.forEach(Console::writeLine);  
+    }  
+  
+    private static void dataExistCallback(ProductFactory productFactory, BigDecimal threshold)  
+    {  
+        var products = productFactory.PRODUCTS;  
+  
+        print(CollectionUtil.toIterable(products.stream().filter(p -> p.getStock() > 0).filter(p -> p.getTotal().compareTo(threshold) > 0)));  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var threshold = new BigDecimal(args[1]);  
+  
+            ProductFactory.loadFromTextFile(args[0])  
+                    .ifPresentOrElse(pf -> dataExistCallback(pf, threshold),  
+                            () -> Console.Error.writeLine("Data not exist!..."));  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid threshold value!...");  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
 
 
+**Soru:** Bir dizinin (directory) içeriğini elde edip, bu bir nesne gibi sunan `DirectoryList` isimli iterable sınıfı aşağıdaki açıklamalara göre yazınız
 
-
+**Açıklamalar:** 
+- Sınıfın bildirimi aşağıdaki gibidir
+```java
+package org.csystem.io.file;  
+  
+import java.nio.file.Path;  
+import java.util.Iterator;  
+  
+public class DirectoryList implements Iterable<Path> {  
+    public DirectoryList(Path path)  
+    {  
+        throw new UnsupportedOperationException("TODO:");  
+    }  
+  
+    public DirectoryList(String path)  
+    {  
+        throw new UnsupportedOperationException("TODO:");  
+    }  
+  
+    @Override  
+    public Iterator<Path> iterator()  
+    {  
+        throw new UnsupportedOperationException("TODO:");  
+    }  
+}
+```
+- Sınıfın public bölümünü değiştirmeden istediğiniz eklemeyi yapabilirsiniz.
+- Sınıfı aşağıdaki tüm directory listesi elde etme yöntemleri ile ayrı ayrı yazınız:
+	- `File` sınıfının `listFiles` metodu ile (Oğuz).
+	- `Files` sınıfının `walk` metodu ile.
+	- `Files` sınıfının `walkFileTree` metodu ile.

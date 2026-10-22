@@ -2,49 +2,47 @@ package org.csystem.app;
 
 import com.karandev.io.util.console.Console;
 import lombok.extern.slf4j.Slf4j;
-import org.csystem.util.datasource.factory.StudentFactory;
-import org.csystem.util.datasource.student.Score;
-import org.csystem.util.datasource.student.StudentInfo;
+import org.csystem.util.datasource.factory.ProductFactory;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.TreeMap;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;
-import static java.util.stream.Collectors.counting;
-import static java.util.stream.Collectors.groupingBy;
 
 @Slf4j
 class Application {
-    private static double calculateGrade(int midtermGrade, int finalGrade)
+    private static <E> void print(Iterable<E> iterable)
     {
-        return midtermGrade * 0.4 + finalGrade * 0.6;
+        iterable.forEach(Console::writeLine);
     }
 
-    private static Score groupingByKeyCallback(StudentInfo studentInfo)
+    private static void dataExistCallback(ProductFactory productFactory, BigDecimal threshold)
     {
-        return Score.findScoreByGrade(calculateGrade(studentInfo.getMidtermGrade(), studentInfo.getFinalGrade()));
-    }
+        var iterator = productFactory.PRODUCTS.stream()
+                .filter(p -> p.getStock() > 0)
+                .filter(p -> p.getTotal().compareTo(threshold) > 0)
+                .iterator();
 
-    private static boolean filterSuccessCallback(StudentInfo studentInfo)
-    {
-        return Score.findScoreByGrade(calculateGrade(studentInfo.getMidtermGrade(),
-                studentInfo.getFinalGrade())).ordinal() <= Score.CC.ordinal();
+        print(() -> iterator);
     }
 
     public static void run(String[] args)
     {
         try {
-            checkLengthEquals(args.length, 1, "Wrong number of arguments");
-            var factory = StudentFactory.loadFromTextFile(Path.of(args[0]));
-            var studentMap = factory.STUDENTS.stream()
-                    .filter(Application::filterSuccessCallback)
-                    .collect(groupingBy(Application::groupingByKeyCallback, TreeMap::new, counting()));
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");
+            var threshold = new BigDecimal(args[1]);
 
-            studentMap.forEach((sc, c) -> Console.writeLine("%s: %s", sc, c));
+            ProductFactory.loadFromTextFile(args[0])
+                    .ifPresentOrElse(pf -> dataExistCallback(pf, threshold),
+                            () -> Console.Error.writeLine("Data not exist!..."));
+        }
+        catch (NumberFormatException ignore) {
+            Console.Error.writeLine("Invalid threshold value!...");
         }
         catch (IOException e) {
-            Console.Error.writeLine("IO error occurred:%s", e.getMessage());
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());
         }
         catch (Exception e) {
             Console.Error.writeLine("Error occurred :%s", e.getMessage());
