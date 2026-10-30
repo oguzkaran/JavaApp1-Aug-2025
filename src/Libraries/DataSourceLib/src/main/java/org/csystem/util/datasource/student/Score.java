@@ -41,9 +41,6 @@ public enum Score {
 
     public static Score findScoreByGrade(double grade)
     {
-        if (grade < 0 || grade > 100)
-            throw new IllegalArgumentException("Grade must be between 0 and 100");
-
         return findScoreByGrade((int)Math.round(grade));
     }
 }

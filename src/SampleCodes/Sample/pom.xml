@@ -109,7 +109,7 @@
         <dependency>
             <groupId>org.csystem</groupId>
             <artifactId>org-csystem-util-datasource</artifactId>
-            <version>2.1.1</version>
+            <version>3.0.0</version>
         </dependency>
 
         <dependency>

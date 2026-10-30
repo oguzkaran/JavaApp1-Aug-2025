@@ -1,6 +1,7 @@
 package org.csystem.util.datasource.employee;
 
 import lombok.ToString;
+import org.csystem.util.datasource.people.MaritalStatus;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -14,13 +15,15 @@ public class Employee {
     private final List<String> m_emails = new ArrayList<>();
     private String m_address;
     private LocalDate m_birthDate;
+    private MaritalStatus m_maritalStatus;
 
-    public Employee(String id, String name, String address, LocalDate birthDate)
+    public Employee(String id, String name, String address, LocalDate birthDate, MaritalStatus maritalStatus)
     {
         m_id = id;
         m_name = name;
         m_address = address;
         m_birthDate = birthDate;
+        m_maritalStatus = maritalStatus;
     }
 
     public String getId()
@@ -71,6 +74,16 @@ public class Employee {
     public void setAddress(String address)
     {
         m_address = address;
+    }
+
+    public MaritalStatus getMaritalStatus()
+    {
+        return m_maritalStatus;
+    }
+
+    public void setMaritalStatus(MaritalStatus maritalStatus)
+    {
+        m_maritalStatus = maritalStatus;
     }
 
     //...

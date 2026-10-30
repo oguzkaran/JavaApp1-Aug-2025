@@ -1,6 +1,7 @@
 package org.csystem.util.datasource.factory;
 
 import org.csystem.util.datasource.employee.Employee;
+import org.csystem.util.datasource.people.MaritalStatus;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -11,8 +12,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 public class EmployeeFactory {
+    private static final MaritalStatus[] ms_status = MaritalStatus.values();
+    private static final Random m_random = new Random();
+
     public final List<Employee> EMPLOYEES = new ArrayList<>();
     private static Employee parse(String s)
     {
@@ -22,7 +27,7 @@ public class EmployeeFactory {
         var emails = infoStr[2].split(";");
         var address = infoStr[3];
         var birthDate = LocalDate.parse(infoStr[4], DateTimeFormatter.ISO_LOCAL_DATE);
-        var employee = new Employee(id, name, address, birthDate);
+        var employee = new Employee(id, name, address, birthDate, ms_status[m_random.nextInt(ms_status.length)]);
 
         employee.getEmails().addAll(Arrays.stream(emails).toList());
 

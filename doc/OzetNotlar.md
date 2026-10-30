@@ -16686,8 +16686,7 @@ package org.csystem.util.datasource.student;
 import java.util.Arrays;  
 import java.util.NavigableMap;  
 import java.util.TreeMap;  
-  
-import static java.util.stream.Collectors.toMap;  
+import java.util.stream.Collectors;  
   
 public enum Score {  
     AA(91, 100, 4.00),  
@@ -16699,11 +16698,10 @@ public enum Score {
     DD(45, 49, 1.00),  
     FF(0, 44, 0.00);  
   
-    private static final NavigableMap<Integer, Score> ms_map;  
+    private static final NavigableMap<Integer, Score> ms_map = new TreeMap<>();  
   
     static {  
-        ms_map = Arrays.stream(values())  
-                .collect(toMap(s -> s.minGrade, s -> s, (s1, s2) -> s1, TreeMap::new));
+        Arrays.stream(values()).forEach(s -> ms_map.put(s.minGrade, s));  
     }  
   
     public final int minGrade, maxGrade;  
@@ -16726,9 +16724,6 @@ public enum Score {
   
     public static Score findScoreByGrade(double grade)  
     {  
-        if (grade < 0 || grade > 100)  
-            throw new IllegalArgumentException("Grade must be between 0 and 100");  
-  
         return findScoreByGrade((int)Math.round(grade));  
     }  
 }
@@ -17197,6 +17192,143 @@ class MinMaxProductDTO {
     {  
         return "Min -> Name:%s, Total:%s%nMax -> Name:%s, Total:%s".formatted(m_min.getName(), m_min.getTotal(),  
                 m_max.getName(), m_max.getTotal());  
+    }  
+}
+```
+
+Collectors sınıfının **collectingAndThen** metodu birinci parametresi ile aldığı `Collector` ile elde edilen verilerin ikinci parametresi ile aldığı callback ile dönüştürülmüş verilerin elde edilmesi için kullanılır. Bu metot Java 9 ile eklenmiştir. 
+
+Aşağıdaki örnekte en yaşlı çalışan elde edilmiştir
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.StaffFactory;  
+import org.csystem.util.datasource.staff.StaffInfo;  
+  
+import java.io.IOException;  
+import java.util.Comparator;  
+import java.util.NoSuchElementException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+import static java.util.stream.Collectors.collectingAndThen;  
+import static java.util.stream.Collectors.maxBy;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            var factory = StaffFactory.loadFromTextFile(args[0]);  
+            var oldestStaff = factory.STAFF.stream()  
+                    .collect(collectingAndThen(maxBy(Comparator.comparingDouble(StaffInfo::getAge)),  
+                            opt -> opt.orElseThrow(NoSuchElementException::new)));  
+              
+            Console.writeLine("Oldest staff:%s, Age:%f", oldestStaff, oldestStaff.getAge());  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred:%s", e.getMessage());  
+        }  
+        catch (NoSuchElementException ignore) {  
+            Console.Error.writeLine("No staff found!...");  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Aşağıdaki örnekte çalışanların yaşları ortalaması int türüne yuvarlanmıştır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.factory.StaffFactory;  
+import org.csystem.util.datasource.staff.StaffInfo;  
+  
+import java.io.IOException;  
+import java.util.NoSuchElementException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+import static java.util.stream.Collectors.averagingDouble;  
+import static java.util.stream.Collectors.collectingAndThen;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 1, "Wrong number of arguments");  
+            var factory = StaffFactory.loadFromTextFile(args[0]);  
+            var roundedAgeAverage = factory.STAFF.stream()  
+                    .collect(collectingAndThen(averagingDouble(StaffInfo::getAge), Double::intValue));  
+  
+            Console.writeLine("Rounded age average:%d", roundedAgeAverage);  
+        }  
+        catch (IOException e) {  
+            Console.Error.writeLine("IO error occurred:%s", e.getMessage());  
+        }  
+        catch (NoSuchElementException ignore) {  
+            Console.Error.writeLine("No staff found!...");  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}
+```
+
+Collectors sınıfının **flatMapping** metodu `flatMap` metodunun Collector ile çalışan versiyonudur. Bu metot da Java 9 ile eklenmiştir.
+
+Aşağıdaki örnekte tüm çalışanlar medeni durumlarına göre gruplanmış ve her gruptaki çalışanların tüm email'ları aralarında noktalı virgül olacak şekilde birleştirilmiştir. Kısacası her bir medeni durum için tüm email'lar gruplanmıştır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.datasource.employee.Employee;  
+import org.csystem.util.datasource.factory.EmployeeFactory;  
+  
+import java.io.UncheckedIOException;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+import static java.util.stream.Collectors.*;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        try {  
+            checkLengthEquals(args.length, 2, "Wrong number of arguments");  
+            var count = Integer.parseInt(args[1]);  
+  
+            if (count < 1)  
+                throw new NumberFormatException();  
+  
+            var factory = EmployeeFactory.loadFromTextFile(args[0]);  
+  
+            var emailsMap = factory.EMPLOYEES.stream()  
+                    .limit(count)  
+                    .collect(groupingBy(Employee::getMaritalStatus, flatMapping(e -> e.getEmails().stream(), joining(";"))));  
+  
+            emailsMap.forEach((k, v) -> Console.writeLine("%s:%s", k, v));  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid count value!...");  
+        }  
+        catch (UncheckedIOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
     }  
 }
 ```
