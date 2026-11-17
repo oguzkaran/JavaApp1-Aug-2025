@@ -17332,4 +17332,40 @@ class Application {
     }  
 }
 ```
+##### Birlikte Çalışan Kodlar
+
+Birlikte çalışan kodları betimlemek için pek çok terim kullanılmaktadır. Bunların arasında bağlam (context) bakımından bazı farklılıklar bulunmaktadır. Bu terimlerin ve kavramların anlamları aşağıdaki gibi özetlenebilir:
+
+**Concurrent Computing/Programming (Birden fazla akış ile çalışma):** Bu terim aslında en genel olanlardandır. Birden fazla akışın kullanılarak bir işin gerçekleştirilmesini anlatır. Örneğin, çok thread’li uygulamalar tipik olarak concurrent programming kavramı içerisinde değerlendirilebilir. Benzer biçimde parallel programlama da, dağıtık programlamlama da bir concurrent programming faaliyetidir.
+
+**Distributed Computing/Programming (Dağıtık Programlama):** Bu terim ve anlattığı kavram işlerin birden fazla bilgisayara dağıtılarak birlikte gerçekleştirilmesi anlamına gelir. Terimin odaklandığı nokta söz konusu işlerin aynı makinede değil de bir ağdaki makinelerde koordineli olarak yürütülmesi sürecidir. Bugün dağıtık uygulamalar çok yaygınlaşmıştır. Şüphesiz dağıtık uygulamalar birtakım protokolleri kullanarak process'ler arası haberleşme yöntemleriyle koordinasyonu sağlamaktadır. Tipik olarak `IP protocol` ailesi tercih edilmektedir. Ancak dağıtık uygulamalar için daha yüksek seviyeli bir takım ortamlar (framework) ve kütüphaneler vardır. (Örneğin .NET’de WCF, Java’da RMI (Remote Method Invocation) vs.) Dağıtık uygulamalar ayrı bir kategori olduğundan burada ele alınmayacaktır.
+
+**Multithreaded Computing/Programming (Çok thread'li programlama):** Bu terim aynı makinede işlerin birlikte birden fazla `thread` oluşturarak gerçekleştirilmesi anlamına gelir. Şüphesiz bu terim de aslında bir concurrent programming şemsiyesi altında düşünülebilir.
+
+**Parallel Computing/Programming:** Bu terim bir işi aynı makinede thread’lere ayırarak ve onları farklı CPU ya da çekirdeklere atayarak (assign) `aynı anda` çalıştırma gayretini anlatmaktadır. Dolayısıyla burada toplamda hızlı bir işlemin yapılması hedeflenir. Şüphesiz tek CPU ya da tek çekirdekli sistemlerde parallel programlama yapılamaz. Öncelikle parallel programlama için söz konusu sistemde birden fazla CPU ve/veya çekirdek bulunması gerekir. Hatta parallel programlama faaliyetinde bir süredir grafik kartlarındaki işlemcilerden de faydalanılabilmektedir.
+###### Process ve Thread Kavramları
+
+Program terimi uygulamanın genel olarak çalışabilir veya çalıştırılabilir dosyasına verilen isimdir. İşletim sistemi düzeyinde çalışan programa **process** denir. Modern sistemlerde process'ler biraz ondan biraz bundan tekniğiyle çalıştırır. Process'lerin (aslında thread'lerin) işletim sistemi tarafından CPU ya da çekirdekler üzerinde çalıştırılmasına **çizelgeleme (scheduling)** denilmektedir. Thread aslında process'lerin ayrı akışlarını belirtir.
+
+Tipik olarak işletim sistemi bir thread'i bir CPU ya da çekirdeğe atar (assign). O thread belirli bir süre çalıştırılır. Sonra işletim sistemi o thread'i durdurur (bloke eder/blocking). CPU ya da çekirdeğe diğer thread'i atar. Bir thread'in CPU ya da çekirdeğe atandığında parçalı çalışma süresine **quantum time** denir. Bu sürenin çok uzun olması interaktiviteyi azaltır (convoy effect). Bu sürenin çok kısa olması da birim zamanda yapılan işi (throughput) azaltır. Thread'ler arası geçiş (context switch) de maliyetli bir işlemdir. Bir process'in (aslında thread'in) state'leri aşağıdaki gibidir:
+
+![ThreadStates](./media/ThreadStates.png)
+
+
+Çok thread'li işletim sistemlerinde process çalışmaya bir thread ile başlar. Buna **main/primary thread** denir. Diğer thread'ler işletim sisteminin sistem fonksiyonları (örneğin Windows API fonksiyonları, Unix/Linux sistemlerinde POSIX fonksiyonları) kullanılarak yaratılır. 
+
+Java'da thread işlemleri işletim sisteminden bağımsız olarak implemente edilmiştir. JavaSE'de thread işlemleri genel olarak aşağıdaki biçimlerde yapılabilmektedir:
+- Thread sınıfından türetme yaparak.
+- Runnable arayüzünü implemente ederek.
+- Executors kullanarak.
+- Virtual Thread'ler ile (Java 21 ile eklendi)
+
+Neden thread kullanalım? Bu sorunun cevabı domain'e göre değişiklik gösterebilse de genel olarak şu maddelerle özetlenebilir:
+   - Thread'ler arka plan olayları izlemek için idealdir. Örneğin programcı hem bir işi yapıp hem de ekranın sağ üst köşesinde o anki tarih-zaman bilgisini saniyeler mertebesinde göstermek isteyebilir. Bu durumda pencerenin işlemleri devam ederken aynı zamanda başka bir thread de sistemden o anki tarih-zaman bilgisini alarak pencerenin sağ üst köşesinde gösterebilir. Bu durumda pencerenin ana akışı devam ederken tarih-zamana ilişkin işlemde asenkron olarak yapılmış olur. Bu anlamda thread'ler Graphical User Interface (GUI) uygulamalarında genel olarak gerekmektedir.
+
+   - Thread'ler bir programı hızlandırmak için kullanılabilir. Programcı çok thread kullanarak daha fazla CPU zamanı elde edebilir.
+
+   - Thread'ler blokeli IO işlemlerinde yoğun olarak kullanılmaktadır. Yani bir IO işlemi başlatıldığında belli bir süre bloke oluşabilir. Bu durumda diğer işlemlerin de yapılabilmesi için bloke akışın diğer akışlardan ayrılması yani başka bir thread'de yapılması gerekir.
+
+   - Thread'ler paralel programlamada (parallel computig/programming) mecburen kullanılmaktadır.
 
