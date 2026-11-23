@@ -29,6 +29,9 @@ class Application {
     public static void run(String[] args)
     {
         try {
+            var self = Thread.currentThread();
+
+            Console.writeLine("'%s' thread is %s", self.getName(), self.isDaemon() ? "daemon" : "non-daemon");
             checkLengthEquals(args.length, 5, "Wrong number of arguments");
             var numberOfFiles = Integer.parseInt(args[1]);
             var count = Long.parseLong(args[2]);
@@ -81,6 +84,7 @@ class TextGeneratorThread extends Thread {
     @Override
     public void run()
     {
+        Console.writeLine("'%s' thread is %s", getName(), isDaemon() ? "daemon" : "non-daemon");
         try (var bw = Files.newBufferedWriter(Path.of(m_path), StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
             LongStream.rangeClosed(0, m_count)
                     .forEach(i -> generateCallback(bw));
