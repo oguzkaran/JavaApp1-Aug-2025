@@ -17571,3 +17571,451 @@ class TextGeneratorThread extends Thread {
 
 Bir thread başka bir thread yarattığında hangi thread'in önce çizelmeye gireceği o anki duruma bağlıdır. Yani hangisinin önce çizelgelemeye gireceği belirsizdir. (Hatta ayrı CPU ya da çekirdekte olurlarsa gerçekten aynı anda da çizelgelemeye girebilirler). Yukarıdaki örneği çeşitli değerler ile çalıştırarak sonuçları gözlemleyiniz. **Thread'lerin stack alanları birbirinden farklıdır ancak heap alanı ortaktır.** Dolayısıyla aynı nesne üzerinde birden fazla thread'in işlem yapması durumunda bir takım problemler (aslında dikkate alınması gereken durumlar) söz konusu olabilmektedir. Bu problemlere tipik olarak senkronizasyon problemleri denir. Senkronizasyon problemlerine ilişkin detaylar ileride ele alınacaktır. Yukarıdaki örnekte programcı tarafından yaratılan her bir thread'in `bw` referans değişkeni ayrı stack alanlarında yaratılır.
 
+JavaSE'de Runnable arayüzünü implemente ederek de thread oluşturulabilir. Bu durumda Thread sınıfının Runnable parametreli ctor'ları kullanılır.
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.string.StringUtil;  
+  
+import java.io.BufferedWriter;  
+import java.io.IOException;  
+import java.io.UncheckedIOException;  
+import java.nio.file.Files;  
+import java.nio.file.Path;  
+import java.nio.file.StandardOpenOption;  
+import java.util.Random;  
+import java.util.random.RandomGenerator;  
+import java.util.stream.IntStream;  
+import java.util.stream.LongStream;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void createThreadCallback(int i, String pathBase, long count, int min, int max)  
+    {  
+        var tg = new TextGenerator("%s-%d".formatted(pathBase, i + 1), new Random(), count, min, max);  
+        var t = new Thread(tg);  
+  
+        t.start();  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            var self = Thread.currentThread();  
+  
+            Console.writeLine("'%s' thread is %s", self.getName(), self.isDaemon() ? "daemon" : "non-daemon");  
+            checkLengthEquals(args.length, 5, "Wrong number of arguments");  
+            var numberOfFiles = Integer.parseInt(args[1]);  
+            var count = Long.parseLong(args[2]);  
+            var min = Integer.parseInt(args[3]);  
+            var max = Integer.parseInt(args[4]);  
+  
+            IntStream.range(0, numberOfFiles)  
+                    .forEach(i -> createThreadCallback(i, args[0], count, min, max));  
+  
+            Console.writeLine("run ends!...");  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid values!...");  
+        }  
+        catch (UncheckedIOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}  
+  
+class TextGenerator implements Runnable {  
+    private final String m_path;  
+    private final RandomGenerator m_randomGenerator;  
+    private final long m_count;  
+    private final int m_min;  
+    private final int m_max;  
+  
+    private void generateCallback(BufferedWriter bw)  
+    {  
+        try {  
+            bw.write("%s\r\n".formatted(StringUtil.randomTextTR(m_randomGenerator, m_randomGenerator.nextInt(m_min, m_max + 1))));  
+        }  
+        catch (IOException e) {  
+            throw new UncheckedIOException(e);  
+        }  
+    }  
+  
+    public TextGenerator(String path, RandomGenerator randomGenerator, long count, int min, int max)  
+    {  
+        m_path = path;  
+        m_randomGenerator = randomGenerator;  
+        m_count = count;  
+        m_min = min;  
+        m_max = max;  
+    }  
+  
+    @Override  
+    public void run()  
+    {  
+        var self = Thread.currentThread();  
+        Console.writeLine("'%s' thread is %s", self.getName(), self.isDaemon() ? "daemon" : "non-daemon");  
+        try (var bw = Files.newBufferedWriter(Path.of(m_path), StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {  
+            LongStream.rangeClosed(0, m_count)  
+                    .forEach(i -> generateCallback(bw));  
+        }  
+        catch (IOException e) {  
+            throw new UncheckedIOException(e.getMessage(), e);  
+        }  
+    }  
+}
+```
+
+
+Thread sınıfının **sleep** static metodu parametresi ile aldığı milisaniye değeri boyunca thread'i bloke eder. Bu metot belirli koşullar altında **InterruptedException** isimli checked bir exception fırlatır. 
+
+Aşağıdaki örneği inceleyiniz. Şüphesiz aşağıdaki örnek Timer sınıfı (ya da benzeri) kullanılarak da yapılabilir. Örnek durumu göstermek için aşağıdaki gibi yazılmıştır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.time.LocalDateTime;  
+import java.time.format.DateTimeFormatter;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");  
+  
+        try {  
+            while (true) {  
+                var now = LocalDateTime.now();  
+  
+                Console.write("\r%s", formatter.format(now));  
+  
+                Thread.sleep(1000);  
+            }  
+        }  
+        catch (InterruptedException ignore) {  
+            Console.Error.writeLine("Unreachable code for that special app!...");  
+        }  
+    }  
+}
+```
+
+Benzer şekilde TimeUnit sınıfının **sleep** metodu da aldığı süre değeri boyunca thread'i bloke eder. Bu metot da belirli koşullar altında **InterruptedException** isimli checked bir exception fırlatır. 
+
+Aşağıdaki örneği inceleyiniz. Şüphesiz aşağıdaki örnek Timer sınıfı (ya da benzeri) kullanılarak da yapılabilir. Örnek durumu göstermek için aşağıdaki gibi yazılmıştır
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+  
+import java.time.LocalDateTime;  
+import java.time.format.DateTimeFormatter;  
+import java.util.concurrent.TimeUnit;  
+  
+@Slf4j  
+class Application {  
+    public static void run(String[] args)  
+    {  
+        var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");  
+  
+        try {  
+            while (true) {  
+                var now = LocalDateTime.now();  
+  
+                Console.write("\r%s", formatter.format(now));  
+  
+                TimeUnit.SECONDS.sleep(1);  
+            }  
+        }  
+        catch (InterruptedException ignore) {  
+            Console.Error.writeLine("Unreachable code for that special app!...");  
+        }  
+    }  
+}
+```
+
+InterruptedException'a ilişkin detaylar ileride ele alınacaktır. 
+
+Bir thread non-daemon veya daemon olarak yaratılabilir. Bu özellik default olarak o thread'i yaratan thread'den alınır. Yani thread'i yaratan thread non-daemon ise thread non-daemon olur. main/primary thread non-daemon'dır. Non-daemon thread'lere **foreground thread**, daemon thread'lere ise **background thread** de denilmektedir. Thread'in daemon özelliği **setDaemon** metodu ile start edilmeden önce belirlenebilir. Bir thread'in daemon özelliği thread start edildikten sonra değiştirilmeye çalışılırsa exception oluşur.
+
+**Non-daemon ve daemon thread'leri anlamak için en basit cümle şudur: Bir process içerisinde son non-daemon thread de sonlandığında tüm deamon thread'ler sonlanır**. Programcı bu basit cümleyi düşünerek bir thread'in daemon veya non-daemon olup olmayacağına domain'e göre karar verir.
+
+Aşağıdaki örnekte main thread içerisinde yaratılan her thread daemon'dır. Örnekte main thread sonlandığında, process içerisinde hiç non-daemon thread kalmadığından diğer daemon thread'ler de sonlandırılır. Bu durumda process sonlanmış olur
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.string.StringUtil;  
+  
+import java.io.BufferedWriter;  
+import java.io.IOException;  
+import java.io.UncheckedIOException;  
+import java.nio.file.Files;  
+import java.nio.file.Path;  
+import java.nio.file.StandardOpenOption;  
+import java.util.Random;  
+import java.util.random.RandomGenerator;  
+import java.util.stream.IntStream;  
+import java.util.stream.LongStream;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void createThreadCallback(int i, String pathBase, long count, int min, int max)  
+    {  
+        var tg = new TextGenerator("%s-%d".formatted(pathBase, i + 1), new Random(), count, min, max);  
+        var t = new Thread(tg);  
+  
+        t.setDaemon(true);  
+        t.start();  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            var self = Thread.currentThread();  
+  
+            Console.writeLine("'%s' thread is %s", self.getName(), self.isDaemon() ? "daemon" : "non-daemon");  
+            checkLengthEquals(args.length, 5, "Wrong number of arguments");  
+            var numberOfFiles = Integer.parseInt(args[1]);  
+            var count = Long.parseLong(args[2]);  
+            var min = Integer.parseInt(args[3]);  
+            var max = Integer.parseInt(args[4]);  
+  
+            IntStream.range(0, numberOfFiles)  
+                    .forEach(i -> createThreadCallback(i, args[0], count, min, max));  
+  
+            Console.writeLine("run ends!...");  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid values!...");  
+        }  
+        catch (UncheckedIOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}  
+  
+class TextGenerator implements Runnable {  
+    private final String m_path;  
+    private final RandomGenerator m_randomGenerator;  
+    private final long m_count;  
+    private final int m_min;  
+    private final int m_max;  
+  
+    private void generateCallback(BufferedWriter bw)  
+    {  
+        try {  
+            bw.write("%s\r\n".formatted(StringUtil.randomTextTR(m_randomGenerator, m_randomGenerator.nextInt(m_min, m_max + 1))));  
+        }  
+        catch (IOException e) {  
+            throw new UncheckedIOException(e);  
+        }  
+    }  
+  
+    public TextGenerator(String path, RandomGenerator randomGenerator, long count, int min, int max)  
+    {  
+        m_path = path;  
+        m_randomGenerator = randomGenerator;  
+        m_count = count;  
+        m_min = min;  
+        m_max = max;  
+    }  
+  
+    @Override  
+    public void run()  
+    {  
+        var self = Thread.currentThread();  
+        Console.writeLine("'%s' thread is %s", self.getName(), self.isDaemon() ? "daemon" : "non-daemon");  
+        try (var bw = Files.newBufferedWriter(Path.of(m_path), StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {  
+            LongStream.rangeClosed(0, m_count)  
+                    .forEach(i -> generateCallback(bw));  
+        }  
+        catch (IOException e) {  
+            throw new UncheckedIOException(e.getMessage(), e);  
+        }  
+    }  
+}
+```
+
+
+Timer sınıfının ilgili ctor'u ile Timer'ın da daemon özelliği belirlenebilir.
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.thread.ThreadUtil;  
+  
+import java.time.LocalDateTime;  
+import java.time.format.DateTimeFormatter;  
+import java.util.Timer;  
+import java.util.TimerTask;  
+  
+@Slf4j  
+class Application {  
+  
+    private static TimerTask clockTask()  
+    {  
+        var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");  
+  
+        return new TimerTask() {  
+            @Override  
+            public void run()  
+            {  
+                var now = LocalDateTime.now();  
+  
+                Console.write("\r%s", formatter.format(now));  
+            }  
+        };  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        var timer = new Timer(true);  
+  
+        timer.scheduleAtFixedRate(clockTask(), 0, 1000);  
+  
+        ThreadUtil.sleep(5000);  
+    }  
+}
+```
+
+Thread'in daemon özelliğinin thread yaratıldıktan sonra değiştirilmesi durumunda exception oluşur. 
+
+**Anahtar Notlar:** Bir exception fırlatılır ve yakalanmazsa, exception'ın fırlatıldığı thread abnormal bir biçimde sonlanır.
+
+Aşağıdaki örneği inceleyiniz
+
+```java
+package org.csystem.app;  
+  
+import com.karandev.io.util.console.Console;  
+import lombok.extern.slf4j.Slf4j;  
+import org.csystem.util.string.StringUtil;  
+import org.csystem.util.thread.ThreadUtil;  
+  
+import java.io.BufferedWriter;  
+import java.io.IOException;  
+import java.io.UncheckedIOException;  
+import java.nio.file.Files;  
+import java.nio.file.Path;  
+import java.nio.file.StandardOpenOption;  
+import java.util.Random;  
+import java.util.random.RandomGenerator;  
+import java.util.stream.IntStream;  
+import java.util.stream.LongStream;  
+  
+import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;  
+  
+@Slf4j  
+class Application {  
+    public static void createThreadCallback(int i, String pathBase, long count, int min, int max)  
+    {  
+        var tg = new TextGenerator("%s-%d".formatted(pathBase, i + 1), new Random(), count, min, max);  
+        var t = new Thread(tg);  
+  
+        //t.setDaemon(true);  
+        t.start();  
+    }  
+  
+    public static void run(String[] args)  
+    {  
+        try {  
+            var self = Thread.currentThread();  
+  
+            Console.writeLine("'%s' thread is %s", self.getName(), self.isDaemon() ? "daemon" : "non-daemon");  
+            checkLengthEquals(args.length, 5, "Wrong number of arguments");  
+            var numberOfFiles = Integer.parseInt(args[1]);  
+            var count = Long.parseLong(args[2]);  
+            var min = Integer.parseInt(args[3]);  
+            var max = Integer.parseInt(args[4]);  
+  
+            IntStream.range(0, numberOfFiles)  
+                    .forEach(i -> createThreadCallback(i, args[0], count, min, max));  
+  
+            ThreadUtil.sleep(10000);  
+  
+            Console.writeLine("run ends!...");  
+        }  
+        catch (NumberFormatException ignore) {  
+            Console.Error.writeLine("Invalid values!...");  
+        }  
+        catch (UncheckedIOException e) {  
+            Console.Error.writeLine("IO Error occurred :%s", e.getMessage());  
+        }  
+        catch (Exception e) {  
+            Console.Error.writeLine("Error occurred :%s", e.getMessage());  
+        }  
+    }  
+}  
+  
+class TextGenerator implements Runnable {  
+    private final String m_path;  
+    private final RandomGenerator m_randomGenerator;  
+    private final long m_count;  
+    private final int m_min;  
+    private final int m_max;  
+  
+    private void generateCallback(BufferedWriter bw)  
+    {  
+        try {  
+            bw.write("%s\r\n".formatted(StringUtil.randomTextTR(m_randomGenerator, m_randomGenerator.nextInt(m_min, m_max + 1))));  
+        }  
+        catch (IOException e) {  
+            throw new UncheckedIOException(e);  
+        }  
+    }  
+  
+    public TextGenerator(String path, RandomGenerator randomGenerator, long count, int min, int max)  
+    {  
+        m_path = path;  
+        m_randomGenerator = randomGenerator;  
+        m_count = count;  
+        m_min = min;  
+        m_max = max;  
+    }  
+  
+    @Override  
+    public void run()  
+    {  
+        var self = Thread.currentThread();  
+  
+        self.setDaemon(true);  
+        Console.writeLine("'%s' thread is %s", self.getName(), self.isDaemon() ? "daemon" : "non-daemon");  
+        try (var bw = Files.newBufferedWriter(Path.of(m_path), StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {  
+            LongStream.rangeClosed(0, m_count)  
+                    .forEach(i -> generateCallback(bw));  
+        }  
+        catch (IOException e) {  
+            throw new UncheckedIOException(e.getMessage(), e);  
+        }  
+    }  
+}
+```
+
+
+

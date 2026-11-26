@@ -3,6 +3,7 @@ package org.csystem.app;
 import com.karandev.io.util.console.Console;
 import lombok.extern.slf4j.Slf4j;
 import org.csystem.util.string.StringUtil;
+import org.csystem.util.thread.ThreadUtil;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -21,9 +22,11 @@ import static com.karandev.io.util.console.CommandLineArgs.checkLengthEquals;
 class Application {
     public static void createThreadCallback(int i, String pathBase, long count, int min, int max)
     {
-        var tg = new TextGeneratorThread("%s-%d".formatted(pathBase, i + 1), new Random(), count, min, max);
+        var tg = new TextGenerator("%s-%d".formatted(pathBase, i + 1), new Random(), count, min, max);
+        var t = new Thread(tg);
 
-        tg.start();
+        //t.setDaemon(true);
+        t.start();
     }
 
     public static void run(String[] args)
@@ -41,6 +44,8 @@ class Application {
             IntStream.range(0, numberOfFiles)
                     .forEach(i -> createThreadCallback(i, args[0], count, min, max));
 
+            ThreadUtil.sleep(10000);
+
             Console.writeLine("run ends!...");
         }
         catch (NumberFormatException ignore) {
@@ -55,7 +60,7 @@ class Application {
     }
 }
 
-class TextGeneratorThread extends Thread {
+class TextGenerator implements Runnable {
     private final String m_path;
     private final RandomGenerator m_randomGenerator;
     private final long m_count;
@@ -72,7 +77,7 @@ class TextGeneratorThread extends Thread {
         }
     }
 
-    public TextGeneratorThread(String path, RandomGenerator randomGenerator, long count, int min, int max)
+    public TextGenerator(String path, RandomGenerator randomGenerator, long count, int min, int max)
     {
         m_path = path;
         m_randomGenerator = randomGenerator;
@@ -84,7 +89,10 @@ class TextGeneratorThread extends Thread {
     @Override
     public void run()
     {
-        Console.writeLine("'%s' thread is %s", getName(), isDaemon() ? "daemon" : "non-daemon");
+        var self = Thread.currentThread();
+
+        self.setDaemon(true);
+        Console.writeLine("'%s' thread is %s", self.getName(), self.isDaemon() ? "daemon" : "non-daemon");
         try (var bw = Files.newBufferedWriter(Path.of(m_path), StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
             LongStream.rangeClosed(0, m_count)
                     .forEach(i -> generateCallback(bw));
